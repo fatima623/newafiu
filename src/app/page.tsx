@@ -4,7 +4,7 @@ import HeroSlider from '@/components/ui/HeroSlider';
 import ServiceCard from '@/components/ui/ServiceCard';
 import FacultyCard from '@/components/ui/FacultyCard';
 import NewsCard from '@/components/ui/NewsCard';
-import { heroSlides, services, faculty, newsEvents, statistics } from '@/data/siteData';
+import { heroSlides, services, faculty, newsEvents, statistics, commandant } from '@/data/siteData';
 
 export default function Home() {
   return (
@@ -13,25 +13,68 @@ export default function Home() {
       <HeroSlider slides={heroSlides} />
 
       {/* Welcome Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-bold text-gray-800 mb-6">
-              Welcome to Armed Forces Institute of Urology
-            </h2>
-            <p className="text-lg text-gray-600 mb-4">
-              At Armed Forces Institute of Urology (AFIU), Rawalpindi, we strive to provide the best possible healthcare to our patients. We endeavor to reach the highest level of skills and professionalism required for patients' satisfaction as well as service excellence.
-            </p>
-            <p className="text-lg text-gray-600 mb-8">
-              The Institute is committed to comply with all the requirements of quality, environment, health & safety and all applicable standards. Thank you for selecting AFIU. It is our honour and privilege to take care of you and your loved ones.
-            </p>
-            <Link
-              href="/about/mission"
-              className="inline-flex items-center gap-2 bg-blue-950 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Learn More About Us
-              <ArrowRight size={20} />
-            </Link>
+          <div className="max-w-7xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-12 fade-in-up">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6 leading-tight">
+                {commandant.welcomeMessage.title}
+              </h2>
+            </div>
+            
+            {/* Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+              {/* Commandant Section */}
+              <div className="lg:col-span-1 fade-in-up">
+                <div className="flex flex-col items-start text-left">
+                  {/* Commandant Photo */}
+                  <div className="w-48 h-56 overflow-hidden mb-6 shadow-lg rounded-lg">
+                    <img 
+                      src={commandant.image} 
+                      alt={commandant.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  
+                  {/* Commandant Details */}
+                  <div className="space-y-2 text-left">
+                    <div className="text-sm text-gray-500 italic">(Professor)</div>
+                    <h3 className="text-xl font-bold text-gray-800 signature-font leading-tight">
+                      Haroon Sabir Khan
+                    </h3>
+                    <div className="text-sm text-gray-600 space-y-1 leading-tight">
+                      <div>MBBS, FCPS (Surgery), FCPS (Urology),</div>
+                      <div>FEBU (Europe), MHPE (RIU),</div>
+                    </div>
+                    <div className="text-sm font-medium text-blue-950 mt-3 space-y-1 leading-tight">
+                      <div>Consultant Urologist & Transplant Surgeon</div>
+                      <div>Advisor to DG Surgery in Urology</div>
+                      <div>Commandant AFIU</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Main Content */}
+              <div className="lg:col-span-2 space-y-6 fade-in-right">
+                <p className="text-lg text-gray-700 leading-relaxed">
+                  {commandant.welcomeMessage.description}
+                </p>
+                <p className="text-lg text-gray-700 leading-relaxed font-medium">
+                  {commandant.welcomeMessage.closingMessage}
+                </p>
+                <div className="pt-4">
+                  <Link
+                    href="/about/mission"
+                    className="inline-flex items-center gap-2 bg-blue-950 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Learn More About Us
+                    <ArrowRight size={20} />
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -190,7 +233,7 @@ export default function Home() {
               href="/hospital-visit/booking"
               className="inline-block bg-white text-blue-950 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-colors"
             >
-              Request Appointment
+              Book Appointment
             </Link>
           </div>
         </div>

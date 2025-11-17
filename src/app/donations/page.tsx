@@ -57,7 +57,7 @@ export default function DonationsPage() {
                 <p className="mt-6"><strong>Contact Us:</strong></p>
                 <p>For more information about donations, please contact us at:</p>
                 <p>Email: donations@afiu.org.pk</p>
-                <p>Phone: +92 51 9270076</p>
+                <p>Phone: +92 51 5562331</p>
               </div>
             </div>
 

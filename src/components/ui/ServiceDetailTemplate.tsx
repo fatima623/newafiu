@@ -93,7 +93,7 @@ export default function ServiceDetailTemplate({
                       <Phone size={20} className="text-blue-950 mt-1" />
                       <div>
                         <p className="font-semibold text-gray-800">Phone</p>
-                        <p className="text-gray-600">+92 51 9270076</p>
+                        <p className="text-gray-600">+92 51 5562331</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">

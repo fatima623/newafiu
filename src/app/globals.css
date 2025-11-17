@@ -81,3 +81,50 @@ html {
 .slide-in {
   animation: slideIn 0.6s ease-out;
 }
+
+/* Signature Font for Commandant Name */
+.signature-font {
+  font-family: 'Dancing Script', 'Brush Script MT', cursive;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Welcome Section Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.fade-in-right {
+  animation: fadeInRight 0.8s ease-out 0.2s both;
+}
+
+/* Commandant card hover effect */
+.commandant-card:hover {
+  transform: translateY(-5px);
+  transition: transform 0.3s ease;
+}
+
+/* Import Google Font for signature style */
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');

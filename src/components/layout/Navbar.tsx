@@ -43,42 +43,45 @@ export default function Navbar() {
 
   return (
     <nav className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-lg' : 'bg-white'}`}>
-      <div className="container mx-auto px-4">
-        {/* First Line: Logo and Appointment Button */}
-        <div className="flex justify-between items-center py-4 border-b border-gray-200">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-            <img 
-              src="/afiulogo.jpg" 
-              alt="AFIU Logo" 
-              className="w-16 h-16 object-contain"
-            />
-            <div className="hidden md:block">
-              <h1 className="text-xl font-bold text-blue-950">AFIU</h1>
-              <p className="text-xs text-gray-600">Armed Forces Institute of Urology</p>
-            </div>
-          </Link>
-
-          {/* Appointment Button & Mobile Menu */}
-          <div className="flex items-center gap-4">
-            <Link
-              href="/hospital-visit/booking"
-              className="hidden sm:inline-flex items-center gap-2 bg-blue-950 hover:bg-blue-800 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors"
-            >
-              <Calendar size={18} />
-              Appointment
+      <div className="bg-blue-950 text-white border-b border-blue-800">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center py-4">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-3">
+              <img 
+                src="/afiulogo.png" 
+                alt="AFIU Logo" 
+                className="w-24 h-24 object-contain"
+              />
+              <div className="hidden md:block">
+                <h1 className="text-xl font-bold text-white">AFIU</h1>
+                <p className="text-xs text-blue-100">Armed Forces Institute of Urology</p>
+              </div>
             </Link>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 hover:bg-blue-50 rounded-lg transition-colors"
-            >
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            {/* Appointment Button & Mobile Menu */}
+            <div className="flex items-center gap-4">
+              <Link
+                href="/hospital-visit/booking"
+                className="hidden sm:inline-flex items-center gap-2 bg-white text-blue-950 hover:bg-blue-100 px-6 py-2.5 rounded-lg font-semibold transition-colors"
+              >
+                <Calendar size={18} className="text-blue-950" />
+                Appointment
+              </Link>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="lg:hidden p-2 text-white hover:bg-blue-900 rounded-lg transition-colors"
+              >
+                {isOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
         </div>
+      </div>
 
+      <div className="container mx-auto px-4">
         {/* Second Line: Desktop Navigation Menu */}
         <div className="hidden lg:block">
           <div className="flex flex-wrap items-center justify-start gap-x-4 gap-y-1 py-3">

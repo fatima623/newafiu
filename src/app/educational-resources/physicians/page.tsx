@@ -30,7 +30,7 @@ export default function PhysiciansPage() {
               <div className="bg-blue-50 p-6 rounded-lg">
                 <h3 className="text-xl font-bold text-gray-800 mb-3">Contact Information</h3>
                 <ul className="space-y-2 text-gray-600">
-                  <li>• Phone: +92 51 9270076</li>
+                  <li>• Phone:+92 51 5562331 </li>
                   <li>• Email: referrals@afiu.org.pk</li>
                   <li>• Fax: +92 51 9270078</li>
                   <li>• Hours: Mon-Fri 8AM-4PM</li>

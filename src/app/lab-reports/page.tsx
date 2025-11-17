@@ -77,7 +77,7 @@ export default function LabReportsPage() {
                 If you're having trouble accessing your reports or have forgotten your password, please contact our laboratory:
               </p>
               <ul className="space-y-2 text-gray-600">
-                <li>• Phone: +92 51 9270076 (Ext: 123)</li>
+                <li>• Phone: +92 51 5562331 (Ext: 123)</li>
                 <li>• Email: lab@afiu.org.pk</li>
                 <li>• Timings: Monday - Saturday, 8:00 AM - 4:00 PM</li>
               </ul>

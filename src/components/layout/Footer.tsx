@@ -13,7 +13,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <img
-                src="/afiulogo.jpg"
+                src="/afiulogo.png"
                 alt="AFIU Logo"
                 className="w-12 h-12 object-contain bg-white rounded-lg p-1"
               />

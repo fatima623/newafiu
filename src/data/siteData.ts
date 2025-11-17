@@ -83,7 +83,7 @@ export const heroSlides: HeroSlide[] = [
     id: '1',
     image: '/afiubuilding.jpg',
     title: 'Excellence in Urological Care',
-    subtitle: 'Armed Forces Institute of Urology - Leading the way in advanced urological treatments',
+    subtitle: 'Armed Forces Institute of Urology (AFIU) Rawalpindi - Care with Compassion',
     cta: {
       text: 'Book Appointment',
       link: '/hospital-visit/booking',
@@ -294,9 +294,9 @@ export const publications: Publication[] = [
 
 export const contactInfo: ContactInfo = {
   address: 'Armed Forces Institute of Urology, CMH Medical Complex, Rawalpindi - Pakistan 46000',
-  phone: '+92 51 9270076',
-  appointmentPhone: '+92 51 9270077',
-  email: 'info@afiu.org.pk',
+  phone: '+92 51 5562331',
+  appointmentPhone: '+92 51 5562331',
+  email: 'afiu@outlook.com',
   appointmentEmail: 'appointments@afiu.org.pk',
   timings: 'Monday - Friday: 8:00 AM - 4:00 PM | Saturday: 8:00 AM - 12:00 PM',
 };
@@ -307,3 +307,15 @@ export const statistics = [
   { label: 'Expert Doctors', value: '20+' },
   { label: 'Happy Patients', value: '50,000+' },
 ];
+
+export const commandant = {
+  name: 'Professor Haroon Sabir Khan',
+  designation: 'Consultant Urologist & Transplant Surgeon, Advisor to DG Surgery in Urology, Commandant AFIU',
+  credentials: ['MBBS', 'FCPS (Surgery)', 'FCPS (Urology)', 'FEBU (Europe)', 'MHPE (RIU)'],
+  image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop',
+  welcomeMessage: {
+    title: 'Welcome to Armed Forces Institute of Urology (AFIU)',
+    description: 'At Armed Forces Institute of Urology (AFIU) Rawalpindi, we are dedicated to providing world – class healthcare with compassion, innovation and integrity. As a leading medical institution, we combine advanced medical technology, expert professionals and patient – centered care to ensure the highest standards of treatment and comfort for every individual who walks through our doors. Our mission is to promote health, healing and hope by offering comprehensive surgical and diagnostic services with modern facilities and highly – qualified staff. All department of this institute undertake the responsibility to understand and implement these standards. (ISO 9001:2015).',
+    closingMessage: 'Thank you for selecting AFIU. It is our honour and privilege to take care of you and your loved ones.',
+  },
+};
