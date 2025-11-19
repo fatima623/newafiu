@@ -4,10 +4,10 @@ export default function MissionPage() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-950 to-blue-800 text-white py-20">
+      <section className="bg-gradient-to-b from-[#051238] to-[#2A7B9B] text-white py-10">
         <div className="container mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">Mission Statement</h1>
-          <p className="text-xl text-blue-100">
+          <h1 className="text-4xl font-bold mb-4">Mission Statement</h1>
+          <p className="text-lg text-white">
             Our Commitment to Excellence in Urological Care
           </p>
         </div>
@@ -16,11 +16,16 @@ export default function MissionPage() {
       {/* Mission Content */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-blue-50 p-8 rounded-lg mb-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="p-8 rounded-lg mb-12">
               <h2 className="text-3xl font-bold text-blue-950 mb-4">Our Mission</h2>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                To provide world-class urological care through excellence in clinical services, education, and research. We are committed to delivering compassionate, patient-centered care using the latest medical technologies and evidence-based practices, while maintaining the highest standards of professionalism and ethics.
+              <p className="text-lg text-gray-700 leading-relaxed text-justify">
+We at Armed Forces Institute of Urology (AFIU) Rawalpindi
+strive to provide best possible healthcare to our patients. 
+Our mission is to promote health, healing and hope by offering comprehensive 
+medical, surgical and diagnostic services under one roof. From emergency and critical care to 
+specialized departments, AFIU hospital is equipped with doctors, nurses and health care staff 
+committed to excellence in patient outcomes.  
               </p>
             </div>
 
@@ -31,8 +36,7 @@ export default function MissionPage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Our Mission</h3>
                 <p className="text-gray-600">
-                  To provide exceptional urological care and improve patient outcomes through innovation and dedication
-                </p>
+To promote health, healing and hope by offering comprehensive medical, surgical and diagnostic services under one roof                </p>
               </div>
 
               <div className="text-center">
@@ -56,42 +60,56 @@ export default function MissionPage() {
               </div>
             </div>
 
-            <div className="bg-gray-50 p-8 rounded-lg">
-              <h3 className="text-2xl font-bold text-gray-800 mb-6">Core Values</h3>
+            <div className="bg-[#ADD8E6] p-8 rounded-lg">
+              <h3 className="text-2xl font-bold text-gray-800 mb-6">Objectives</h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-950 rounded-full mt-2"></div>
                   <div>
-                    <h4 className="font-bold text-gray-800">Patient-Centered Care</h4>
-                    <p className="text-gray-600">We prioritize the needs, comfort, and wellbeing of our patients in everything we do</p>
+
+                    <p className="text-gray-600">Ensure evidence based clinical practices and adherence to national/ international standards</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-950 rounded-full mt-2"></div>
                   <div>
-                    <h4 className="font-bold text-gray-800">Excellence</h4>
-                    <p className="text-gray-600">We strive for the highest standards in clinical care, education, and research</p>
+                    <p className="text-gray-600">Utilize modern technology and expert staff to achieve the best patient outcomes</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-950 rounded-full mt-2"></div>
                   <div>
-                    <h4 className="font-bold text-gray-800">Innovation</h4>
-                    <p className="text-gray-600">We embrace new technologies and methods to improve patient outcomes</p>
+                    <p className="text-gray-600">Implement strict infection control, patient safety and quality assurance protocols</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-950 rounded-full mt-2"></div>
                   <div>
-                    <h4 className="font-bold text-gray-800">Integrity</h4>
-                    <p className="text-gray-600">We maintain the highest ethical standards in all our professional activities</p>
+                    <p className="text-gray-600">Offer compassionate, respectful and patient centered care</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-950 rounded-full mt-2"></div>
                   <div>
-                    <h4 className="font-bold text-gray-800">Teamwork</h4>
-                    <p className="text-gray-600">We work collaboratively to provide comprehensive, coordinated care</p>
+                    <p className="text-gray-600">Conduct clinical research to develop improved methods of treatment and care</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-blue-950 rounded-full mt-2"></div>
+                  <div>
+                    <p className="text-gray-600">To ensure continuous and regular training to employees</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-blue-950 rounded-full mt-2"></div>
+                  <div>
+                    <p className="text-gray-600">To build an effective feedback system with a foucs on continuous improvement of healthcare system</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-blue-950 rounded-full mt-2"></div>
+                  <div>
+                    <p className="text-gray-600">Complying with requirements of the ISO 9001:2015 for Quality Managemet System</p>
                   </div>
                 </li>
               </ul>

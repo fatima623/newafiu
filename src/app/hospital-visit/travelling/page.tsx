@@ -3,19 +3,19 @@ import { MapPin, Car, Bus, Plane } from 'lucide-react';
 export default function TravellingPage() {
   return (
     <div>
-      <section className="bg-gradient-to-r from-blue-950 to-blue-800 text-white py-20">
+      <section className="bg-gradient-to-b from-[#051238] to-[#2A7B9B] text-white py-10">
         <div className="container mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">Travelling to AFIU</h1>
-          <p className="text-xl text-blue-100">Directions and Transportation Information</p>
+          <h1 className="text-4xl font-bold mb-4">Travelling to AFIU</h1>
+          <p className="text-lg text-white">Directions and Transportation Information</p>
         </div>
       </section>
 
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="mb-12">
               <h2 className="text-3xl font-bold text-gray-800 mb-6">Location</h2>
-              <div className="bg-blue-50 p-6 rounded-lg mb-6">
+              <div className="bg-[#ADD8E6] p-6 rounded-lg mb-6">
                 <MapPin size={32} className="text-blue-950 mb-3" />
                 <p className="text-lg text-gray-700">
                   Armed Forces Institute of Urology<br />

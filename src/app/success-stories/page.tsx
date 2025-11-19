@@ -4,16 +4,16 @@ import { successStories } from '@/data/siteData';
 export default function SuccessStoriesPage() {
   return (
     <div>
-      <section className="bg-gradient-to-r from-blue-950 to-blue-800 text-white py-20">
+      <section className="bg-gradient-to-b from-[#051238] to-[#2A7B9B] text-white py-10">
         <div className="container mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">Success Stories</h1>
-          <p className="text-xl text-blue-100">Real Stories from Our Patients</p>
+          <h1 className="text-4xl font-bold mb-4">Success Stories</h1>
+          <p className="text-lg text-white">Real Stories from Our Patients</p>
         </div>
       </section>
 
-      <section className="py-16 bg-white">
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <Heart size={48} className="text-blue-950 mx-auto mb-4" />
               <p className="text-lg text-gray-600">
@@ -44,7 +44,7 @@ export default function SuccessStoriesPage() {
               ))}
             </div>
 
-            <div className="mt-12 bg-blue-50 p-8 rounded-lg text-center">
+            <div className="mt-12 bg-[#ADD8E6] p-8 rounded-lg text-center">
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Share Your Story</h3>
               <p className="text-gray-600 mb-6">
                 Have you been treated at AFIU? We'd love to hear about your experience.

@@ -21,10 +21,10 @@ export default function ServiceDetailTemplate({
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-950 to-blue-800 text-white py-20">
+      <section className="bg-gradient-to-b from-[#051238] to-[#2A7B9B] text-white py-10">
         <div className="container mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">{title}</h1>
-          <p className="text-xl text-blue-100">{description}</p>
+          <h1 className="text-4xl font-bold mb-4">{title}</h1>
+          <p className="text-lg text-white">{description}</p>
         </div>
       </section>
 
@@ -100,8 +100,8 @@ export default function ServiceDetailTemplate({
                       <Clock size={20} className="text-blue-950 mt-1" />
                       <div>
                         <p className="font-semibold text-gray-800">Timings</p>
-                        <p className="text-gray-600">Mon-Fri: 8AM-4PM</p>
-                        <p className="text-gray-600">Sat: 8AM-12PM</p>
+                        <p className="text-gray-600">Mon-Fri: 8AM-3PM</p>
+                        <p className="text-gray-600">For Private Patients: 3PM-6PM</p>
                       </div>
                     </div>
                   </div>

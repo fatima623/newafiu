@@ -3,25 +3,25 @@ import ServiceDetailTemplate from '@/components/ui/ServiceDetailTemplate';
 export default function UroOncologyPage() {
   return (
     <ServiceDetailTemplate
-      title="Uro-Oncology"
-      description="Comprehensive cancer care for urological malignancies"
+      title="Dialysis"
+      description="Hemodialysis services for patients with acute and chronic kidney disease"
       image="https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&h=600&fit=crop"
-      details="Our Uro-Oncology department provides comprehensive diagnosis and treatment for all types of urological cancers. We offer the latest surgical techniques including robotic-assisted surgery, along with chemotherapy and immunotherapy options. Our multidisciplinary team works together to provide personalized treatment plans for each patient."
+      details="Our Dialysis unit provides safe, effective hemodialysis for patients with acute and chronic kidney disease. Under the supervision of experienced nephrologists and trained dialysis nurses, we focus on patient comfort, infection control and meticulous monitoring during every session."
       procedures={[
-        'Radical Prostatectomy (Open and Robotic)',
-        'Radical Cystectomy with Urinary Diversion',
-        'Partial and Radical Nephrectomy',
-        'Transurethral Resection of Bladder Tumor (TURBT)',
-        'Testicular Cancer Surgery',
-        'Lymph Node Dissection'
+        'Regular maintenance hemodialysis sessions',
+        'Emergency hemodialysis for acute kidney injury',
+        'Dialysis access care and monitoring',
+        'Pre- and post-dialysis clinical assessment',
+        'Fluid and electrolyte management',
+        'Patient counselling and education on renal diet and lifestyle'
       ]}
       benefits={[
-        'Multidisciplinary cancer care',
-        'Robotic-assisted surgery available',
-        'Personalized treatment plans',
-        'Latest oncological techniques',
-        'Comprehensive follow-up care',
-        'Support services available'
+        'Supervision by experienced nephrologists',
+        'Dedicated and trained dialysis nursing staff',
+        'Strict infection control and safety protocols',
+        'Continuous monitoring during treatment',
+        'Individualized dialysis prescriptions',
+        'Supportive education for patients and families'
       ]}
     />
   );

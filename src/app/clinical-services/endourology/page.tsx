@@ -3,10 +3,10 @@ import ServiceDetailTemplate from '@/components/ui/ServiceDetailTemplate';
 export default function EndourologyPage() {
   return (
     <ServiceDetailTemplate
-      title="Endourology"
-      description="Minimally invasive procedures for kidney stones and urinary tract conditions"
+      title="Surgeries"
+      description="Endourological and minimally invasive surgeries for kidney stones and urinary tract conditions"
       image="https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=1200&h=600&fit=crop"
-      details="Our Endourology department specializes in minimally invasive procedures for the treatment of kidney stones and other urinary tract conditions. Using advanced endoscopic techniques and laser technology, we provide effective treatment with minimal discomfort and faster recovery times. Our experienced team performs hundreds of successful endourological procedures annually."
+      details="Our surgical services focus on minimally invasive and endourological procedures for the treatment of kidney stones and other urinary tract conditions. Using advanced endoscopic techniques and laser technology, we provide effective treatment with minimal discomfort and faster recovery times. Our experienced team performs hundreds of successful procedures annually."
       procedures={[
         'PCNL (Percutaneous Nephrolithotomy)',
         'URS (Ureteroscopy) with Laser Lithotripsy',

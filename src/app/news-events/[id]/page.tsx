@@ -18,7 +18,7 @@ export default function NewsDetailPage({ params }: { params: { id: string } }) {
 
   return (
     <div>
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-10">
         <div className="container mx-auto px-4">
           <Link href="/news-events" className="inline-flex items-center gap-2 text-blue-100 hover:text-white mb-4">
             <ArrowLeft size={20} />

@@ -4,6 +4,7 @@ import HeroSlider from '@/components/ui/HeroSlider';
 import ServiceCard from '@/components/ui/ServiceCard';
 import FacultyCard from '@/components/ui/FacultyCard';
 import NewsCard from '@/components/ui/NewsCard';
+import AnimatedStatsSection from '@/components/ui/AnimatedStatsSection';
 import { heroSlides, services, faculty, newsEvents, statistics, commandant } from '@/data/siteData';
 
 export default function Home() {
@@ -13,12 +14,12 @@ export default function Home() {
       <HeroSlider slides={heroSlides} />
 
       {/* Welcome Section */}
-      <section className="py-16 bg-white">
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
             {/* Header */}
-            <div className="text-center mb-12 fade-in-up">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6 leading-tight">
+            <div className="text-center mb-10 fade-in-up">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 leading-tight">
                 {commandant.welcomeMessage.title}
               </h2>
             </div>
@@ -40,8 +41,8 @@ export default function Home() {
                   {/* Commandant Details */}
                   <div className="space-y-2 text-left">
                     <div className="text-sm text-gray-500 italic">(Professor)</div>
-                    <h3 className="text-xl font-bold text-gray-800 signature-font leading-tight">
-                      Haroon Sabir Khan
+                    <h3 className="text-xl font-bold text-gray-800s leading-tight">
+                      Dr. Haroon Sabir Khan
                     </h3>
                     <div className="text-sm text-gray-600 space-y-1 leading-tight">
                       <div>MBBS, FCPS (Surgery), FCPS (Urology),</div>
@@ -57,11 +58,11 @@ export default function Home() {
               </div>
               
               {/* Main Content */}
-              <div className="lg:col-span-2 space-y-6 fade-in-right">
-                <p className="text-lg text-gray-700 leading-relaxed">
+              <div className="lg:col-span-2 space-y-8 fade-in-right">
+                <p className="text-lg text-gray-700 leading-relaxed text-justify">
                   {commandant.welcomeMessage.description}
                 </p>
-                <p className="text-lg text-gray-700 leading-relaxed font-medium">
+                <p className="text-lg text-gray-700 leading-relaxed font-medium text-justify">
                   {commandant.welcomeMessage.closingMessage}
                 </p>
                 <div className="pt-4">
@@ -80,18 +81,7 @@ export default function Home() {
       </section>
 
       {/* Statistics Section */}
-      <section className="py-16 bg-blue-950 text-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {statistics.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-5xl font-bold mb-2">{stat.value}</div>
-                <div className="text-xl text-blue-100">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <AnimatedStatsSection stats={statistics} />
 
       {/* Services Section */}
       <section className="py-16 bg-white">
@@ -146,7 +136,7 @@ export default function Home() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-16 bg-gradient-to-br from-blue-950 to-blue-800 text-white">
+      <section className="py-16 bg-blue-950 text-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4">Why Choose AFIU?</h2>
@@ -195,43 +185,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* News & Events Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">Latest News & Events</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Stay updated with the latest happenings at AFIU
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {newsEvents.slice(0, 3).map((news) => (
-              <NewsCard key={news.id} news={news} />
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <Link
-              href="/news-events"
-              className="inline-flex items-center gap-2 bg-blue-950 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-            >
-              View All News & Events
-              <ArrowRight size={20} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="bg-gradient-to-r from-blue-950 to-blue-800 rounded-2xl p-12 text-center text-white">
+          <div className="bg-[#ADD8E6] rounded-2xl shadow-lg p-12 text-center text-gray-800">
             <h2 className="text-4xl font-bold mb-4">Schedule an Appointment for Consultation</h2>
-            <p className="text-xl mb-8 text-blue-100">
+            <p className="text-xl mb-8 text-gray-800">
               Our expert team is ready to provide you with the best urological care
             </p>
             <Link
               href="/hospital-visit/booking"
-              className="inline-block bg-white text-blue-950 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-colors"
+              className="inline-block bg-blue-950 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-800 transition-colors"
             >
               Book Appointment
             </Link>

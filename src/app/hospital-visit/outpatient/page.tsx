@@ -13,22 +13,22 @@ export default function OutpatientPage() {
 
   return (
     <div>
-      <section className="bg-gradient-to-r from-blue-950 to-blue-800 text-white py-20">
+      <section className="bg-gradient-to-b from-[#051238] to-[#2A7B9B] text-white py-10">
         <div className="container mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">Outpatient Appointment</h1>
-          <p className="text-xl text-blue-100">What to Expect During Your OPD Visit</p>
+          <h1 className="text-4xl font-bold mb-4">Outpatient Appointment</h1>
+          <p className="text-lg text-white">Information for Your Outpatient Department (OPD) Visit</p>
         </div>
       </section>
 
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">Your OPD Visit</h2>
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">Outpatient Visit Overview</h2>
             <p className="text-lg text-gray-600 mb-8">
-              Our outpatient department provides comprehensive consultations and diagnostic services. Here's what to expect during your visit.
+              The Outpatient Department (OPD) provides structured consultations and diagnostic services. The information below outlines the usual sequence of an outpatient visit.
             </p>
 
-            <div className="bg-blue-50 p-8 rounded-lg mb-8">
+            <div className="bg-[#ADD8E6] p-8 rounded-lg mb-8">
               <h3 className="text-2xl font-bold text-gray-800 mb-4">What to Bring</h3>
               <ul className="space-y-2 text-gray-700">
                 <li>• Valid ID card or passport</li>

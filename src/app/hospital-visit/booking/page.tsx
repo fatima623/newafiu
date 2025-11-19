@@ -22,10 +22,10 @@ export default function BookingPage() {
 
   return (
     <div>
-      <section className="bg-gradient-to-r from-blue-950 to-blue-800 text-white py-20">
+      <section className="bg-gradient-to-b from-[#051238] to-[#2A7B9B] text-white py-10">
         <div className="container mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">Book an Appointment</h1>
-          <p className="text-xl text-blue-100">Schedule Your Consultation with Our Specialists</p>
+          <h1 className="text-4xl font-bold mb-4">Book an Appointment</h1>
+          <p className="text-lg text-white">Schedule Your Consultation with Our Specialists</p>
         </div>
       </section>
 
@@ -33,22 +33,22 @@ export default function BookingPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-              <div className="bg-blue-50 p-6 rounded-lg text-center">
+              <div className="bg-[#ADD8E6] p-6 rounded-lg text-center">
                 <Phone size={32} className="text-blue-950 mx-auto mb-3" />
                 <h3 className="font-bold text-gray-800 mb-2">Call Us</h3>
                 <p className="text-gray-600">+92 51 9270077</p>
               </div>
 
-              <div className="bg-blue-50 p-6 rounded-lg text-center">
+              <div className="bg-[#ADD8E6] p-6 rounded-lg text-center">
                 <Mail size={32} className="text-blue-950 mx-auto mb-3" />
                 <h3 className="font-bold text-gray-800 mb-2">Email Us</h3>
                 <p className="text-gray-600">appointments@afiu.org.pk</p>
               </div>
 
-              <div className="bg-blue-50 p-6 rounded-lg text-center">
+              <div className="bg-[#ADD8E6] p-6 rounded-lg text-center">
                 <Clock size={32} className="text-blue-950 mx-auto mb-3" />
                 <h3 className="font-bold text-gray-800 mb-2">OPD Hours</h3>
-                <p className="text-gray-600">Mon-Fri: 8AM-4PM<br/>Sat: 8AM-12PM</p>
+                <p className="text-gray-600">Mon-Fri: 8AM-3PM<br/>Private Patients: 3PM-6PM</p>
               </div>
             </div>
 

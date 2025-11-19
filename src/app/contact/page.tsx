@@ -26,10 +26,10 @@ export default function ContactPage() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-950 to-blue-950 text-white py-20">
+      <section className="bg-gradient-to-b from-[#051238] to-[#2A7B9B] text-white py-10">
         <div className="container mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">Contact Us</h1>
-          <p className="text-xl text-blue-100">
+          <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
+          <p className="text-lg text-white">
             Get in Touch with Our Team
           </p>
         </div>

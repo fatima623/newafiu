@@ -27,10 +27,10 @@ export default function CareersPage() {
 
   return (
     <div>
-      <section className="bg-gradient-to-r from-blue-950 to-blue-800 text-white py-20">
+      <section className="bg-gradient-to-b from-[#051238] to-[#2A7B9B] text-white py-10">
         <div className="container mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">Careers</h1>
-          <p className="text-xl text-blue-100">Join Our Team of Healthcare Professionals</p>
+          <h1 className="text-4xl font-bold mb-4">Careers</h1>
+          <p className="text-lg text-white">Join Our Team of Healthcare Professionals</p>
         </div>
       </section>
 
@@ -58,7 +58,7 @@ export default function CareersPage() {
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Current Openings</h3>
                   <div className="space-y-4">
                     {positions.map((position, index) => (
-                      <div key={index} className="bg-blue-50 p-4 rounded-lg">
+                      <div key={index} className="bg-[#ADD8E6] p-4 rounded-lg">
                         <h4 className="font-bold text-gray-800">{position.title}</h4>
                         <p className="text-sm text-gray-600">{position.department} • {position.type}</p>
                       </div>

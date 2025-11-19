@@ -3,23 +3,15 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ChevronDown, Search, Calendar } from 'lucide-react';
+import { Menu, X, ChevronDown, Calendar, Search } from 'lucide-react';
 import { navItems } from '@/data/siteData';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const pathname = usePathname();
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -38,41 +30,51 @@ export default function Navbar() {
   }, []);
 
   const toggleDropdown = (label: string) => {
-    setOpenDropdown(openDropdown === label ? null : label);
+    const next = openDropdown === label ? null : label;
+    setOpenDropdown(next);
+    if (next === null) {
+      setOpenSubmenu(null);
+    }
+  };
+
+  const toggleSubmenu = (label: string) => {
+    setOpenSubmenu(openSubmenu === label ? null : label);
   };
 
   return (
-    <nav className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-lg' : 'bg-white'}`}>
-      <div className="bg-blue-950 text-white border-b border-blue-800">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center py-4">
+    <nav className="w-full">
+      {/* Top White Section */}
+      <div className="w-full bg-white">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-10">
+          <div className="flex justify-between items-center py-2">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
               <img 
                 src="/afiulogo.png" 
                 alt="AFIU Logo" 
-                className="w-24 h-24 object-contain"
+                className="w-20 h-20 object-contain"
               />
               <div className="hidden md:block">
-                <h1 className="text-xl font-bold text-white">AFIU</h1>
-                <p className="text-xs text-blue-100">Armed Forces Institute of Urology</p>
+                <h1 className="text-2xl font-bold text-blue-950">AFIU</h1>
+                <p className="text-md text-gray-800">Armed Forces Institute of Urology</p>
               </div>
             </Link>
 
-            {/* Appointment Button & Mobile Menu */}
-            <div className="flex items-center gap-4">
+            {/* Appointment Button */}
+            <div className="flex items-center">
               <Link
                 href="/hospital-visit/booking"
-                className="hidden sm:inline-flex items-center gap-2 bg-white text-blue-950 hover:bg-blue-100 px-6 py-2.5 rounded-lg font-semibold transition-colors"
+                className="inline-flex items-center gap-2 bg-blue-950 text-white font-bold px-4 py-2 rounded transition-colors"
               >
-                <Calendar size={18} className="text-blue-950" />
-                Appointment
+                <Calendar size={18} />
+                <span className="hidden sm:inline">Appointment</span>
               </Link>
 
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden p-2 text-white hover:bg-blue-900 rounded-lg transition-colors"
+                className="ml-4 p-2 text-blue-950 hover:bg-gray-100 rounded lg:hidden"
+                aria-label="Toggle menu"
               >
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
@@ -81,105 +83,189 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4">
-        {/* Second Line: Desktop Navigation Menu */}
-        <div className="hidden lg:block">
-          <div className="flex flex-wrap items-center justify-start gap-x-4 gap-y-1 py-3">
-            {navItems.map((item) => (
-              <div 
-                key={item.label} 
-                className="relative"
-                ref={(el) => {
-                  if (item.subItems) {
-                    dropdownRefs.current[item.label] = el;
-                  }
-                }}
-              >
-                {item.subItems ? (
-                  <>
-                    <button
-                      onClick={() => toggleDropdown(item.label)}
-                      onMouseEnter={() => setOpenDropdown(item.label)}
-                      className={`flex items-center gap-1 py-2 px-3 text-gray-700 hover:text-blue-950 transition-colors font-medium whitespace-nowrap ${
-                        pathname.startsWith(item.href) ? 'text-blue-950' : ''
-                      }`}
-                    >
-                      {item.label}
-                      <ChevronDown 
-                        size={16} 
-                        className={`transition-transform ${openDropdown === item.label ? 'rotate-180' : ''}`} 
-                      />
-                    </button>
-                    <div 
-                      className={`absolute left-0 top-full mt-2 w-64 bg-white shadow-xl rounded-lg transition-all duration-300 z-50 ${
-                        openDropdown === item.label ? 'opacity-100 visible' : 'opacity-0 invisible'
-                      }`}
+      {/* Blue Navigation Section */}
+      <div className="w-full bg-blue-950 text-white">
+        <div className="w-full max-w-[1920px] mx-auto px-2 sm:px-2 lg:px-2">
+          <div className="flex justify-between items-center py-2 border-t border-blue-800">
+            {/* Navigation Links */}
+            <div className="hidden lg:block w-full">
+              <div className="flex flex-wrap items-center">
+                {navItems.map((item) => {
+                  const baseLinkClasses = `py-2 text-sm font-medium hover:bg-blue-800 rounded transition-colors ${
+                    pathname === item.href ? 'text-white font-semibold' : 'text-blue-100 hover:text-white'
+                  }`;
+                  return (
+                    <div
+                      key={item.label}
+                      className="relative group"
+                      ref={(el) => {
+                        if (item.subItems) {
+                          dropdownRefs.current[item.label] = el;
+                        }
+                      }}
+                      onMouseEnter={() => item.subItems && setOpenDropdown(item.label)}
                       onMouseLeave={() => setOpenDropdown(null)}
                     >
-                      <div className="py-2">
-                        {item.subItems.map((subItem) => (
+                      {item.subItems ? (
+                        <div className="flex items-center gap-0.5">
                           <Link
-                            key={subItem.label}
-                            href={subItem.href}
-                            onClick={() => setOpenDropdown(null)}
-                            className={`block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-950 transition-colors ${
-                              pathname === subItem.href ? 'bg-blue-50 text-blue-950' : ''
-                            }`}
+                            href={item.href}
+                            className={`${baseLinkClasses} pl-4 pr-1`}
                           >
-                            {subItem.label}
+                            {item.label}
                           </Link>
-                        ))}
-                      </div>
+                          <button
+                            onClick={() => toggleDropdown(item.label)}
+                            className="-ml-1 text-blue-200 hover:text-white focus:outline-none"
+                            aria-expanded={openDropdown === item.label}
+                            aria-haspopup="true"
+                          >
+                            <ChevronDown size={16} className={`transform transition-transform ${openDropdown === item.label ? 'rotate-180' : ''}`} />
+                          </button>
+                        </div>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          className={`${baseLinkClasses} px-4`}
+                        >
+                          {item.label}
+                        </Link>
+                      )}
+                      {item.subItems && openDropdown === item.label && (
+                        <div
+                          className="absolute left-0 w-56 bg-white shadow-lg rounded-md z-10"
+                          onMouseEnter={() => setOpenDropdown(item.label)}
+                          onMouseLeave={() => {
+                            setOpenDropdown(null);
+                            setOpenSubmenu(null);
+                          }}
+                        >
+                          <div className="py-1">
+                            {item.subItems.map((subItem) => {
+                              const hasChildren = !!subItem.subItems && subItem.subItems.length > 0;
+                              const isOpenSubmenu = openSubmenu === subItem.label;
+
+                              if (hasChildren) {
+                                return (
+                                  <div key={subItem.href} className="relative">
+                                    <button
+                                      type="button"
+                                      className={`flex w-full items-center justify-between px-4 py-2 text-left text-sm ${
+                                        pathname === subItem.href
+                                          ? 'bg-blue-50 text-blue-900'
+                                          : 'text-gray-800 hover:bg-blue-50'
+                                      }`}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        toggleSubmenu(subItem.label);
+                                      }}
+                                    >
+                                      <span>{subItem.label}</span>
+                                      <span className="ml-2 text-gray-400">›</span>
+                                    </button>
+
+                                    {isOpenSubmenu && subItem.subItems && (
+                                      <div className="absolute left-full top-0 w-64 bg-white shadow-lg rounded-md z-20">
+                                        <div className="py-1">
+                                          {subItem.subItems.map((child) => (
+                                            <Link
+                                              key={child.href}
+                                              href={child.href}
+                                              className={`block px-4 py-2 text-sm ${
+                                                pathname === child.href
+                                                  ? 'bg-blue-50 text-blue-900'
+                                                  : 'text-gray-800 hover:bg-blue-50'
+                                              }`}
+                                              onClick={() => setOpenDropdown(null)}
+                                            >
+                                              {child.label}
+                                            </Link>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <Link
+                                  key={subItem.href}
+                                  href={subItem.href}
+                                  className={`block px-4 py-2 text-sm ${
+                                    pathname === subItem.href
+                                      ? 'bg-blue-50 text-blue-900'
+                                      : 'text-gray-800 hover:bg-blue-50'
+                                  }`}
+                                  onClick={() => setOpenDropdown(null)}
+                                >
+                                  {subItem.label}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className={`py-2 px-3 text-gray-700 hover:text-blue-950 transition-colors font-medium whitespace-nowrap ${
-                      pathname === item.href ? 'text-blue-950' : ''
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                )}
+                  );
+                })}
               </div>
-            ))}
-            <button className="p-2 hover:bg-blue-50 rounded-full transition-colors">
-              <Search size={20} className="text-gray-700" />
-            </button>
+            </div>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="lg:hidden pb-4 border-t">
+      </div>
+      
+      {/* Mobile Menu */}
+      {isOpen && (
+        <div className="lg:hidden bg-blue-950 text-white">
+          <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => (
-              <div key={item.label} className="border-b">
+              <div key={item.label} className="relative">
                 {item.subItems ? (
                   <>
                     <button
                       onClick={() => toggleDropdown(item.label)}
-                      className="w-full flex items-center justify-between py-3 px-2 text-gray-700 hover:text-blue-950 transition-colors font-medium"
+                      className="w-full flex justify-between items-center px-3 py-3 rounded-md text-base font-medium text-white hover:bg-blue-800"
                     >
-                      {item.label}
-                      <ChevronDown
-                        size={16}
-                        className={`transition-transform ${openDropdown === item.label ? 'rotate-180' : ''}`}
-                      />
+                      <span>{item.label}</span>
+                      <ChevronDown size={16} className={`transform transition-transform ${openDropdown === item.label ? 'rotate-180' : ''}`} />
                     </button>
                     {openDropdown === item.label && (
-                      <div className="bg-gray-50 py-2">
+                      <div className="pl-4 space-y-1 bg-blue-800 rounded-b-md">
                         {item.subItems.map((subItem) => (
-                          <Link
-                            key={subItem.label}
-                            href={subItem.href}
-                            onClick={() => setIsOpen(false)}
-                            className={`block px-6 py-2 text-gray-600 hover:text-blue-950 transition-colors ${
-                              pathname === subItem.href ? 'text-blue-950 font-medium' : ''
-                            }`}
-                          >
-                            {subItem.label}
-                          </Link>
+                          subItem.subItems && subItem.subItems.length > 0 ? (
+                            <div key={subItem.href} className="pt-1 pb-1">
+                              <Link
+                                href={subItem.href}
+                                className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === subItem.href ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-700'}`}
+                                onClick={() => setIsOpen(false)}
+                              >
+                                {subItem.label}
+                              </Link>
+                              <div className="mt-1 pl-3 space-y-1">
+                                {subItem.subItems.map((child) => (
+                                  <Link
+                                    key={child.href}
+                                    href={child.href}
+                                    className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === child.href ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-700'}`}
+                                    onClick={() => setIsOpen(false)}
+                                  >
+                                    {child.label}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <Link
+                              key={subItem.href}
+                              href={subItem.href}
+                              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === subItem.href ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-700'}`}
+                              onClick={() => setIsOpen(false)}
+                            >
+                              {subItem.label}
+                            </Link>
+                          )
                         ))}
                       </div>
                     )}
@@ -187,10 +273,8 @@ export default function Navbar() {
                 ) : (
                   <Link
                     href={item.href}
+                    className={`block px-3 py-3 rounded-md text-base font-medium ${pathname === item.href ? 'bg-blue-700 text-white' : 'text-white hover:bg-blue-800'}`}
                     onClick={() => setIsOpen(false)}
-                    className={`block py-3 px-2 text-gray-700 hover:text-blue-950 transition-colors font-medium ${
-                      pathname === item.href ? 'text-blue-950' : ''
-                    }`}
                   >
                     {item.label}
                   </Link>
@@ -198,8 +282,8 @@ export default function Navbar() {
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </nav>
   );
 }
