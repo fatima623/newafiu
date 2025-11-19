@@ -2,8 +2,14 @@ import { notFound } from 'next/navigation';
 import { Mail, Phone, Award } from 'lucide-react';
 import { faculty } from '@/data/siteData';
 
-export default function FacultyDetailPage({ params }: { params: { id: string } }) {
-  const member = faculty.find((f) => f.id === params.id);
+export default async function FacultyDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const member = faculty.find((f) => f.id === id);
 
   if (!member) {
     notFound();
@@ -76,4 +82,10 @@ export default function FacultyDetailPage({ params }: { params: { id: string } }
       </section>
     </div>
   );
+}
+
+export function generateStaticParams() {
+  return faculty.map((member) => ({
+    id: member.id,
+  }));
 }

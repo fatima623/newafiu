@@ -107,22 +107,18 @@ export default function Navbar() {
                       onMouseLeave={() => setOpenDropdown(null)}
                     >
                       {item.subItems ? (
-                        <div className="flex items-center gap-0.5">
-                          <Link
-                            href={item.href}
-                            className={`${baseLinkClasses} pl-4 pr-1`}
-                          >
-                            {item.label}
-                          </Link>
-                          <button
-                            onClick={() => toggleDropdown(item.label)}
-                            className="-ml-1 text-blue-200 hover:text-white focus:outline-none"
-                            aria-expanded={openDropdown === item.label}
-                            aria-haspopup="true"
-                          >
-                            <ChevronDown size={16} className={`transform transition-transform ${openDropdown === item.label ? 'rotate-180' : ''}`} />
-                          </button>
-                        </div>
+                        <Link
+                          href={item.href}
+                          className={`${baseLinkClasses} px-4 flex items-center gap-1 rounded`}
+                        >
+                          <span>{item.label}</span>
+                          <ChevronDown
+                            size={14}
+                            className={`transform transition-transform ${
+                              openDropdown === item.label ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </Link>
                       ) : (
                         <Link
                           href={item.href}

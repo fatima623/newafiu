@@ -54,6 +54,10 @@ export const navItems: NavItem[] = [
     ],
   },
   {
+    label: 'Gallery',
+    href: '/gallery',
+  },
+  {
     label: 'News & Events',
     href: '/news-events',
   },
@@ -62,8 +66,8 @@ export const navItems: NavItem[] = [
     href: '/success-stories',
   },
   {
-    label: 'Research Publications',
-    href: '/research-publications',
+    label: 'Publications',
+    href: '/publications',
   },
   {
     label: 'Careers',
@@ -74,7 +78,7 @@ export const navItems: NavItem[] = [
     href: '/donations',
   },
   {
-    label: 'Your Hospital Visit',
+    label: 'Patient Visit',
     href: '/hospital-visit',
     subItems: [
       { label: 'Booking your appointment', href: '/hospital-visit/booking' },
@@ -126,13 +130,13 @@ export const faculty: Faculty[] = [
     id: '1',
     name: 'Dr. Haroon Sabir Khan',
     designation: 'Consultant Urologist & Transplant Surgeon',
-    qualifications: 'MBBS, FCPS (Surgery), FCPS (Urology)',
+    qualifications: 'MBBS, FCPS (Surgery), FCPS (Urology), FEBU (Europe), MHPE (RIU)',
     specialization: 'FEBU (Europe), MHPE (RIU)',
     image: '/person.png',
   },
   {
     id: '2',
-    name: 'Dr.Badar Murtaza',
+    name: 'Dr. Badar Murtaza',
     designation: 'Consultant Urologist & Transplant Surgeon',
     qualifications: 'MBBS, FCPS (Surgery), FRCS (IRE), FCPS (Urology), MCPS-HPE',
     specialization: 'no data',
