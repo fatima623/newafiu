@@ -97,7 +97,7 @@ export default function GalleryPage() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-blue-950 mb-4">Gallery</h1>
-          <p className="text-lg text-gray-600">Explore our events and activities</p>
+          <p className="text-lg text-gray-600">Explore our media gallery</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

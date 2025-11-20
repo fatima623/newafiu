@@ -42,7 +42,7 @@ export default function ServiceDetailTemplate({
                 />
 
                 <h2 className="text-3xl font-bold text-gray-800 mb-6">Overview</h2>
-                <p className="text-lg text-gray-600 mb-8">{details}</p>
+                <p className="text-lg text-gray-600 mb-8 c">{details}</p>
 
                 {procedures.length > 0 && (
                   <>

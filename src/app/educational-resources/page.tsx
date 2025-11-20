@@ -22,7 +22,7 @@ export default function EducationalResourcesPage() {
               <Link href="/educational-resources/patient-education" className="bg-[#ADD8E6] rounded-lg p-8 hover:border-blue-950 hover:shadow-xl transition-all">
                 <BookOpen size={48} className="text-blue-950 mb-4" />
                 <h3 className="text-2xl font-bold text-gray-800 mb-3">Patient Education</h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-4 text-justify">
                   Comprehensive information about urological conditions, treatments, and post-operative care
                 </p>
                 <span className="text-blue-950 font-semibold">Learn More →</span>
@@ -31,7 +31,7 @@ export default function EducationalResourcesPage() {
               <Link href="/educational-resources/physicians" className="bg-[#ADD8E6] rounded-lg p-8 hover:border-blue-950 hover:shadow-xl transition-all">
                 <Users size={48} className="text-blue-950 mb-4" />
                 <h3 className="text-2xl font-bold text-gray-800 mb-3">For Physicians</h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-4 text-justify">
                   Clinical guidelines, referral information, and continuing medical education resources
                 </p>
                 <span className="text-blue-950 font-semibold">Learn More →</span>
@@ -40,7 +40,7 @@ export default function EducationalResourcesPage() {
               <Link href="/educational-resources/guidelines" className="bg-[#ADD8E6] rounded-lg p-8 hover:border-blue-950 hover:shadow-xl transition-all">
                 <FileText size={48} className="text-blue-950 mb-4" />
                 <h3 className="text-2xl font-bold text-gray-800 mb-3">Institutional Guidelines</h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-4 text-justify">
                   Clinical protocols, treatment guidelines, and institutional policies
                 </p>
                 <span className="text-blue-950 font-semibold">Learn More →</span>

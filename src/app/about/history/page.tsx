@@ -30,7 +30,7 @@ export default function HistoryPage() {
           <div className="max-w-6xl mx-auto">
             <div className="mb-12">
               <h2 className="text-3xl font-bold text-gray-800 mb-6">Our Story</h2>
-              <p className="text-lg text-gray-600 mb-4">
+              <p className="text-lg text-gray-600 mb-4 text-justify">
 	Armed Forces Institute of Urology (AFIU) Rawalpindi provides specialized care for patients suffering from urological disorders. It is dedicated centre for Urological diseases and Renal Transplant. Inaugurated on 1993. First transplant was done in year 1996. Till Oct 2025 around 783 renal transplant have been carried out.   
                 </p>
             </div>

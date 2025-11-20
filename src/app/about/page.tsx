@@ -22,7 +22,7 @@ export default function AboutPage() {
               Armed Forces Institute of Urology
             </h2>
             <div className="prose prose-lg max-w-none">
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 mb-4 text-justify">
 We at Armed Forces Institute of Urology (AFIU) Rawalpindi
 strive to provide best possible healthcare to our patients. Our mission is to promote health, healing and hope by offering comprehensive medical, surgical and diagnostic services under one roof. From emergency and critical care to specialized departments, AFIU hospital is equipped with doctors, nurses and health care staff committed to excellence in patient outcomes.  
               </p>
