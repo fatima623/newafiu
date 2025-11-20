@@ -3,7 +3,7 @@ import { Calendar, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { newsEvents } from '@/data/siteData';
 
-export default function NewsDetailPage({ params }: { params: { id: string } }) {
+export default function NewsDetailPage({ params }: { params: any }) {
   const news = newsEvents.find((n) => n.id === params.id);
 
   if (!news) {
