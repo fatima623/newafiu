@@ -82,6 +82,55 @@ html {
   animation: slideIn 0.6s ease-out;
 }
 
+/* Header Brand Animations */
+@keyframes logoSpinIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) rotate(-8deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+@keyframes brandTitleFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+    letter-spacing: 0.08em;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 0.04em;
+  }
+}
+
+@keyframes brandSubtitleFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.logo-spin-in {
+  animation: logoSpinIn 3s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  transform-origin: center;
+}
+
+.brand-title-animate {
+  animation: brandTitleFadeIn 0.7s ease-out 0.1s both;
+}
+
+.brand-subtitle-animate {
+  animation: brandSubtitleFadeUp 0.8s ease-out 0.25s both;
+}
+
 /* Signature Font for Commandant Name */
 .signature-font {
   font-family: 'Dancing Script', 'Brush Script MT', cursive;

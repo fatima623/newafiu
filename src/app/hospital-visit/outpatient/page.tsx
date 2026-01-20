@@ -6,7 +6,7 @@ export default function OutpatientPage() {
     'Register at the reception desk with your appointment confirmation',
     'Wait in the designated waiting area',
     'You will be called when the doctor is ready',
-    'Consultation with the urologist',
+    'Consult with the urologist',
     'Collect prescriptions and follow-up instructions',
     'Schedule follow-up appointment if needed',
   ];
@@ -30,12 +30,12 @@ export default function OutpatientPage() {
 
             <div className="bg-[#ADD8E6] p-8 rounded-lg mb-8">
               <h3 className="text-2xl font-bold text-gray-800 mb-4">What to Bring</h3>
-              <ul className="space-y-2 text-gray-700">
-                <li>• Valid ID card or passport</li>
-                <li>• Previous medical records and test results</li>
-                <li>• List of current medications</li>
-                <li>• Insurance card (if applicable)</li>
-                <li>• Referral letter (if applicable)</li>
+              <ul className="space-y-2 text-gray-700 list-disc pl-6">
+                <li>Valid ID card or passport</li>
+                <li>Previous medical records and test results (if applicable)</li>
+                <li>List of current medications</li>
+                <li>Insurance card (if applicable)</li>
+                <li>Referral letter (if applicable)</li>
               </ul>
             </div>
 

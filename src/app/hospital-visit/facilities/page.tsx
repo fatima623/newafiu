@@ -4,7 +4,6 @@ export default function FacilitiesPage() {
   const facilities = [
     { icon: Building, title: 'Modern Infrastructure', description: 'State-of-the-art building with advanced medical equipment' },
     { icon: Utensils, title: 'Cafeteria', description: 'Nutritious meals and refreshments available' },
-    { icon: Wifi, title: 'Free WiFi', description: 'Complimentary internet access throughout the hospital' },
     { icon: ShoppingBag, title: 'Pharmacy', description: 'On-site pharmacy for convenient medication access' },
     { icon: Heart, title: 'Prayer Room', description: 'Dedicated spaces for prayer and meditation' },
     { icon: Shield, title: '24/7 Security', description: 'Round-the-clock security for patient safety' },
@@ -44,13 +43,13 @@ export default function FacilitiesPage() {
 
             <div className="mt-12 bg-gray-50 p-8 rounded-lg">
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Additional Services</h3>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-600">
-                <li>• ATM facility available</li>
-                <li>• Wheelchair accessibility</li>
-                <li>• Ambulance service</li>
-                <li>• Blood bank</li>
-                <li>• Diagnostic laboratory</li>
-                <li>• Radiology services</li>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-600 list-disc pl-6">
+                <li>ATM facility available</li>
+                <li>Wheelchair accessibility</li>
+                <li>Ambulance service</li>
+                <li>Blood bank</li>
+                <li>Diagnostic laboratory</li>
+                <li>Radiology services</li>
               </ul>
             </div>
           </div>

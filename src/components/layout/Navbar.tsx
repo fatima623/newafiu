@@ -12,6 +12,8 @@ export default function Navbar() {
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const pathname = usePathname();
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const navbarRef = useRef<HTMLElement | null>(null);
+  const [isBrandAnimated, setIsBrandAnimated] = useState(false);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -29,6 +31,29 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Trigger brand animations when navbar enters the viewport (on load and when scrolling back to top)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const navElement = navbarRef.current;
+    if (!navElement) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsBrandAnimated(entry.isIntersecting);
+      },
+      {
+        threshold: 0.6,
+      }
+    );
+
+    observer.observe(navElement);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   const toggleDropdown = (label: string) => {
     const next = openDropdown === label ? null : label;
     setOpenDropdown(next);
@@ -42,7 +67,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="w-full">
+    <nav className="w-full" ref={navbarRef}>
       {/* Top White Section */}
       <div className="w-full bg-white">
         <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-10">
@@ -52,11 +77,13 @@ export default function Navbar() {
               <img 
                 src="/afiulogo.png" 
                 alt="AFIU Logo" 
-                className="w-20 h-20 object-contain"
+                className={`w-20 h-20 object-contain ${isBrandAnimated ? 'logo-spin-in' : ''}`}
               />
               <div className="hidden md:block">
-                <h1 className="text-2xl font-bold text-blue-950">AFIU</h1>
-                <p className="text-md text-gray-800">Armed Forces Institute of Urology</p>
+                <h1 className={`text-3xl font-bold text-blue-950 ${isBrandAnimated ? 'brand-title-animate' : ''}`}>AFIU</h1>
+                <p className={`text-lg text-blue-950 ${isBrandAnimated ? 'brand-subtitle-animate' : ''}`}>
+                  Armed Forces Institute of Urology
+                </p>
               </div>
             </Link>
 

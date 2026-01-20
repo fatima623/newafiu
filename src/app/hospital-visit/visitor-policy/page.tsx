@@ -40,13 +40,13 @@ export default function VisitorPolicyPage() {
                 <AlertCircle size={24} className="text-yellow-600 flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-lg font-bold text-gray-800 mb-2">Important Guidelines</h3>
-                  <ul className="space-y-2 text-gray-700">
-                    <li>• All visitors must register at the reception</li>
-                    <li>• Children under 12 are not allowed in patient areas</li>
-                    <li>• Maintain silence in hospital premises</li>
-                    <li>• Do not bring outside food without permission</li>
-                    <li>• Follow hand hygiene protocols</li>
-                    <li>• Visitors with infectious diseases should not visit</li>
+                  <ul className="space-y-2 text-gray-700 list-disc pl-6">
+                    <li>All visitors must register at the reception</li>
+                    <li>Children under 12 are not allowed in patient areas</li>
+                    <li>Maintain silence in hospital premises</li>
+                    <li>Do not bring outside food without permission</li>
+                    <li>Follow hand hygiene protocols</li>
+                    <li>Visitors with infectious diseases should not visit</li>
                   </ul>
                 </div>
               </div>
@@ -57,12 +57,12 @@ export default function VisitorPolicyPage() {
               <p className="text-gray-600 mb-4">
                 One attendant may stay with the patient overnight if medically necessary. The attendant must:
               </p>
-              <ul className="space-y-2 text-gray-600">
-                <li>• Obtain permission from the nursing staff</li>
-                <li>• Carry a valid ID card</li>
-                <li>• Follow all hospital rules and regulations</li>
-                <li>• Not interfere with medical procedures</li>
-                <li>• Maintain cleanliness in the patient area</li>
+              <ul className="space-y-2 text-gray-600 list-disc pl-6">
+                <li>Obtain permission from the nursing staff</li>
+                <li>Carry a valid ID card</li>
+                <li>Follow all hospital rules and regulations</li>
+                <li>Not interfere with medical procedures</li>
+                <li>Maintain cleanliness in the patient area</li>
               </ul>
             </div>
           </div>

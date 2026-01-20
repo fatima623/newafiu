@@ -1,23 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Briefcase, Send } from 'lucide-react';
+import { Briefcase, Download } from 'lucide-react';
 
 export default function CareersPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    position: '',
-    message: '',
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert('Thank you for your application! We will review it and contact you soon.');
-    setFormData({ name: '', email: '', phone: '', position: '', message: '' });
-  };
-
   const positions = [
     { title: 'Consultant Urologist', department: 'Clinical Services', type: 'Full-time' },
     { title: 'Resident Urologist', department: 'Clinical Services', type: 'Full-time' },
@@ -45,6 +30,7 @@ export default function CareersPage() {
                   <p className="text-gray-600 mb-6">
                     AFIU offers a dynamic and rewarding work environment where you can grow professionally while making a difference in patients' lives.
                   </p>
+                  
                   <ul className="space-y-3 text-gray-600">
                     <li>• Competitive salary and benefits</li>
                     <li>• Professional development opportunities</li>
@@ -68,74 +54,27 @@ export default function CareersPage() {
               </div>
 
               <div>
-                <h2 className="text-3xl font-bold text-gray-800 mb-6">Apply Now</h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label className="block text-gray-700 font-medium mb-2">Full Name *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-700 font-medium mb-2">Email *</label>
-                    <input
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-700 font-medium mb-2">Phone *</label>
-                    <input
-                      type="tel"
-                      required
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-700 font-medium mb-2">Position Applied For *</label>
-                    <select
-                      required
-                      value={formData.position}
-                      onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950"
-                    >
-                      <option value="">Select Position</option>
-                      {positions.map((pos, index) => (
-                        <option key={index} value={pos.title}>{pos.title}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-700 font-medium mb-2">Cover Letter</label>
-                    <textarea
-                      rows={5}
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950"
-                    ></textarea>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full bg-blue-950 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                <h2 className="text-3xl font-bold text-gray-800 mb-6">Application Forms</h2>
+                <p className="text-gray-600 mb-6">
+                  Please download and complete the relevant application form. Once filled, submit it as per the instructions
+                  provided on the form or by contacting our careers department.
+                </p>
+                <div className="space-y-4">
+                  <a
+                    href="/forms/afiu-job-application-form.pdf"
+                    className="w-full inline-flex items-center justify-center gap-2 bg-blue-950 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                   >
-                    <Send size={20} />
-                    Submit Application
-                  </button>
-                </form>
+                    <Download size={20} />
+                    AFIU Job Application Form
+                  </a>
+                  <a
+                    href="/forms/application-form-residency-training-fcps-part-ii.pdf"
+                    className="w-full inline-flex items-center justify-center gap-2 bg-white border border-blue-950 text-blue-950 hover:bg-blue-50 px-6 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    <Download size={20} />
+                    Application Form for Residency Training (FCPS-Part II)
+                  </a>
+                </div>
               </div>
             </div>
           </div>

@@ -19,22 +19,22 @@ export default function InpatientPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div className="bg-[#ADD8E6] p-6 rounded-lg">
                 <h3 className="text-xl font-bold text-gray-800 mb-3">Pre-admission Preparation</h3>
-                <ul className="space-y-2 text-gray-600">
-                  <li>• Complete all pre-admission investigations advised by your consultant</li>
-                  <li>• Confirm your admission date and reporting time with the hospital</li>
-                  <li>• Arrange for a responsible attendant/caregiver, if required</li>
-                  <li>• Inform your family members about the planned admission and expected duration of stay</li>
+                <ul className="space-y-2 text-gray-600 list-disc pl-6">
+                  <li>Complete all pre-admission investigations advised by your consultant</li>
+                  <li>Confirm your admission date and reporting time with the hospital</li>
+                  <li>Arrange for a responsible attendant/caregiver, if required</li>
+                  <li>Inform your family members about the planned admission and expected duration of stay</li>
                 </ul>
               </div>
 
               <div className="bg-[#ADD8E6] p-6 rounded-lg">
                 <h3 className="text-xl font-bold text-gray-800 mb-3">Documents and Personal Items</h3>
-                <ul className="space-y-2 text-gray-600">
-                  <li>• National identity card or other valid identification document</li>
-                  <li>• Previous medical records, investigation reports and discharge summaries (if any)</li>
-                  <li>• Current medications in their original packaging</li>
-                  <li>• Insurance or entitlement documents, if applicable</li>
-                  <li>• Limited personal toiletries and comfortable clothing, as permitted by ward policy</li>
+                <ul className="space-y-2 text-gray-600 list-disc pl-6">
+                  <li>National identity card or other valid identification document</li>
+                  <li>Previous medical records, investigation reports and discharge summaries (if any)</li>
+                  <li>Current medications in their original packaging</li>
+                  <li>Insurance or entitlement documents, if applicable</li>
+                  <li>Limited personal toiletries and comfortable clothing, as permitted by ward policy</li>
                 </ul>
               </div>
             </div>

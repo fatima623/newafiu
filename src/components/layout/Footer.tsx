@@ -1,35 +1,45 @@
 'use client';
 
 import Link from 'next/link';
-import { Phone, Mail, MapPin, Clock, Facebook, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import { contactInfo } from '@/data/siteData';
 
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="max-w-8xl mx-auto px-4 py-8 sm:px-6">
+        <div className="grid grid-cols-1 gap-y-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-y-8 lg:gap-x-8">
           {/* About Section */}
-          <div>
-            <div className="flex items-center gap-3 mb-4">
+          <div className="ms-8 sm:ms-16 md:ms-8 lg:ms-1 xl:ms-1 space-y-4">
+            <div className="flex items-center gap-3">
               <img
                 src="/afiulogo.png"
                 alt="AFIU Logo"
-                className="w-12 h-12 object-contain bg-white rounded-lg p-1"
+                className="w-10 h-10 object-contain bg-white rounded p-0.5"
               />
               <div>
                 <h3 className="text-lg font-bold">AFIU</h3>
                 <p className="text-xs text-gray-400">Armed Forces Institute of Urology</p>
               </div>
             </div>
-            <p className="text-gray-400 text-sm">
-              Providing excellence in urological care with state-of-the-art facilities and expert medical professionals.
-            </p>
+            <li className="flex items-start gap-2 text-sm">
+                <MapPin size={16} className="flex-shrink-0 text-blue-400" />
+                <span className="text-gray-400">Location</span>
+            </li>
+            <div>
+              <iframe
+                title="AFIU Location Map"
+                src="https://www.google.com/maps?q=Armed+Forces+Institute+of+Urology,+Rawalpindi,+Pakistan&output=embed"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full h-32 rounded-lg shadow-sm border-0"
+              />
+            </div>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-bold mb-4">Quick Links</h3>
+          <div className="ms-16">
+            <h3 className="text-base font-bold mb-3">Quick Links</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/about/mission" className="text-gray-400 hover:text-blue-400 transition-colors text-sm">
@@ -60,8 +70,8 @@ export default function Footer() {
           </div>
 
           {/* Our Services */}
-          <div>
-            <h3 className="text-lg font-bold mb-4">Our Services</h3>
+          <div className="ms-8 sm:ms-16 md:ms-8 lg:ms-8 xl:ms-8">
+            <h3 className="text-base font-bold mb-3">Our Services</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/clinical-services/endourology" className="text-gray-400 hover:text-blue-400 transition-colors text-sm">
@@ -74,26 +84,26 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/clinical-services/reconstructive" className="text-gray-400 hover:text-blue-400 transition-colors text-sm">
+                <Link href="/clinical-services/endourology/reconstructive-surgery" className="text-gray-400 hover:text-blue-400 transition-colors text-sm">
                   Reconstructive Urology
                 </Link>
               </li>
               <li>
-                <Link href="/clinical-services/opd" className="text-gray-400 hover:text-blue-400 transition-colors text-sm">
-                  OPD
+                <Link href="/clinical-services/endourology/pediatric-urology" className="text-gray-400 hover:text-blue-400 transition-colors text-sm">
+                  Pediatric Urology
                 </Link>
               </li>
               <li>
-                <Link href="/clinical-services/daycare" className="text-gray-400 hover:text-blue-400 transition-colors text-sm">
-                  Daycare
+                <Link href="/clinical-services/reconstructive" className="text-gray-400 hover:text-blue-400 transition-colors text-sm">
+                  Lithotripsy
                 </Link>
               </li>
             </ul>
           </div>
 
           {/* Contact Info */}
-          <div>
-            <h3 className="text-lg font-bold mb-4">Contact Us</h3>
+          <div className="ms-8 sm:ms-16 md:ms-16 lg:ms-1 xl:ms-1">
+            <h3 className="text-base font-bold mb-3">Contact Us</h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-2 text-sm">
                 <MapPin size={16} className="mt-1 flex-shrink-0 text-blue-400" />
@@ -119,26 +129,9 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Social Media & Copyright */}
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <div className="flex gap-4 mb-4 md:mb-0">
-            <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-950 transition-colors">
-              <Facebook size={20} />
-            </a>
-            <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-950 transition-colors">
-              <Twitter size={20} />
-            </a>
-            <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-950 transition-colors">
-              <Instagram size={20} />
-            </a>
-            <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-950 transition-colors">
-              <Linkedin size={20} />
-            </a>
-            <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-950 transition-colors">
-              <Youtube size={20} />
-            </a>
-          </div>
-          <p className="text-gray-400 text-sm">
+        {/* Footer Bottom */}
+        <div className="border-t border-gray-800 mt-8 pt-8 flex justify-center items-center">
+          <p className="text-gray-400 text-sm text-center">
             © {new Date().getFullYear()} Armed Forces Institute of Urology. All rights reserved.
           </p>
         </div>

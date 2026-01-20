@@ -50,7 +50,6 @@ export const navItems: NavItem[] = [
     subItems: [
       { label: 'Patient Education', href: '/educational-resources/patient-education' },
       { label: 'Physicians', href: '/educational-resources/physicians' },
-      { label: 'Institutional Guidelines', href: '/educational-resources/guidelines' },
     ],
   },
   {
@@ -72,10 +71,6 @@ export const navItems: NavItem[] = [
   {
     label: 'Careers',
     href: '/careers',
-  },
-  {
-    label: 'Donations',
-    href: '/donations',
   },
   {
     label: 'Patient Visit',
