@@ -42,6 +42,7 @@ export const navItems: NavItem[] = [
       { label: 'Urodynamic Studies (UDS)', href: '/clinical-services/uds' },
       { label: 'Radiology Department', href: '/clinical-services/radio' },
       { label: 'Renal Transplant Service', href: '/clinical-services/transplant' },
+      { label: 'Emergency', href: '/clinical-services/emergency' },
     ],
   },
   {
@@ -259,6 +260,14 @@ export const services: Service[] = [
     icon: 'Wrench',
     image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?w=800&h=600&fit=crop',
     details: 'The transplant team offers comprehensive care including pre-transplant evaluation, donor assessment, transplant surgery and long-term follow-up for recipients with end-stage renal disease.',
+  },
+  {
+    id: 'emergency',
+    title: 'Emergency',
+    description: 'Urgent urological evaluation and support for acute presentations.',
+    icon: 'Wrench',
+    image: 'https://images.unsplash.com/photo-1580281657527-47f249e8f7b5?w=800&h=600&fit=crop',
+    details: 'Emergency services provide timely assessment and initial management for acute urological conditions, with appropriate coordination for investigations, procedures and admission when required.',
   },
 ];
 

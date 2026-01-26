@@ -16,8 +16,6 @@ export default function OPDPage() {
         'Post-operative follow-ups'
       ]}
       benefits={[
-        'No hospitalization required',
-        'Same-day consultations available',
         'Expert urological advice',
         'Modern diagnostic facilities',
         'Convenient appointment scheduling',

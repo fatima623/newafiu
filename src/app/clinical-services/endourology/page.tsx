@@ -18,10 +18,9 @@ export default function EndourologyPage() {
       benefits={[
         'Minimally invasive approach',
         'Faster recovery time',
-        'Less post-operative pain',
         'Shorter hospital stay',
         'High success rates',
-        'Advanced laser technology'
+        'Advanced technology'
       ]}
     />
   );
