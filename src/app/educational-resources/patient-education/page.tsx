@@ -1,14 +1,34 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { FileText, Download } from 'lucide-react';
 
+interface PatientEducationItem {
+  id: number;
+  title: string;
+  description: string | null;
+  pdfUrl: string | null;
+}
+
 export default function PatientEducationPage() {
-  const topics = [
-    { title: 'Kidney Stones', description: 'Understanding causes, symptoms, and treatment options' },
-    { title: 'Prostate Health', description: 'Information about BPH, prostatitis, and prostate cancer' },
-    { title: 'Urinary Incontinence', description: 'Types, causes, and management strategies' },
-    { title: 'Bladder Health', description: 'Common bladder conditions and their treatment' },
-    { title: 'Pre-Operative Instructions', description: 'What to do before your surgery' },
-    { title: 'Post-Operative Care', description: 'Recovery guidelines after urological procedures' },
-  ];
+  const [items, setItems] = useState<PatientEducationItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const fetchItems = async () => {
+    try {
+      const res = await fetch('/api/patient-education');
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error fetching patient education:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
@@ -33,23 +53,44 @@ export default function PatientEducationPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {topics.map((topic, index) => (
-                <div key={index} className="bg-[#ADD8E6] p-6 rounded-lg hover:shadow-lg transition-shadow">
-                  <div className="flex items-start gap-4">
-                    <FileText size={24} className="text-blue-950 flex-shrink-0 mt-1" />
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">{topic.title}</h3>
-                      <p className="text-gray-600 mb-3">{topic.description}</p>
-                      <button className="inline-flex items-center gap-2 text-blue-950 hover:text-blue-700 font-semibold">
-                        <Download size={16} />
-                        Download PDF
-                      </button>
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-950 mx-auto"></div>
+              </div>
+            ) : items.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">No educational materials available yet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {items.map((item) => (
+                  <div key={item.id} className="bg-[#ADD8E6] p-6 rounded-lg hover:shadow-lg transition-shadow">
+                    <div className="flex items-start gap-4">
+                      <FileText size={24} className="text-blue-950 flex-shrink-0 mt-1" />
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-800 mb-2">{item.title}</h3>
+                        {item.description && (
+                          <p className="text-gray-600 mb-3">{item.description}</p>
+                        )}
+                        {item.pdfUrl ? (
+                          <a
+                            href={item.pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-blue-950 hover:text-blue-700 font-semibold"
+                          >
+                            <Download size={16} />
+                            Download PDF
+                          </a>
+                        ) : (
+                          <span className="text-gray-400 text-sm">PDF not available</span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             <div className="mt-12 bg-gray-50 p-8 rounded-lg">
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Need More Information?</h3>

@@ -1,65 +1,45 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 type GalleryImage = {
-  id: string;
-  src: string;
-  caption: string;
-  date: string;
+  id: number;
+  url: string;
+  caption: string | null;
 };
 
-type GalleryEvent = {
-  id: string;
+type GalleryAlbum = {
+  id: number;
   title: string;
   date: string;
   images: GalleryImage[];
 };
 
-// Sample data - replace with your actual data
-const galleryEvents: GalleryEvent[] = [
-  {
-    id: '1',
-    title: 'Annual Medical Conference 2023',
-    date: '2023-11-15',
-    images: [
-      {
-        id: '1-1',
-        src: '/conference1.jpg',
-        caption: 'Keynote speech by Dr. Smith',
-        date: '2023-11-15',
-      },
-      {
-        id: '1-2',
-        src: '/conference2.jpg',
-        caption: 'Panel discussion on urological advancements',
-        date: '2023-11-15',
-      },
-    ],
-  },
-  {
-    id: '2',
-    title: 'Hospital Inauguration',
-    date: '2023-10-05',
-    images: [
-      {
-        id: '2-1',
-        src: '/inauguration.jpg',
-        caption: 'Ribbon cutting ceremony',
-        date: '2023-10-05',
-      },
-    ],
-  },
-  // Add more events as needed
-];
-
 export default function GalleryPage() {
-  const [selectedEvent, setSelectedEvent] = useState<GalleryEvent | null>(null);
+  const [galleryAlbums, setGalleryAlbums] = useState<GalleryAlbum[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<GalleryAlbum | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const openEvent = (event: GalleryEvent) => {
+  useEffect(() => {
+    fetchGallery();
+  }, []);
+
+  const fetchGallery = async () => {
+    try {
+      const res = await fetch('/api/gallery');
+      const data = await res.json();
+      setGalleryAlbums(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error fetching gallery:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openEvent = (event: GalleryAlbum) => {
     setSelectedEvent(event);
     setCurrentImageIndex(0);
     document.body.style.overflow = 'hidden';
@@ -100,29 +80,44 @@ export default function GalleryPage() {
           <p className="text-lg text-gray-600">Explore our media gallery</p>
         </div>
 
+        {loading ? (
+          <div className="col-span-full text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-950 mx-auto"></div>
+          </div>
+        ) : galleryAlbums.length === 0 ? (
+          <div className="col-span-full text-center py-12">
+            <p className="text-gray-500">No gallery albums available yet.</p>
+          </div>
+        ) : null}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {galleryEvents.map((event) => (
+          {galleryAlbums.map((album) => (
             <div 
-              key={event.id} 
+              key={album.id} 
               className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300"
-              onClick={() => openEvent(event)}
+              onClick={() => openEvent(album)}
             >
               <div className="h-48 relative">
-                <Image
-                  src={event.images[0].src}
-                  alt={event.title}
-                  fill
-                  className="object-cover"
-                />
-                {event.images.length > 1 && (
+                {album.images[0] ? (
+                  <img
+                    src={album.images[0].url}
+                    alt={album.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-400">No image</span>
+                  </div>
+                )}
+                {album.images.length > 1 && (
                   <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-                    {event.images.length} photos
+                    {album.images.length} photos
                   </div>
                 )}
               </div>
               <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">{event.title}</h3>
-                <p className="text-sm text-gray-500">{formatDate(event.date)}</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">{album.title}</h3>
+                <p className="text-sm text-gray-500">{formatDate(album.date)}</p>
               </div>
             </div>
           ))}
@@ -142,11 +137,10 @@ export default function GalleryPage() {
           
           <div className="relative max-w-4xl w-full">
             <div className="relative aspect-video bg-black">
-              <Image
-                src={selectedEvent.images[currentImageIndex].src}
-                alt={selectedEvent.images[currentImageIndex].caption}
-                fill
-                className="object-contain"
+              <img
+                src={selectedEvent.images[currentImageIndex].url}
+                alt={selectedEvent.images[currentImageIndex].caption || selectedEvent.title}
+                className="w-full h-full object-contain"
               />
 
               {selectedEvent.images.length > 1 && (
@@ -177,11 +171,13 @@ export default function GalleryPage() {
 
             <div className="bg-white p-4">
               <h3 className="text-xl font-semibold text-gray-900">{selectedEvent.title}</h3>
-              <p className="text-gray-700 mt-1">
-                {selectedEvent.images[currentImageIndex].caption}
-              </p>
+              {selectedEvent.images[currentImageIndex].caption && (
+                <p className="text-gray-700 mt-1">
+                  {selectedEvent.images[currentImageIndex].caption}
+                </p>
+              )}
               <p className="text-sm text-gray-500 mt-2">
-                {formatDate(selectedEvent.images[currentImageIndex].date)}
+                {formatDate(selectedEvent.date)}
               </p>
               {selectedEvent.images.length > 1 && (
                 <div className="flex items-center justify-center mt-4 space-x-2">
