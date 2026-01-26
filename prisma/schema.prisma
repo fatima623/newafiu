@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum NewsEventCategory {
+  news
+  event
+}
+
+model AdminUser {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model GalleryAlbum {
+  id        Int            @id @default(autoincrement())
+  title     String
+  date      DateTime
+  images    GalleryImage[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([date])
+}
+
+model GalleryImage {
+  id        Int          @id @default(autoincrement())
+  albumId   Int
+  album     GalleryAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  url       String
+  caption   String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([albumId])
+}
+
+model PatientEducation {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  pdfUrl      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model NewsEvent {
+  id              Int              @id @default(autoincrement())
+  title           String
+  date            DateTime
+  excerpt         String?
+  imageUrl        String?
+  content         String?
+  category        NewsEventCategory
+  showInBanner    Boolean          @default(false)
+  bannerExpiresAt DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([category])
+  @@index([date])
+  @@index([showInBanner, bannerExpiresAt])
+}
