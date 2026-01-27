@@ -37,7 +37,7 @@ export default function DashboardLayout({
 
   const checkAuth = async () => {
     try {
-      const res = await fetch('/api/auth/me');
+      const res = await fetch('/api/auth/login');
       if (!res.ok) {
         router.push('/admin/login');
         return;
@@ -52,8 +52,8 @@ export default function DashboardLayout({
   };
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/admin/login');
+    await fetch('/api/auth/login', { method: 'DELETE' });
+    router.push('/');
   };
 
   if (loading) {

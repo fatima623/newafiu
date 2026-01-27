@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
-import { signToken, setSessionCookie } from '@/lib/auth';
+import { signToken, setSessionCookie, getSession, clearSessionCookie } from '@/lib/auth';
 
+// POST /api/auth/login - Login
 export async function POST(request: NextRequest) {
   try {
     const { username, password } = await request.json();
@@ -44,4 +45,21 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// GET /api/auth/login - Get current session (me)
+export async function GET() {
+  const session = await getSession();
+  
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  return NextResponse.json({ id: session.id, username: session.username });
+}
+
+// DELETE /api/auth/login - Logout
+export async function DELETE() {
+  await clearSessionCookie();
+  return NextResponse.json({ success: true });
 }

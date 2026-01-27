@@ -1,6 +1,6 @@
 'use client';
 
-import { Phone, Mail } from 'lucide-react';
+import { Phone, Mail, Shield } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Header() {
@@ -23,6 +23,13 @@ export default function Header() {
             className="flex items-center gap-2 hover:text-blue-600 transition-colors"
           >
             <span>News & Events</span>
+          </Link>
+          <Link 
+            href="/admin/login" 
+            className="flex items-center gap-2 hover:text-blue-600 transition-colors"
+          >
+            <Shield size={16} />
+            <span>Admin Portal</span>
           </Link>
         </div>
       </div>
