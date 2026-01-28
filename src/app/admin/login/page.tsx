@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, User } from 'lucide-react';
+import Link from 'next/link';
+import { Lock, User, Home } from 'lucide-react';
 import { fetchJson } from '@/lib/fetchJson';
 
 export default function AdminLoginPage() {
@@ -93,6 +94,16 @@ export default function AdminLoginPage() {
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-blue-950 hover:text-blue-600 transition-colors font-medium"
+          >
+            <Home size={16} />
+            Go to Main Website
+          </Link>
+        </div>
       </div>
     </div>
   );

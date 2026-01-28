@@ -36,7 +36,7 @@ export async function PUT(
     }
 
     const { id } = await params;
-    const { title, date, excerpt, imageUrl, content, category, showInBanner, bannerExpiresAt } = await request.json();
+    const { title, date, excerpt, imageUrl, content, showInBanner, bannerExpiresAt } = await request.json();
 
     const item = await prisma.newsEvent.update({
       where: { id: parseInt(id) },
@@ -46,7 +46,7 @@ export async function PUT(
         excerpt: excerpt || null,
         imageUrl: imageUrl || null,
         content: content || null,
-        category,
+        category: 'news', // Default value for backward compatibility
         showInBanner: showInBanner || false,
         bannerExpiresAt: bannerExpiresAt ? new Date(bannerExpiresAt) : null,
       },

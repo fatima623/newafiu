@@ -31,10 +31,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { title, date, excerpt, imageUrl, content, category, showInBanner, bannerExpiresAt } = await request.json();
+    const { title, date, excerpt, imageUrl, content, showInBanner, bannerExpiresAt } = await request.json();
 
-    if (!title || !date || !category) {
-      return NextResponse.json({ error: 'Title, date, and category are required' }, { status: 400 });
+    if (!title || !date) {
+      return NextResponse.json({ error: 'Title and date are required' }, { status: 400 });
     }
 
     const item = await prisma.newsEvent.create({
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         excerpt: excerpt || null,
         imageUrl: imageUrl || null,
         content: content || null,
-        category,
+        category: 'news', // Default value for backward compatibility
         showInBanner: showInBanner || false,
         bannerExpiresAt: bannerExpiresAt ? new Date(bannerExpiresAt) : null,
       },

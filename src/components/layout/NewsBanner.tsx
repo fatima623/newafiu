@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Calendar, Megaphone } from 'lucide-react';
+import { Megaphone } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 interface BannerItem {
@@ -63,23 +63,7 @@ export default function NewsBanner() {
                 href="/news-events"
                 className="inline-flex items-center gap-2 mx-8 hover:underline"
               >
-                <span
-                  className={`px-2 py-0.5 text-xs rounded ${
-                    item.category === 'news'
-                      ? 'bg-blue-600'
-                      : 'bg-green-600'
-                  }`}
-                >
-                  {item.category === 'news' ? 'NEWS' : 'EVENT'}
-                </span>
                 <span className="font-medium">{item.title}</span>
-                <span className="flex items-center gap-1 text-white/80 text-sm">
-                  <Calendar size={12} />
-                  {new Date(item.date).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </span>
                 {index < items.length - 1 && (
                   <span className="ml-8 text-white/50">•</span>
                 )}
@@ -92,23 +76,7 @@ export default function NewsBanner() {
                 href="/news-events"
                 className="inline-flex items-center gap-2 mx-8 hover:underline"
               >
-                <span
-                  className={`px-2 py-0.5 text-xs rounded ${
-                    item.category === 'news'
-                      ? 'bg-blue-600'
-                      : 'bg-green-600'
-                  }`}
-                >
-                  {item.category === 'news' ? 'NEWS' : 'EVENT'}
-                </span>
                 <span className="font-medium">{item.title}</span>
-                <span className="flex items-center gap-1 text-white/80 text-sm">
-                  <Calendar size={12} />
-                  {new Date(item.date).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </span>
                 {index < items.length - 1 && (
                   <span className="ml-8 text-white/50">•</span>
                 )}

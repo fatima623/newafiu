@@ -45,27 +45,27 @@ export default function AdminDashboardPage() {
       count: stats.galleryAlbums,
       icon: Image,
       href: '/admin/dashboard/gallery',
-      color: 'bg-purple-500',
+      gradient: 'from-purple-500 to-pink-500',
     },
     {
       title: 'Patient Education',
       count: stats.patientEducation,
       icon: BookOpen,
       href: '/admin/dashboard/patient-education',
-      color: 'bg-green-500',
+      gradient: 'from-green-500 to-teal-500',
     },
     {
       title: 'News & Events',
       count: stats.newsEvents,
       icon: Newspaper,
       href: '/admin/dashboard/news-events',
-      color: 'bg-orange-500',
+      gradient: 'from-orange-500 to-red-500',
     },
   ];
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
+    <div className="pt-4">
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -85,13 +85,13 @@ export default function AdminDashboardPage() {
               <Link
                 key={card.title}
                 href={card.href}
-                className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+                className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100"
               >
-                <div className={`${card.color} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}>
-                  <Icon className="w-6 h-6 text-white" />
+                <div className={`bg-gradient-to-r ${card.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
+                  <Icon className="w-7 h-7 text-white" />
                 </div>
-                <p className="text-3xl font-bold text-gray-900">{card.count}</p>
-                <p className="text-gray-600">{card.title}</p>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{card.count}</p>
+                <p className="text-gray-600 font-medium">{card.title}</p>
               </Link>
             );
           })}

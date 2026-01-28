@@ -48,8 +48,14 @@ export default function DashboardLayout({
   };
 
   const handleLogout = async () => {
-    await fetch('/api/auth/login', { method: 'DELETE' });
-    router.push('/');
+    try {
+      await fetchJson('/api/auth/login', { method: 'DELETE' });
+      router.push('/admin/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still redirect even if there's an error
+      router.push('/admin/login');
+    }
   };
 
   if (loading) {

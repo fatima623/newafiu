@@ -59,7 +59,7 @@ model NewsEvent {
   excerpt         String?
   imageUrl        String?
   content         String?
-  category        NewsEventCategory
+  category        NewsEventCategory?
   showInBanner    Boolean          @default(false)
   bannerExpiresAt DateTime?
   createdAt       DateTime         @default(now())

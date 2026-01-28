@@ -10,7 +10,6 @@ export default function NewNewsEventPage() {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
-  const [category, setCategory] = useState<'news' | 'event'>('news');
   const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -55,7 +54,6 @@ export default function NewNewsEventPage() {
         body: JSON.stringify({
           title,
           date,
-          category,
           excerpt,
           content,
           imageUrl,
@@ -107,20 +105,6 @@ export default function NewNewsEventPage() {
               />
             </div>
 
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                Type *
-              </label>
-              <select
-                id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value as 'news' | 'event')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="news">News</option>
-                <option value="event">Event</option>
-              </select>
-            </div>
           </div>
 
           <div>
