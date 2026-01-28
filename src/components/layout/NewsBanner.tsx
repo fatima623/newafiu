@@ -117,14 +117,7 @@ export default function NewsBanner() {
           </div>
         </div>
 
-        <div className="flex-shrink-0 px-4">
-          <Link
-            href="/hospital-visit/booking"
-            className="bg-white text-orange-600 px-4 py-1 rounded-full text-sm font-semibold hover:bg-orange-100 transition-colors"
-          >
-            Book Appointment
-          </Link>
-        </div>
+        
       </div>
     </div>
   );
