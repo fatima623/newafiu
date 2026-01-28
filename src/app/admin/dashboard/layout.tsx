@@ -10,7 +10,8 @@ import {
   Newspaper, 
   LogOut,
   Menu,
-  X
+  X,
+  Users
 } from 'lucide-react';
 import { fetchJson } from '@/lib/fetchJson';
 
@@ -19,6 +20,7 @@ const navItems = [
   { href: '/admin/dashboard/gallery', label: 'Gallery', icon: Image },
   { href: '/admin/dashboard/patient-education', label: 'Patient Education', icon: BookOpen },
   { href: '/admin/dashboard/news-events', label: 'News & Events', icon: Newspaper },
+  { href: '/admin/dashboard/faculty', label: 'Faculty', icon: Users },
 ];
 
 export default function DashboardLayout({

@@ -1,6 +1,28 @@
 import { notFound } from 'next/navigation';
 import { Mail, Phone, Award } from 'lucide-react';
-import { faculty } from '@/data/siteData';
+
+interface Faculty {
+  id: number;
+  name: string;
+  designation: string;
+  qualifications: string;
+  specialization: string | null;
+  image: string | null;
+  bio: string | null;
+}
+
+async function getFacultyMember(id: string): Promise<Faculty | null> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/faculty/${id}`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
 
 export default async function FacultyDetailPage({
   params,
@@ -9,11 +31,14 @@ export default async function FacultyDetailPage({
 }) {
   const { id } = await params;
 
-  const member = faculty.find((f) => f.id === id);
+  const member = await getFacultyMember(id);
 
   if (!member) {
     notFound();
   }
+
+  const displayImage = member.image || '/person.png';
+  const displaySpecialization = member.specialization || 'General Urology';
 
   return (
     <div>
@@ -23,7 +48,7 @@ export default async function FacultyDetailPage({
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row gap-8 items-center">
               <img
-                src={member.image}
+                src={displayImage}
                 alt={member.name}
                 className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-xl"
               />
@@ -45,7 +70,7 @@ export default async function FacultyDetailPage({
               <div className="bg-blue-50 p-6 rounded-lg">
                 <Award size={32} className="text-blue-600 mb-3" />
                 <h3 className="font-bold text-gray-800 mb-2">Specialization</h3>
-                <p className="text-gray-600">{member.specialization}</p>
+                <p className="text-gray-600">{displaySpecialization}</p>
               </div>
 
               <div className="bg-blue-50 p-6 rounded-lg">
@@ -64,7 +89,7 @@ export default async function FacultyDetailPage({
             <div>
               <h2 className="text-3xl font-bold text-gray-800 mb-6">About</h2>
               <p className="text-lg text-gray-600 mb-6">
-                {member.bio || `${member.name} is a highly experienced urologist specializing in ${member.specialization}. With extensive training and years of clinical experience, ${member.name.split(' ')[0]} provides expert care to patients with various urological conditions.`}
+                {member.bio || `${member.name} is a highly experienced urologist specializing in ${displaySpecialization}. With extensive training and years of clinical experience, ${member.name.split(' ')[0]} provides expert care to patients with various urological conditions.`}
               </p>
 
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Qualifications</h3>
@@ -72,7 +97,7 @@ export default async function FacultyDetailPage({
 
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Areas of Expertise</h3>
               <ul className="list-disc list-inside space-y-2 text-gray-600">
-                {member.specialization.split(',').map((spec, index) => (
+                {displaySpecialization.split(',').map((spec, index) => (
                   <li key={index}>{spec.trim()}</li>
                 ))}
               </ul>
@@ -82,10 +107,4 @@ export default async function FacultyDetailPage({
       </section>
     </div>
   );
-}
-
-export function generateStaticParams() {
-  return faculty.map((member) => ({
-    id: member.id,
-  }));
 }

@@ -1,7 +1,31 @@
 import FacultyCard from '@/components/ui/FacultyCard';
-import { faculty } from '@/data/siteData';
 
-export default function FacultyPage() {
+interface Faculty {
+  id: number;
+  name: string;
+  designation: string;
+  qualifications: string;
+  specialization: string | null;
+  image: string | null;
+  bio: string | null;
+}
+
+async function getFaculty(): Promise<Faculty[]> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/faculty`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
+export default async function FacultyPage() {
+  const faculty = await getFaculty();
+
   return (
     <div>
       {/* Hero Section */}
@@ -27,11 +51,27 @@ export default function FacultyPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 auto-rows-fr">
-              {faculty.map((member) => (
-                <FacultyCard key={member.id} faculty={member} />
-              ))}
-            </div>
+            {faculty.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">No faculty members available at the moment.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 auto-rows-fr">
+                {faculty.map((member) => (
+                  <FacultyCard
+                    key={member.id}
+                    faculty={{
+                      id: String(member.id),
+                      name: member.name,
+                      designation: member.designation,
+                      qualifications: member.qualifications,
+                      specialization: member.specialization || '',
+                      image: member.image || '/person.png',
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
