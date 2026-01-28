@@ -7,8 +7,9 @@ import { usePathname } from 'next/navigation';
 export default function Header() {
   const pathname = usePathname();
   const hideOnDashboard = pathname?.startsWith('/admin/dashboard');
+  const hideOnLogin = pathname?.startsWith('/admin/login');
 
-  if (hideOnDashboard) {
+  if (hideOnDashboard || hideOnLogin) {
     return null;
   }
 
@@ -26,12 +27,7 @@ export default function Header() {
           </a>
         </div>
         <div className="flex gap-4">
-          <Link 
-            href="/news-events" 
-            className="flex items-center gap-2 hover:text-blue-600 transition-colors"
-          >
-            <span>News & Events</span>
-          </Link>
+        
           <Link 
             href="/admin/login" 
             className="flex items-center gap-2 hover:text-blue-600 transition-colors"

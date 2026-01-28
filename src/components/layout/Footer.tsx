@@ -8,8 +8,9 @@ import { usePathname } from 'next/navigation';
 export default function Footer() {
   const pathname = usePathname();
   const hideOnDashboard = pathname?.startsWith('/admin/dashboard');
+  const hideOnLogin = pathname?.startsWith('/admin/login');
 
-  if (hideOnDashboard) {
+  if (hideOnDashboard || hideOnLogin) {
     return null;
   }
 

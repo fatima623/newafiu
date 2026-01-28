@@ -12,13 +12,10 @@ export default function Navbar() {
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const pathname = usePathname();
   const hideOnDashboard = pathname?.startsWith('/admin/dashboard');
+  const hideOnLogin = pathname?.startsWith('/admin/login');
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const navbarRef = useRef<HTMLElement | null>(null);
   const [isBrandAnimated, setIsBrandAnimated] = useState(false);
-
-  if (hideOnDashboard) {
-    return null;
-  }
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -58,6 +55,11 @@ export default function Navbar() {
       observer.disconnect();
     };
   }, []);
+
+  // Hide on dashboard and login pages
+  if (hideOnDashboard || hideOnLogin) {
+    return null;
+  }
 
   const toggleDropdown = (label: string) => {
     const next = openDropdown === label ? null : label;

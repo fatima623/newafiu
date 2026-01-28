@@ -15,17 +15,16 @@ interface BannerItem {
 export default function NewsBanner() {
   const pathname = usePathname();
   const hideOnDashboard = pathname?.startsWith('/admin/dashboard');
+  const hideOnLogin = pathname?.startsWith('/admin/login');
   const isHomePage = pathname === '/';
   const [items, setItems] = useState<BannerItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  if (hideOnDashboard) {
-    return null;
-  }
-
   useEffect(() => {
-    fetchBannerItems();
-  }, []);
+    if (!hideOnDashboard && !hideOnLogin) {
+      fetchBannerItems();
+    }
+  }, [hideOnDashboard, hideOnLogin]);
 
   const fetchBannerItems = async () => {
     try {
@@ -39,7 +38,8 @@ export default function NewsBanner() {
     }
   };
 
-  if (loading || items.length === 0) {
+  // Hide on dashboard and login pages, or when loading/no items
+  if (hideOnDashboard || hideOnLogin || loading || items.length === 0) {
     return null;
   }
 
