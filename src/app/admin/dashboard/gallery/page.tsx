@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Plus, Edit, Trash2, Image } from 'lucide-react';
+import { fetchJson } from '@/lib/fetchJson';
 
 interface GalleryAlbum {
   id: number;
@@ -21,8 +22,7 @@ export default function GalleryListPage() {
 
   const fetchAlbums = async () => {
     try {
-      const res = await fetch('/api/gallery');
-      const data = await res.json();
+      const data = await fetchJson('/api/gallery');
       setAlbums(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching albums:', error);

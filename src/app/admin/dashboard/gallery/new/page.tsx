@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Upload, X, Plus } from 'lucide-react';
+import { fetchJson } from '@/lib/fetchJson';
 
 interface ImageItem {
   url: string;
@@ -31,14 +32,10 @@ export default function NewGalleryPage() {
         const formData = new FormData();
         formData.append('file', file);
 
-        const res = await fetch('/api/upload', {
+        const data = await fetchJson<{ url: string }>('/api/upload', {
           method: 'POST',
           body: formData,
         });
-
-        if (!res.ok) throw new Error('Upload failed');
-
-        const data = await res.json();
         setImages((prev) => [...prev, { url: data.url, caption: '' }]);
       }
     } catch {
@@ -64,17 +61,11 @@ export default function NewGalleryPage() {
     setSaving(true);
 
     try {
-      const res = await fetch('/api/gallery', {
+      await fetchJson('/api/gallery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, date, images }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to create album');
-      }
-
       router.push('/admin/dashboard/gallery');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -84,7 +75,7 @@ export default function NewGalleryPage() {
   };
 
   return (
-    <div>
+    <div className="max-w-3xl mx-auto">
       <div className="flex items-center gap-4 mb-8">
         <Link
           href="/admin/dashboard/gallery"
@@ -95,7 +86,7 @@ export default function NewGalleryPage() {
         <h1 className="text-3xl font-bold text-gray-900">New Gallery Album</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 max-w-3xl">
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 w-full">
         {error && (
           <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6">
             {error}

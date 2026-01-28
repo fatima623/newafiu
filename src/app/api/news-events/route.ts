@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
+    const prisma = getPrisma();
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
 
@@ -14,12 +15,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(items);
   } catch (error) {
     console.error('Error fetching news/events:', error);
-    return NextResponse.json({ error: 'Failed to fetch news/events' }, { status: 500 });
+    const message =
+      error instanceof Error && error.message === 'DATABASE_URL is not configured'
+        ? error.message
+        : 'Failed to fetch news/events';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const prisma = getPrisma();
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -47,6 +53,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(item, { status: 201 });
   } catch (error) {
     console.error('Error creating news/event:', error);
-    return NextResponse.json({ error: 'Failed to create news/event' }, { status: 500 });
+    const message =
+      error instanceof Error && error.message === 'DATABASE_URL is not configured'
+        ? error.message
+        : 'Failed to create news/event';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

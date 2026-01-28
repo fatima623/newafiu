@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Upload, Save } from 'lucide-react';
+import { fetchJson } from '@/lib/fetchJson';
 
 export default function EditNewsEventPage() {
   const router = useRouter();
@@ -29,10 +30,7 @@ export default function EditNewsEventPage() {
 
   const fetchItem = async () => {
     try {
-      const res = await fetch(`/api/news-events/${id}`);
-      if (!res.ok) throw new Error('Item not found');
-      
-      const data = await res.json();
+      const data = await fetchJson<any>(`/api/news-events/${id}`);
       setTitle(data.title);
       setDate(new Date(data.date).toISOString().split('T')[0]);
       setCategory(data.category);
@@ -61,14 +59,10 @@ export default function EditNewsEventPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('/api/upload', {
+      const data = await fetchJson<{ url: string }>('/api/upload', {
         method: 'POST',
         body: formData,
       });
-
-      if (!res.ok) throw new Error('Upload failed');
-
-      const data = await res.json();
       setImageUrl(data.url);
     } catch {
       setError('Failed to upload image');
@@ -83,7 +77,7 @@ export default function EditNewsEventPage() {
     setSaving(true);
 
     try {
-      const res = await fetch(`/api/news-events/${id}`, {
+      await fetchJson(`/api/news-events/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -97,12 +91,6 @@ export default function EditNewsEventPage() {
           bannerExpiresAt: bannerExpiresAt || null,
         }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to update item');
-      }
-
       router.push('/admin/dashboard/news-events');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');

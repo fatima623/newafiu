@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Image, BookOpen, Newspaper } from 'lucide-react';
 import Link from 'next/link';
+import { fetchJson } from '@/lib/fetchJson';
 
 interface Stats {
   galleryAlbums: number;
@@ -20,16 +21,10 @@ export default function AdminDashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const [galleryRes, educationRes, newsRes] = await Promise.all([
-        fetch('/api/gallery'),
-        fetch('/api/patient-education'),
-        fetch('/api/news-events'),
-      ]);
-
       const [gallery, education, news] = await Promise.all([
-        galleryRes.json(),
-        educationRes.json(),
-        newsRes.json(),
+        fetchJson('/api/gallery'),
+        fetchJson('/api/patient-education'),
+        fetchJson('/api/news-events'),
       ]);
 
       setStats({

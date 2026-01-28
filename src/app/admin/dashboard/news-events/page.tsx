@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Plus, Edit, Trash2, Newspaper, Bell } from 'lucide-react';
+import { fetchJson } from '@/lib/fetchJson';
 
 interface NewsEvent {
   id: number;
@@ -23,8 +24,7 @@ export default function NewsEventsListPage() {
 
   const fetchItems = async () => {
     try {
-      const res = await fetch('/api/news-events');
-      const data = await res.json();
+      const data = await fetchJson('/api/news-events');
       setItems(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching items:', error);

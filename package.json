@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "set DATABASE_URL=mysql://root@localhost:3306/afiu&& next dev --webpack",
     "build": "next build --webpack",
-    "start": "next start",
+    "start": "set DATABASE_URL=mysql://root@localhost:3306/afiu&& next start",
     "lint": "eslint",
-    "prisma": "prisma",
-    "db:push": "prisma db push",
-    "db:seed": "node prisma/seed.js"
+    "prisma": "set DATABASE_URL=mysql://root@localhost:3306/afiu&& prisma",
+    "db:push": "set DATABASE_URL=mysql://root@localhost:3306/afiu&& prisma db push",
+    "db:seed": "set DATABASE_URL=mysql://root@localhost:3306/afiu&& node prisma/seed.js"
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",

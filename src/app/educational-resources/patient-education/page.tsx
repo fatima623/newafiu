@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FileText, Download } from 'lucide-react';
+import { fetchJson } from '@/lib/fetchJson';
 
 interface PatientEducationItem {
   id: number;
@@ -20,8 +21,7 @@ export default function PatientEducationPage() {
 
   const fetchItems = async () => {
     try {
-      const res = await fetch('/api/patient-education');
-      const data = await res.json();
+      const data = await fetchJson('/api/patient-education');
       setItems(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching patient education:', error);

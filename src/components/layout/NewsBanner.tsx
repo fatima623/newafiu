@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Calendar, Megaphone } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 interface BannerItem {
   id: number;
@@ -12,8 +13,15 @@ interface BannerItem {
 }
 
 export default function NewsBanner() {
+  const pathname = usePathname();
+  const hideOnDashboard = pathname?.startsWith('/admin/dashboard');
+  const isHomePage = pathname === '/';
   const [items, setItems] = useState<BannerItem[]>([]);
   const [loading, setLoading] = useState(true);
+
+  if (hideOnDashboard) {
+    return null;
+  }
 
   useEffect(() => {
     fetchBannerItems();
@@ -36,7 +44,11 @@ export default function NewsBanner() {
   }
 
   return (
-    <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-2 overflow-hidden">
+    <div
+      className={`bg-gradient-to-r from-orange-500 to-red-500 text-white py-2 overflow-hidden ${
+        isHomePage ? 'sticky top-0 z-50' : ''
+      }`}
+    >
       <div className="flex items-center">
         <div className="flex-shrink-0 px-4 flex items-center gap-2 bg-white/20 py-1 rounded-r-full">
           <Megaphone size={16} />

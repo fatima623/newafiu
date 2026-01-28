@@ -11,9 +11,14 @@ export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const pathname = usePathname();
+  const hideOnDashboard = pathname?.startsWith('/admin/dashboard');
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const navbarRef = useRef<HTMLElement | null>(null);
   const [isBrandAnimated, setIsBrandAnimated] = useState(false);
+
+  if (hideOnDashboard) {
+    return null;
+  }
 
   // Close dropdown when clicking outside
   useEffect(() => {

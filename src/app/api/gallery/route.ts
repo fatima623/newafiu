@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 
 export async function GET() {
   try {
+    const prisma = getPrisma();
     const albums = await prisma.galleryAlbum.findMany({
       include: {
         images: true,
@@ -13,12 +14,17 @@ export async function GET() {
     return NextResponse.json(albums);
   } catch (error) {
     console.error('Error fetching gallery:', error);
-    return NextResponse.json({ error: 'Failed to fetch gallery' }, { status: 500 });
+    const message =
+      error instanceof Error && error.message === 'DATABASE_URL is not configured'
+        ? error.message
+        : 'Failed to fetch gallery';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const prisma = getPrisma();
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -47,6 +53,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(album, { status: 201 });
   } catch (error) {
     console.error('Error creating album:', error);
-    return NextResponse.json({ error: 'Failed to create album' }, { status: 500 });
+    const message =
+      error instanceof Error && error.message === 'DATABASE_URL is not configured'
+        ? error.message
+        : 'Failed to create album';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

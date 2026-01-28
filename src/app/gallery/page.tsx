@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { fetchJson } from '@/lib/fetchJson';
 
 type GalleryImage = {
   id: number;
@@ -29,8 +30,7 @@ export default function GalleryPage() {
 
   const fetchGallery = async () => {
     try {
-      const res = await fetch('/api/gallery');
-      const data = await res.json();
+      const data = await fetchJson('/api/gallery');
       setGalleryAlbums(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching gallery:', error);

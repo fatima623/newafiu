@@ -3,8 +3,16 @@
 import Link from 'next/link';
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import { contactInfo } from '@/data/siteData';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
+  const pathname = usePathname();
+  const hideOnDashboard = pathname?.startsWith('/admin/dashboard');
+
+  if (hideOnDashboard) {
+    return null;
+  }
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-8xl mx-auto px-4 py-8 sm:px-6">

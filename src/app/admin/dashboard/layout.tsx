@@ -12,6 +12,7 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import { fetchJson } from '@/lib/fetchJson';
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -37,12 +38,7 @@ export default function DashboardLayout({
 
   const checkAuth = async () => {
     try {
-      const res = await fetch('/api/auth/login');
-      if (!res.ok) {
-        router.push('/admin/login');
-        return;
-      }
-      const data = await res.json();
+      const data = await fetchJson<{ id: number; username: string }>('/api/auth/login');
       setUser(data);
     } catch {
       router.push('/admin/login');
@@ -81,8 +77,14 @@ export default function DashboardLayout({
         }`}
       >
         <div className="p-6">
-          <h1 className="text-2xl font-bold">AFIU Admin</h1>
-          <p className="text-blue-200 text-sm mt-1">Welcome, {user?.username}</p>
+          <div className="flex items-center gap-3">
+            <img
+              src="/afiulogo.png"
+              alt="AFIU Logo"
+              className="w-12 h-12 object-contain bg-white rounded p-0.5"
+            />
+            <h1 className="text-2xl font-bold">AFIU Admin</h1>
+          </div>
         </div>
 
         <nav className="mt-6">
@@ -122,6 +124,11 @@ export default function DashboardLayout({
 
       {/* Main content */}
       <main className="lg:ml-64 p-8 pt-16 lg:pt-8">
+        <div className="mb-6 flex items-center justify-end">
+          <div className="text-sm text-gray-600">
+            <span className="font-medium text-gray-900">Welcome,</span> {user?.username}
+          </div>
+        </div>
         {children}
       </main>
 

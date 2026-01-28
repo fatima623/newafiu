@@ -1,6 +1,6 @@
 # 🎉 Welcome to AFIU Website Project, Memoona!
 
-**Hey Amina Abid (a.k.a. Memoona)!** Welcome aboard! 🚀
+**Hey Amina Abid!** Welcome aboard! 🚀
 
 This guide will walk you through everything you need to know to get started with the AFIU (Armed Forces Institute of Urology) website project. Don't worry if things seem overwhelming at first — we've all been there!
 

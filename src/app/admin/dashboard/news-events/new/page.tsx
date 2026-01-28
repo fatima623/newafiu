@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Upload, Plus } from 'lucide-react';
+import { fetchJson } from '@/lib/fetchJson';
 
 export default function NewNewsEventPage() {
   const router = useRouter();
@@ -30,14 +31,10 @@ export default function NewNewsEventPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('/api/upload', {
+      const data = await fetchJson<{ url: string }>('/api/upload', {
         method: 'POST',
         body: formData,
       });
-
-      if (!res.ok) throw new Error('Upload failed');
-
-      const data = await res.json();
       setImageUrl(data.url);
     } catch {
       setError('Failed to upload image');
@@ -52,7 +49,7 @@ export default function NewNewsEventPage() {
     setSaving(true);
 
     try {
-      const res = await fetch('/api/news-events', {
+      await fetchJson('/api/news-events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -66,12 +63,6 @@ export default function NewNewsEventPage() {
           bannerExpiresAt: bannerExpiresAt || null,
         }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to create item');
-      }
-
       router.push('/admin/dashboard/news-events');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');

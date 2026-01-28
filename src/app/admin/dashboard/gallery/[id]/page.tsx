@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Upload, X, Save } from 'lucide-react';
+import { fetchJson } from '@/lib/fetchJson';
 
 interface ImageItem {
   url: string;
@@ -29,10 +30,7 @@ export default function EditGalleryPage() {
 
   const fetchAlbum = async () => {
     try {
-      const res = await fetch(`/api/gallery/${id}`);
-      if (!res.ok) throw new Error('Album not found');
-      
-      const data = await res.json();
+      const data = await fetchJson<any>(`/api/gallery/${id}`);
       setTitle(data.title);
       setDate(new Date(data.date).toISOString().split('T')[0]);
       setImages(data.images.map((img: { url: string; caption: string | null }) => ({
@@ -58,14 +56,10 @@ export default function EditGalleryPage() {
         const formData = new FormData();
         formData.append('file', file);
 
-        const res = await fetch('/api/upload', {
+        const data = await fetchJson<{ url: string }>('/api/upload', {
           method: 'POST',
           body: formData,
         });
-
-        if (!res.ok) throw new Error('Upload failed');
-
-        const data = await res.json();
         setImages((prev) => [...prev, { url: data.url, caption: '' }]);
       }
     } catch {
@@ -91,17 +85,11 @@ export default function EditGalleryPage() {
     setSaving(true);
 
     try {
-      const res = await fetch(`/api/gallery/${id}`, {
+      await fetchJson(`/api/gallery/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, date, images }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to update album');
-      }
-
       router.push('/admin/dashboard/gallery');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');

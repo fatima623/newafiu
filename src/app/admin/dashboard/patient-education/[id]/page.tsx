@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Upload, Save } from 'lucide-react';
+import { fetchJson } from '@/lib/fetchJson';
 
 export default function EditPatientEducationPage() {
   const router = useRouter();
@@ -24,10 +25,7 @@ export default function EditPatientEducationPage() {
 
   const fetchItem = async () => {
     try {
-      const res = await fetch(`/api/patient-education/${id}`);
-      if (!res.ok) throw new Error('Item not found');
-      
-      const data = await res.json();
+      const data = await fetchJson<any>(`/api/patient-education/${id}`);
       setTitle(data.title);
       setDescription(data.description || '');
       setPdfUrl(data.pdfUrl || '');
@@ -49,14 +47,10 @@ export default function EditPatientEducationPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('/api/upload', {
+      const data = await fetchJson<{ url: string }>('/api/upload', {
         method: 'POST',
         body: formData,
       });
-
-      if (!res.ok) throw new Error('Upload failed');
-
-      const data = await res.json();
       setPdfUrl(data.url);
     } catch {
       setError('Failed to upload PDF');
@@ -71,17 +65,11 @@ export default function EditPatientEducationPage() {
     setSaving(true);
 
     try {
-      const res = await fetch(`/api/patient-education/${id}`, {
+      await fetchJson(`/api/patient-education/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, description, pdfUrl }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to update item');
-      }
-
       router.push('/admin/dashboard/patient-education');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
