@@ -83,7 +83,7 @@ export default function DashboardLayout({
               alt="AFIU Logo"
               className="w-12 h-12 object-contain bg-white rounded p-0.5"
             />
-            <h1 className="text-2xl font-bold">AFIU Admin</h1>
+            
           </div>
         </div>
 

@@ -98,32 +98,7 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      <div className="mt-12 bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            href="/admin/dashboard/gallery/new"
-            className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Image className="w-5 h-5 text-purple-500" />
-            <span>Add Gallery Album</span>
-          </Link>
-          <Link
-            href="/admin/dashboard/patient-education/new"
-            className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <BookOpen className="w-5 h-5 text-green-500" />
-            <span>Add Patient Education</span>
-          </Link>
-          <Link
-            href="/admin/dashboard/news-events/new"
-            className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Newspaper className="w-5 h-5 text-orange-500" />
-            <span>Add News/Event</span>
-          </Link>
-        </div>
-      </div>
+
     </div>
   );
 }
