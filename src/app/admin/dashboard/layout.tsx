@@ -77,13 +77,15 @@ export default function DashboardLayout({
         }`}
       >
         <div className="p-6">
-          <div className="flex items-center gap-3">
-            <img
-              src="/afiulogo.png"
-              alt="AFIU Logo"
-              className="w-12 h-12 object-contain bg-white rounded p-0.5"
-            />
-            
+          <div className="bg-white/20 rounded-xl px-4 py-3 -mx-2">
+            <div className="flex items-center gap-3">
+              <img
+                src="/afiulogo.png"
+                alt="AFIU Logo"
+                className="w-16 h-16 object-contain"
+              />
+              <h1 className="text-xl font-semibold leading-tight">AFIU Admin</h1>
+            </div>
           </div>
         </div>
 
