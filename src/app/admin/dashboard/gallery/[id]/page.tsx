@@ -107,7 +107,7 @@ export default function EditGalleryPage() {
   }
 
   return (
-    <div>
+    <div className="max-w-3xl mx-auto">
       <div className="flex items-center gap-4 mb-8">
         <Link
           href="/admin/dashboard/gallery"
@@ -118,7 +118,7 @@ export default function EditGalleryPage() {
         <h1 className="text-3xl font-bold text-gray-900">Edit Gallery Album</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 max-w-3xl">
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 w-full">
         {error && (
           <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6">
             {error}
