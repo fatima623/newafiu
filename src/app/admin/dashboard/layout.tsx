@@ -84,17 +84,12 @@ export default function DashboardLayout({
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="p-6">
-          <div className="bg-white/20 rounded-xl px-4 py-3 -mx-2">
-            <div className="flex items-center gap-3">
-              <img
-                src="/afiulogo.png"
-                alt="AFIU Logo"
-                className="w-16 h-16 object-contain"
-              />
-              <h1 className="text-xl font-semibold leading-tight">AFIU Admin</h1>
-            </div>
-          </div>
+        <div className="p-6 flex justify-center">
+          <img
+            src="/afiulogo.png"
+            alt="AFIU Logo"
+            className="w-24 h-24 object-contain"
+          />
         </div>
 
         <nav className="mt-6">
