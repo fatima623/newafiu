@@ -166,14 +166,7 @@ export default function PatientEducationListPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Patient Education</h1>
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={handleAddDefaultForms}
-            disabled={addingDefaults || bulkUploading}
-            className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {addingDefaults ? 'Adding...' : 'Add Default Consent Forms'}
-          </button>
+         
 
           <div>
             <input
@@ -185,15 +178,7 @@ export default function PatientEducationListPage() {
               className="hidden"
               disabled={bulkUploading || addingDefaults}
             />
-            <label
-              htmlFor="patient-education-bulk-upload"
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors ${
-                bulkUploading || addingDefaults ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-              }`}
-            >
-              <Upload size={18} />
-              {bulkUploading ? 'Uploading...' : 'Add More Forms (Upload PDFs)'}
-            </label>
+          
           </div>
 
           <Link
