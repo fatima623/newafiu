@@ -11,6 +11,9 @@
     "db:push": "set DATABASE_URL=mysql://root@localhost:3306/afiu&& prisma db push",
     "db:seed": "set DATABASE_URL=mysql://root@localhost:3306/afiu&& node prisma/seed.js"
   },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "dependencies": {
     "@prisma/client": "^6.0.0",
     "bcryptjs": "^3.0.3",

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Edit, Trash2, BookOpen } from 'lucide-react';
+import { Plus, Edit, Trash2, BookOpen, Upload } from 'lucide-react';
 import { fetchJson } from '@/lib/fetchJson';
 
 interface PatientEducation {
@@ -13,9 +13,48 @@ interface PatientEducation {
   createdAt: string;
 }
 
+const DEFAULT_CONSENT_FORMS = [
+  {
+    title: 'Informed consent for TURP',
+    pdfUrl: encodeURI('/Informed consent for TURP.pdf'),
+  },
+  {
+    title: 'Informed consent for SPC',
+    pdfUrl: encodeURI('/Informed consent for SPC.pdf'),
+  },
+  {
+    title: 'Informed consent for Cystolitholapaxy',
+    pdfUrl: encodeURI('/Informed consent for Cystolitholapaxy.pdf'),
+  },
+  {
+    title: 'Informed consent for TRUS Biopsy',
+    pdfUrl: encodeURI('/Informed consent for TRUS Biopsy.pdf'),
+  },
+  {
+    title: 'Informed consent for Radical Cystectomy and Ileal Conduit',
+    pdfUrl: encodeURI('/Informed consent for Radical Cystectomy and Ileal Conduit.pdf'),
+  },
+  {
+    title: 'Informed consent for Cystoscopy and Biopsy',
+    pdfUrl: encodeURI('/Informed consent for Cystoscopy and Biopsy.pdf'),
+  },
+];
+
+function titleFromFilename(filename: string) {
+  const base = filename.replace(/\.[^/.]+$/, '');
+  return base
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export default function PatientEducationListPage() {
   const [items, setItems] = useState<PatientEducation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [bulkUploading, setBulkUploading] = useState(false);
+  const [addingDefaults, setAddingDefaults] = useState(false);
+  const [actionError, setActionError] = useState('');
+  const [actionSuccess, setActionSuccess] = useState('');
 
   useEffect(() => {
     fetchItems();
@@ -29,6 +68,83 @@ export default function PatientEducationListPage() {
       console.error('Error fetching items:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBulkUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setActionError('');
+    setActionSuccess('');
+    setBulkUploading(true);
+
+    try {
+      const createdItems: PatientEducation[] = [];
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const upload = await fetchJson<{ url: string }>('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const title = titleFromFilename(file.name) || file.name;
+        const created = await fetchJson<PatientEducation>('/api/patient-education', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description: '', pdfUrl: upload.url }),
+        });
+        createdItems.push(created);
+      }
+
+      if (createdItems.length > 0) {
+        setItems((prev) => [...createdItems.reverse(), ...prev]);
+        setActionSuccess(`Added ${createdItems.length} form(s) successfully`);
+      }
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Failed to upload one or more files');
+    } finally {
+      setBulkUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleAddDefaultForms = async () => {
+    setActionError('');
+    setActionSuccess('');
+    setAddingDefaults(true);
+
+    try {
+      const existing = new Set(items.map((x) => x.title.trim().toLowerCase()));
+      const createdItems: PatientEducation[] = [];
+
+      for (const item of DEFAULT_CONSENT_FORMS) {
+        const title = item.title;
+        const key = title.trim().toLowerCase();
+        if (existing.has(key)) continue;
+
+        const created = await fetchJson<PatientEducation>('/api/patient-education', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description: '', pdfUrl: item.pdfUrl }),
+        });
+
+        createdItems.push(created);
+        existing.add(key);
+      }
+
+      if (createdItems.length > 0) {
+        setItems((prev) => [...createdItems.reverse(), ...prev]);
+        setActionSuccess(`Added ${createdItems.length} default form(s)`);
+      } else {
+        setActionSuccess('All default forms already exist');
+      }
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Failed to add default forms');
+    } finally {
+      setAddingDefaults(false);
     }
   };
 
@@ -49,14 +165,53 @@ export default function PatientEducationListPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Patient Education</h1>
-        <Link
-          href="/admin/dashboard/patient-education/new"
-          className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors"
-        >
-          <Plus size={20} />
-          Add Item
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleAddDefaultForms}
+            disabled={addingDefaults || bulkUploading}
+            className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {addingDefaults ? 'Adding...' : 'Add Default Consent Forms'}
+          </button>
+
+          <div>
+            <input
+              id="patient-education-bulk-upload"
+              type="file"
+              accept=".pdf"
+              multiple
+              onChange={handleBulkUpload}
+              className="hidden"
+              disabled={bulkUploading || addingDefaults}
+            />
+            <label
+              htmlFor="patient-education-bulk-upload"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors ${
+                bulkUploading || addingDefaults ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+              }`}
+            >
+              <Upload size={18} />
+              {bulkUploading ? 'Uploading...' : 'Add More Forms (Upload PDFs)'}
+            </label>
+          </div>
+
+          <Link
+            href="/admin/dashboard/patient-education/new"
+            className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors"
+          >
+            <Plus size={20} />
+            Add Item
+          </Link>
+        </div>
       </div>
+
+      {actionError && (
+        <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6">{actionError}</div>
+      )}
+      {actionSuccess && (
+        <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm mb-6">{actionSuccess}</div>
+      )}
 
       {loading ? (
         <div className="bg-white rounded-lg shadow p-8 text-center">

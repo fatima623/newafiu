@@ -1,14 +1,107 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Briefcase, Download } from 'lucide-react';
 
+interface CareersForm {
+  id?: number;
+  code: string;
+  title: string;
+  fileUrl: string;
+  originalName?: string;
+}
+
+interface CareersJob {
+  id: number;
+  code: string;
+  title: string;
+  department: string;
+  type: string;
+  location: string | null;
+  description: string | null;
+  applyBy: string | null;
+  isPublished: boolean;
+  createdAt: string;
+}
+
 export default function CareersPage() {
-  const positions = [
-    { title: 'Consultant Urologist', department: 'Clinical Services', type: 'Full-time' },
-    { title: 'Resident Urologist', department: 'Clinical Services', type: 'Full-time' },
-    { title: 'Nursing Staff', department: 'Nursing', type: 'Full-time' },
-    { title: 'Lab Technician', department: 'Laboratory', type: 'Full-time' },
-  ];
+  const [forms, setForms] = useState<CareersForm[]>([]);
+  const [jobs, setJobs] = useState<CareersJob[]>([]);
+  const [newJobPopup, setNewJobPopup] = useState<CareersJob | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/careers-forms');
+        const data = await res.json();
+        setForms(Array.isArray(data) ? (data as CareersForm[]) : []);
+      } catch {
+        setForms([
+          {
+            code: 'job_application',
+            title: 'AFIU Job Application Forms',
+            fileUrl: '/AFIU%20job%20Application%20Forms.docx',
+          },
+          {
+            code: 'residency_training',
+            title: 'APPLICATION FORM FOR RESIDENCY TRAINING AT AFIU',
+            fileUrl: '/APPLICATION%20FORM%20FOR%20RESIDENCY%20TRAINING%20AT%20AFIU.docx',
+          },
+        ]);
+      }
+
+      try {
+        const res = await fetch('/api/careers-jobs');
+        const data = await res.json();
+        const list = Array.isArray(data) ? (data as CareersJob[]) : [];
+        setJobs(list);
+
+        if (list.length > 0) {
+          const latestCreatedAt = list[0]?.createdAt;
+          const key = 'careers:lastSeenJobCreatedAt';
+          const existing = localStorage.getItem(key);
+          if (!existing && latestCreatedAt) {
+            localStorage.setItem(key, latestCreatedAt);
+          }
+        }
+      } catch {
+        setJobs([]);
+      }
+    };
+
+    load();
+  }, []);
+
+  useEffect(() => {
+    const key = 'careers:lastSeenJobCreatedAt';
+
+    const checkLatest = async () => {
+      try {
+        const res = await fetch('/api/careers-jobs?latest=1');
+        const data = await res.json();
+        const list = Array.isArray(data) ? (data as CareersJob[]) : [];
+        const latest = list[0];
+        if (!latest?.createdAt) return;
+
+        const lastSeen = localStorage.getItem(key);
+        if (lastSeen && new Date(latest.createdAt).getTime() > new Date(lastSeen).getTime()) {
+          setNewJobPopup(latest);
+        }
+      } catch {
+        return;
+      }
+    };
+
+    const interval = window.setInterval(checkLatest, 30000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const dismissPopup = () => {
+    if (newJobPopup?.createdAt) {
+      localStorage.setItem('careers:lastSeenJobCreatedAt', newJobPopup.createdAt);
+    }
+    setNewJobPopup(null);
+  };
 
   return (
     <div>
@@ -43,12 +136,25 @@ export default function CareersPage() {
                 <div>
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Current Openings</h3>
                   <div className="space-y-4">
-                    {positions.map((position, index) => (
-                      <div key={index} className="bg-[#ADD8E6] p-4 rounded-lg">
-                        <h4 className="font-bold text-gray-800">{position.title}</h4>
-                        <p className="text-sm text-gray-600">{position.department} • {position.type}</p>
+                    {jobs.length === 0 ? (
+                      <div className="bg-[#ADD8E6] p-4 rounded-lg">
+                        <h4 className="font-bold text-gray-800">No openings right now</h4>
+                        <p className="text-sm text-gray-600">Please check back later.</p>
                       </div>
-                    ))}
+                    ) : (
+                      jobs.map((job) => (
+                        <div key={job.id} className="bg-[#ADD8E6] p-4 rounded-lg">
+                          <h4 className="font-bold text-gray-800">{job.title}</h4>
+                          <p className="text-sm text-gray-600">
+                            {job.department} • {job.type}
+                            {job.location ? ` • ${job.location}` : ''}
+                          </p>
+                          {job.applyBy ? (
+                            <p className="text-xs text-gray-600 mt-1">Apply by: {new Date(job.applyBy).toLocaleDateString()}</p>
+                          ) : null}
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               </div>
@@ -60,26 +166,47 @@ export default function CareersPage() {
                   provided on the form or by contacting our careers department.
                 </p>
                 <div className="space-y-4">
-                  <a
-                    href="/forms/afiu-job-application-form.pdf"
-                    className="w-full inline-flex items-center justify-center gap-2 bg-blue-950 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-                  >
-                    <Download size={20} />
-                    AFIU Job Application Form
-                  </a>
-                  <a
-                    href="/forms/application-form-residency-training-fcps-part-ii.pdf"
-                    className="w-full inline-flex items-center justify-center gap-2 bg-white border border-blue-950 text-blue-950 hover:bg-blue-50 px-6 py-3 rounded-lg font-semibold transition-colors"
-                  >
-                    <Download size={20} />
-                    Application Form for Residency Training (FCPS-Part II)
-                  </a>
+                  {forms.map((form, index) => (
+                    <a
+                      key={form.code}
+                      href={form.fileUrl}
+                      download
+                      className={
+                        index === 0
+                          ? 'w-full inline-flex items-center justify-center gap-2 bg-blue-950 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors'
+                          : 'w-full inline-flex items-center justify-center gap-2 bg-white border border-blue-950 text-blue-950 hover:bg-blue-50 px-6 py-3 rounded-lg font-semibold transition-colors'
+                      }
+                    >
+                      <Download size={20} />
+                      {form.title}
+                    </a>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {newJobPopup ? (
+        <div className="fixed bottom-6 right-6 z-50 max-w-sm">
+          <div className="bg-white border border-blue-950 rounded-lg shadow-lg p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-blue-950">New Job Posted</p>
+                <p className="text-sm text-gray-800 mt-1">{newJobPopup.title}</p>
+                <p className="text-xs text-gray-600 mt-1">{newJobPopup.department} • {newJobPopup.type}</p>
+              </div>
+              <button
+                onClick={dismissPopup}
+                className="text-blue-950 text-sm font-semibold hover:underline"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -2,6 +2,33 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPrisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 
+const DEFAULT_CONSENT_FORMS = [
+  {
+    title: 'Informed consent for TURP',
+    pdfUrl: encodeURI('/Informed consent for TURP.pdf'),
+  },
+  {
+    title: 'Informed consent for SPC',
+    pdfUrl: encodeURI('/Informed consent for SPC.pdf'),
+  },
+  {
+    title: 'Informed consent for Cystolitholapaxy',
+    pdfUrl: encodeURI('/Informed consent for Cystolitholapaxy.pdf'),
+  },
+  {
+    title: 'Informed consent for TRUS Biopsy',
+    pdfUrl: encodeURI('/Informed consent for TRUS Biopsy.pdf'),
+  },
+  {
+    title: 'Informed consent for Radical Cystectomy and Ileal Conduit',
+    pdfUrl: encodeURI('/Informed consent for Radical Cystectomy and Ileal Conduit.pdf'),
+  },
+  {
+    title: 'Informed consent for Cystoscopy and Biopsy',
+    pdfUrl: encodeURI('/Informed consent for Cystoscopy and Biopsy.pdf'),
+  },
+];
+
 export async function GET() {
   try {
     const prisma = getPrisma();
@@ -11,11 +38,20 @@ export async function GET() {
     return NextResponse.json(items);
   } catch (error) {
     console.error('Error fetching patient education:', error);
-    const message =
-      error instanceof Error && error.message === 'DATABASE_URL is not configured'
-        ? error.message
-        : 'Failed to fetch patient education';
-    return NextResponse.json({ error: message }, { status: 500 });
+
+    if (error instanceof Error && error.message === 'DATABASE_URL is not configured') {
+      const fallback = DEFAULT_CONSENT_FORMS.map((item, index) => ({
+        id: -(index + 1),
+        title: item.title,
+        description: null,
+        pdfUrl: item.pdfUrl,
+        createdAt: new Date(0).toISOString(),
+        updatedAt: new Date(0).toISOString(),
+      }));
+      return NextResponse.json(fallback);
+    }
+
+    return NextResponse.json({ error: 'Failed to fetch patient education' }, { status: 500 });
   }
 }
 
