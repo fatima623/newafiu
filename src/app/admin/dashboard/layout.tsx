@@ -12,12 +12,16 @@ import {
   Menu,
   X,
   Users,
-  Briefcase
+  Briefcase,
+  Calendar,
+  Clock
 } from 'lucide-react';
 import { fetchJson } from '@/lib/fetchJson';
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/dashboard/appointments', label: 'Appointments', icon: Calendar },
+  { href: '/admin/dashboard/availability', label: 'Availability', icon: Clock },
   { href: '/admin/dashboard/gallery', label: 'Gallery', icon: Image },
   { href: '/admin/dashboard/patient-education', label: 'Patient Education', icon: BookOpen },
   { href: '/admin/dashboard/news-events', label: 'News & Events', icon: Newspaper },

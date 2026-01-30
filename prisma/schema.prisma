@@ -12,6 +12,196 @@ enum NewsEventCategory {
   event
 }
 
+// ============================================
+// SURGERY CLASSIFICATION SYSTEM
+// ============================================
+
+model SurgeryCategory {
+  id            Int                   @id @default(autoincrement())
+  name          String                @unique
+  slug          String                @unique
+  description   String?               @db.Text
+  icon          String?
+  image         String?
+  sortOrder     Int                   @default(0)
+  isActive      Boolean               @default(true)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  subcategories SurgerySubcategory[]
+
+  @@index([slug])
+  @@index([sortOrder])
+}
+
+model SurgerySubcategory {
+  id          Int              @id @default(autoincrement())
+  categoryId  Int
+  category    SurgeryCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String
+  description String?          @db.Text
+  overview    String?          @db.Text
+  icon        String?
+  image       String?
+  sortOrder   Int              @default(0)
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  procedures  SurgeryProcedure[]
+
+  @@unique([categoryId, slug])
+  @@index([categoryId])
+  @@index([slug])
+}
+
+model SurgeryProcedure {
+  id              Int                    @id @default(autoincrement())
+  subcategoryId   Int
+  subcategory     SurgerySubcategory     @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+  name            String
+  slug            String
+  fullName        String?
+  overview        String?                @db.Text
+  indications     String?                @db.Text
+  procedureDetails String?               @db.Text
+  recovery        String?                @db.Text
+  risks           String?                @db.Text
+  icon            String?
+  image           String?
+  sortOrder       Int                    @default(0)
+  isActive        Boolean                @default(true)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  tags            ProcedureTag[]
+  relatedFrom     ProcedureRelation[]    @relation("RelatedFrom")
+  relatedTo       ProcedureRelation[]    @relation("RelatedTo")
+
+  @@unique([subcategoryId, slug])
+  @@index([subcategoryId])
+  @@index([slug])
+}
+
+model ProcedureTag {
+  id          Int                @id @default(autoincrement())
+  name        String             @unique
+  slug        String             @unique
+  description String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  procedures  SurgeryProcedure[]
+
+  @@index([slug])
+}
+
+model ProcedureRelation {
+  id            Int              @id @default(autoincrement())
+  fromProcedureId Int
+  toProcedureId   Int
+  fromProcedure SurgeryProcedure @relation("RelatedFrom", fields: [fromProcedureId], references: [id], onDelete: Cascade)
+  toProcedure   SurgeryProcedure @relation("RelatedTo", fields: [toProcedureId], references: [id], onDelete: Cascade)
+  createdAt     DateTime         @default(now())
+
+  @@unique([fromProcedureId, toProcedureId])
+  @@index([fromProcedureId])
+  @@index([toProcedureId])
+}
+
+// ============================================
+// APPOINTMENT BOOKING SYSTEM
+// ============================================
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  EXPIRED
+}
+
+enum AvailabilityOverrideType {
+  LEAVE
+  EMERGENCY_BLOCK
+  CUSTOM_HOURS
+}
+
+model DoctorAvailability {
+  id            Int                       @id @default(autoincrement())
+  facultyId     Int
+  faculty       Faculty                   @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  date          DateTime                  @db.Date
+  overrideType  AvailabilityOverrideType?
+  isAvailable   Boolean                   @default(true)
+  customStartTime String?
+  customEndTime   String?
+  reason        String?
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+
+  @@unique([facultyId, date])
+  @@index([facultyId])
+  @@index([date])
+  @@index([isAvailable])
+}
+
+model Appointment {
+  id              Int               @id @default(autoincrement())
+  facultyId       Int
+  faculty         Faculty           @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  patientName     String
+  patientCnic     String
+  patientPhone    String
+  patientEmail    String
+  appointmentDate DateTime          @db.Date
+  slotStartTime   String
+  slotEndTime     String
+  slotNumber      Int
+  status          AppointmentStatus @default(PENDING)
+  notes           String?           @db.Text
+  cancelledAt     DateTime?
+  cancelReason    String?
+  completedAt     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  auditLogs       AppointmentAuditLog[]
+
+  @@unique([facultyId, appointmentDate, slotNumber])
+  @@index([facultyId])
+  @@index([appointmentDate])
+  @@index([status])
+  @@index([patientCnic])
+  @@index([patientEmail])
+}
+
+model AppointmentAuditLog {
+  id            Int         @id @default(autoincrement())
+  appointmentId Int
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  action        String
+  previousStatus String?
+  newStatus     String?
+  performedBy   String?
+  ipAddress     String?
+  userAgent     String?
+  details       String?     @db.Text
+  createdAt     DateTime    @default(now())
+
+  @@index([appointmentId])
+  @@index([createdAt])
+}
+
+model AppointmentSettings {
+  id                    Int      @id @default(autoincrement())
+  maxAppointmentsPerDay Int      @default(10)
+  slotDurationMinutes   Int      @default(15)
+  startTime             String   @default("15:00")
+  endTime               String   @default("18:00")
+  allowedDays           String   @default("1,2,3,4,5")
+  bookingCutoffMinutes  Int      @default(30)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
 model AdminUser {
   id           Int      @id @default(autoincrement())
   username     String   @unique
@@ -80,6 +270,8 @@ model Faculty {
   bio            String?  @db.Text
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  availability   DoctorAvailability[]
+  appointments   Appointment[]
 
   @@index([name])
 }

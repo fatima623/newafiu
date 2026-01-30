@@ -278,6 +278,26 @@ async function main() {
     // eslint-disable-next-line no-console
     console.log(`Seeded careers job: ${j.code}`);
   }
+
+  // Seed Appointment Settings
+  const existingSettings = await prisma.appointmentSettings.findFirst();
+  if (!existingSettings) {
+    await prisma.appointmentSettings.create({
+      data: {
+        maxAppointmentsPerDay: 10,
+        slotDurationMinutes: 15,
+        startTime: '15:00',
+        endTime: '18:00',
+        allowedDays: '1,2,3,4,5',
+        bookingCutoffMinutes: 30,
+      },
+    });
+    // eslint-disable-next-line no-console
+    console.log('Seeded appointment settings');
+  } else {
+    // eslint-disable-next-line no-console
+    console.log('Appointment settings already exist');
+  }
 }
 
 main()

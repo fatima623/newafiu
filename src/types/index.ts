@@ -70,3 +70,71 @@ export interface HeroSlide {
     link: string;
   };
 }
+
+// Surgery Types
+export interface SurgeryProcedure {
+  id: number;
+  name: string;
+  slug: string;
+  fullName?: string;
+  overview?: string;
+  indications?: string;
+  procedureDetails?: string;
+  recovery?: string;
+  risks?: string;
+  tags?: string[];
+  relatedProcedures?: SurgeryProcedure[];
+}
+
+export interface SurgerySubcategory {
+  id: number;
+  name: string;
+  slug: string;
+  overview?: string;
+  procedures: SurgeryProcedure[];
+}
+
+export interface SurgeryCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  icon?: string;
+  subcategories: SurgerySubcategory[];
+}
+
+// Appointment Types
+export interface AppointmentSlot {
+  slotNumber: number;
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
+  isBooked: boolean;
+  isCancelled: boolean;
+  isExpired: boolean;
+}
+
+export interface DoctorForBooking {
+  id: number;
+  name: string;
+  designation: string;
+  specialization?: string;
+  image?: string;
+  isAvailable: boolean;
+  availabilityNote?: string;
+}
+
+export interface AppointmentBooking {
+  id: number;
+  doctorId: number;
+  doctorName: string;
+  patientName: string;
+  patientCnic: string;
+  patientPhone: string;
+  patientEmail: string;
+  appointmentDate: string;
+  slotStartTime: string;
+  slotEndTime: string;
+  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW' | 'EXPIRED';
+  notes?: string;
+}

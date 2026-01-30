@@ -101,7 +101,7 @@ export default function AdminLoginPage() {
             className="inline-flex items-center gap-2 text-blue-950 hover:text-blue-600 transition-colors font-medium"
           >
             <Home size={16} />
-            Go to Main Website
+            Home
           </Link>
         </div>
       </div>
