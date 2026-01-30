@@ -109,20 +109,35 @@ export async function getAvailableSlots(
     },
   });
   
-  // If doctor is marked as unavailable
+  // If doctor is marked as unavailable for full day
   if (availabilityOverride && !availabilityOverride.isAvailable) {
-    return {
-      doctorId: doctor.id,
-      doctorName: doctor.name,
-      designation: doctor.designation,
-      image: doctor.image,
-      date: dateStr,
-      isAvailable: false,
-      availabilityNote: availabilityOverride.reason || 'Doctor is not available on this date',
-      slots: [],
-      bookedCount: 0,
-      remainingSlots: 0,
-    };
+    // Check if it's full day unavailability
+    if (!availabilityOverride.unavailabilityType || availabilityOverride.unavailabilityType === 'FULL_DAY') {
+      return {
+        doctorId: doctor.id,
+        doctorName: doctor.name,
+        designation: doctor.designation,
+        image: doctor.image,
+        date: dateStr,
+        isAvailable: false,
+        availabilityNote: availabilityOverride.reason || 'Doctor is not available on this date',
+        slots: [],
+        bookedCount: 0,
+        remainingSlots: 0,
+      };
+    }
+  }
+  
+  // Get blocked slots if specific slots are blocked
+  let blockedSlotNumbers: number[] = [];
+  if (availabilityOverride && !availabilityOverride.isAvailable && 
+      availabilityOverride.unavailabilityType === 'SPECIFIC_SLOTS' && 
+      availabilityOverride.blockedSlots) {
+    try {
+      blockedSlotNumbers = JSON.parse(availabilityOverride.blockedSlots);
+    } catch {
+      blockedSlotNumbers = [];
+    }
   }
   
   // Get existing appointments for this doctor on this date
@@ -143,11 +158,14 @@ export async function getAvailableSlots(
   const slots: SlotInfo[] = allSlots.map(slot => {
     const isBooked = bookedSlotNumbers.has(slot.slotNumber);
     const isExpired = isSlotExpired(date, slot.startTime);
+    const isBlocked = blockedSlotNumbers.includes(slot.slotNumber);
     const isWithinLimit = bookedSlotNumbers.size < APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY;
     
     let status: SlotInfo['status'] = 'available';
     if (isBooked) {
       status = 'booked';
+    } else if (isBlocked) {
+      status = 'doctor_absent';
     } else if (isExpired) {
       status = 'expired';
     } else if (!isWithinLimit && slot.slotNumber > APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY) {
@@ -156,7 +174,7 @@ export async function getAvailableSlots(
     
     return {
       ...slot,
-      isAvailable: !isBooked && !isExpired && slot.slotNumber <= APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY,
+      isAvailable: !isBooked && !isExpired && !isBlocked && slot.slotNumber <= APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY,
       isBooked,
       status,
     };

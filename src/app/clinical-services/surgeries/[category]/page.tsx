@@ -66,8 +66,59 @@ export default function CategoryPage() {
         </div>
       </section>
 
+      {/* Category Overview */}
+      <section className="py-10 bg-white border-b">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Overview</h2>
+            <div className="prose prose-lg text-gray-600">
+              <p>{category.description}</p>
+              {category.slug === 'tumors' && (
+                <p className="mt-4">
+                  Our oncological surgery team provides comprehensive care for urological malignancies. We employ a multidisciplinary approach with tumor boards, advanced imaging, and the latest surgical techniques including minimally invasive and organ-preserving options where appropriate. Treatment plans are individualized based on tumor characteristics, patient factors, and international oncological guidelines.
+                </p>
+              )}
+              {category.slug === 'stone' && (
+                <p className="mt-4">
+                  Stone disease management at AFIU encompasses the full spectrum of treatment options from medical management to advanced endoscopic and open surgical techniques. Our approach is tailored to stone size, location, composition, and patient anatomy. We utilize state-of-the-art equipment including flexible ureteroscopes, holmium laser, and advanced PCNL systems for optimal outcomes.
+                </p>
+              )}
+              {category.slug === 'transplant' && (
+                <p className="mt-4">
+                  Our transplant surgery program offers comprehensive donor evaluation and surgical services. We perform both open and laparoscopic donor nephrectomy with excellent outcomes. The team works closely with nephrology and transplant medicine to ensure optimal donor safety and recipient outcomes.
+                </p>
+              )}
+              {category.slug === 'benign-other' && (
+                <p className="mt-4">
+                  Benign urological conditions encompass a wide range of disorders affecting the kidneys, ureters, bladder, prostate, and urethra. Our team offers both reconstructive and functional surgical solutions, employing minimally invasive techniques where possible while ensuring optimal functional outcomes.
+                </p>
+              )}
+              {category.slug === 'inguinoscrotal-andrology' && (
+                <p className="mt-4">
+                  Our andrology and inguinoscrotal surgery services address conditions affecting male reproductive health and the groin region. We provide comprehensive evaluation and surgical management for hernias, testicular conditions, and male infertility with a focus on preserving fertility and function.
+                </p>
+              )}
+            </div>
+            
+            {/* Procedures Summary */}
+            <div className="mt-8 p-6 bg-blue-50 rounded-lg">
+              <h3 className="font-semibold text-blue-950 mb-3">Procedures Offered</h3>
+              <div className="flex flex-wrap gap-2">
+                {category.subcategories.flatMap(sub => 
+                  sub.procedures.map(proc => (
+                    <span key={proc.slug} className="text-sm bg-white text-blue-800 px-3 py-1 rounded-full border border-blue-200">
+                      {proc.name}
+                    </span>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Subcategories */}
-      <section className="py-12 bg-white">
+      <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             {category.subcategories.map((subcategory) => (
@@ -82,28 +133,30 @@ export default function CategoryPage() {
                     <Link
                       key={procedure.slug}
                       href={`/clinical-services/surgeries/${category.slug}/${subcategory.slug}/${procedure.slug}`}
-                      className="group bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg p-5 transition-all"
+                      className="group bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg p-5 transition-all flex flex-col h-full min-h-[200px]"
                     >
-                      <h3 className="font-semibold text-gray-800 group-hover:text-blue-950 mb-2">
-                        {procedure.name}
-                      </h3>
-                      {procedure.fullName && procedure.fullName !== procedure.name && (
-                        <p className="text-sm text-gray-500 mb-2">{procedure.fullName}</p>
-                      )}
-                      <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                        {procedure.overview}
-                      </p>
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {procedure.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-800 group-hover:text-blue-950 mb-2">
+                          {procedure.name}
+                        </h3>
+                        {procedure.fullName && procedure.fullName !== procedure.name && (
+                          <p className="text-sm text-gray-500 mb-2">{procedure.fullName}</p>
+                        )}
+                        <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                          {procedure.overview}
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {procedure.tags.slice(0, 3).map((tag) => (
+                            <span
+                              key={tag}
+                              className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex items-center text-blue-950 text-sm font-medium group-hover:translate-x-1 transition-transform">
+                      <div className="flex items-center text-blue-950 text-sm font-medium group-hover:translate-x-1 transition-transform mt-4 pt-3 border-t border-gray-200">
                         View Details <ChevronRight size={14} className="ml-1" />
                       </div>
                     </Link>

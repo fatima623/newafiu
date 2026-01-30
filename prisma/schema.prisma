@@ -126,17 +126,19 @@ enum AvailabilityOverrideType {
 }
 
 model DoctorAvailability {
-  id            Int                       @id @default(autoincrement())
-  facultyId     Int
-  faculty       Faculty                   @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  date          DateTime                  @db.Date
-  overrideType  AvailabilityOverrideType?
-  isAvailable   Boolean                   @default(true)
-  customStartTime String?
-  customEndTime   String?
-  reason        String?
-  createdAt     DateTime                  @default(now())
-  updatedAt     DateTime                  @updatedAt
+  id                Int                       @id @default(autoincrement())
+  facultyId         Int
+  faculty           Faculty                   @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  date              DateTime                  @db.Date
+  overrideType      AvailabilityOverrideType?
+  isAvailable       Boolean                   @default(true)
+  unavailabilityType String?                  // 'FULL_DAY' or 'SPECIFIC_SLOTS'
+  blockedSlots      String?                   // JSON array of blocked slot numbers e.g. "[1,2,3]"
+  customStartTime   String?
+  customEndTime     String?
+  reason            String?
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
 
   @@unique([facultyId, date])
   @@index([facultyId])

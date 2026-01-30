@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ChevronDown, Calendar, Search } from 'lucide-react';
+import { Menu, X, ChevronDown, Calendar, Shield } from 'lucide-react';
 import { navItems } from '@/data/siteData';
 
 export default function Navbar() {
@@ -94,8 +94,15 @@ export default function Navbar() {
               </div>
             </Link>
 
-            {/* Appointment Button */}
-            <div className="flex items-center">
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              <Link
+                href="/admin/login"
+                className="inline-flex items-center gap-2 border border-blue-950 text-blue-950 font-medium px-3 py-2 rounded hover:bg-blue-50 transition-colors"
+              >
+                <Shield size={16} />
+                <span className="hidden sm:inline">Admin</span>
+              </Link>
               <Link
                 href="/hospital-visit/booking"
                 className="inline-flex items-center gap-2 bg-blue-950 text-white font-bold px-4 py-2 rounded transition-colors"
@@ -107,7 +114,7 @@ export default function Navbar() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="ml-4 p-2 text-blue-950 hover:bg-gray-100 rounded lg:hidden"
+                className="ml-2 p-2 text-blue-950 hover:bg-gray-100 rounded lg:hidden"
                 aria-label="Toggle menu"
               >
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
