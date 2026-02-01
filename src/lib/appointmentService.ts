@@ -7,8 +7,9 @@ export const APPOINTMENT_CONFIG = {
   START_TIME: '15:00',
   END_TIME: '18:00',
   ALLOWED_DAYS: [1, 2, 3, 4, 5], // Monday to Friday (0 = Sunday)
-  BOOKING_CUTOFF_MINUTES: 30,
+  BOOKING_CUTOFF_MINUTES: 15,
   TOTAL_POSSIBLE_SLOTS: 12, // 3 hours / 15 minutes = 12 slots
+  MAX_BOOKING_DAYS_AHEAD: 7,
 };
 
 export interface SlotInfo {
@@ -17,7 +18,7 @@ export interface SlotInfo {
   endTime: string;
   isAvailable: boolean;
   isBooked: boolean;
-  status: 'available' | 'booked' | 'unavailable' | 'expired' | 'doctor_absent';
+  status: 'available' | 'booked' | 'unavailable' | 'disabled' | 'doctor_absent';
 }
 
 export interface DoctorAvailabilityInfo {
@@ -37,9 +38,15 @@ export interface DoctorAvailabilityInfo {
 export function generateTimeSlots(): { slotNumber: number; startTime: string; endTime: string }[] {
   const slots = [];
   const [startHour, startMinute] = APPOINTMENT_CONFIG.START_TIME.split(':').map(Number);
+  const [endHour, endMinute] = APPOINTMENT_CONFIG.END_TIME.split(':').map(Number);
+  const startTotalMinutes = startHour * 60 + startMinute;
+  const endTotalMinutes = endHour * 60 + endMinute;
+  const totalPossibleSlots = Math.floor(
+    (endTotalMinutes - startTotalMinutes) / APPOINTMENT_CONFIG.SLOT_DURATION_MINUTES
+  );
   
-  for (let i = 0; i < APPOINTMENT_CONFIG.TOTAL_POSSIBLE_SLOTS; i++) {
-    const totalMinutes = startHour * 60 + startMinute + (i * APPOINTMENT_CONFIG.SLOT_DURATION_MINUTES);
+  for (let i = 0; i < totalPossibleSlots; i++) {
+    const totalMinutes = startTotalMinutes + i * APPOINTMENT_CONFIG.SLOT_DURATION_MINUTES;
     const endTotalMinutes = totalMinutes + APPOINTMENT_CONFIG.SLOT_DURATION_MINUTES;
     
     const startH = Math.floor(totalMinutes / 60);
@@ -57,6 +64,45 @@ export function generateTimeSlots(): { slotNumber: number; startTime: string; en
   return slots;
 }
 
+function parseDateOnly(dateStr: string): Date {
+  return new Date(`${dateStr}T00:00:00`);
+}
+
+function toISODate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function getPakistanPublicHolidays(year: number): Set<string> {
+  const fixed = [
+    `${year}-01-01`,
+    `${year}-02-05`,
+    `${year}-03-23`,
+    `${year}-05-01`,
+    `${year}-08-14`,
+    `${year}-09-06`,
+    `${year}-11-09`,
+    `${year}-12-25`,
+  ];
+  return new Set(fixed);
+}
+
+export function isBookingDateDisabled(date: Date): boolean {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const max = new Date(today);
+  max.setDate(max.getDate() + APPOINTMENT_CONFIG.MAX_BOOKING_DAYS_AHEAD);
+  if (date < today) return true;
+  if (date > max) return true;
+  if (!isValidBookingDay(date)) return true;
+  const key = toISODate(date);
+  const holidays = getPakistanPublicHolidays(date.getFullYear());
+  if (holidays.has(key)) return true;
+  return false;
+}
+
 // Check if a date is a valid booking day (Mon-Fri)
 export function isValidBookingDay(date: Date): boolean {
   const dayOfWeek = date.getDay();
@@ -64,7 +110,7 @@ export function isValidBookingDay(date: Date): boolean {
 }
 
 // Check if a slot is expired (past current time)
-export function isSlotExpired(date: Date, slotStartTime: string): boolean {
+export function isSlotDisabled(date: Date, slotStartTime: string): boolean {
   const now = new Date();
   const [hours, minutes] = slotStartTime.split(':').map(Number);
   
@@ -83,10 +129,10 @@ export async function getAvailableSlots(
   dateStr: string
 ): Promise<DoctorAvailabilityInfo | null> {
   const prisma = getPrisma();
-  const date = new Date(dateStr);
+  const date = parseDateOnly(dateStr);
   
   // Validate day of week
-  if (!isValidBookingDay(date)) {
+  if (isBookingDateDisabled(date)) {
     return null;
   }
   
@@ -153,36 +199,34 @@ export async function getAvailableSlots(
   
   const bookedSlotNumbers = new Set(existingAppointments.map((a: { slotNumber: number }) => a.slotNumber));
   const allSlots = generateTimeSlots();
+  const dailyLimitReached = bookedSlotNumbers.size >= APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY;
   
   // Build slot availability info
   const slots: SlotInfo[] = allSlots.map(slot => {
     const isBooked = bookedSlotNumbers.has(slot.slotNumber);
-    const isExpired = isSlotExpired(date, slot.startTime);
+    const isDisabled = isSlotDisabled(date, slot.startTime);
     const isBlocked = blockedSlotNumbers.includes(slot.slotNumber);
-    const isWithinLimit = bookedSlotNumbers.size < APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY;
+    const isWithinLimit = !dailyLimitReached;
     
     let status: SlotInfo['status'] = 'available';
     if (isBooked) {
       status = 'booked';
     } else if (isBlocked) {
       status = 'doctor_absent';
-    } else if (isExpired) {
-      status = 'expired';
-    } else if (!isWithinLimit && slot.slotNumber > APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY) {
+    } else if (isDisabled) {
+      status = 'disabled';
+    } else if (!isWithinLimit) {
       status = 'unavailable';
     }
     
     return {
       ...slot,
-      isAvailable: !isBooked && !isExpired && !isBlocked && slot.slotNumber <= APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY,
+      isAvailable: !isBooked && !isDisabled && !isBlocked && isWithinLimit,
       isBooked,
       status,
     };
   });
-  
-  // Only return first 10 slots as bookable (even though 12 exist)
-  const bookableSlots = slots.slice(0, APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY);
-  
+
   return {
     doctorId: doctor.id,
     doctorName: doctor.name,
@@ -191,9 +235,9 @@ export async function getAvailableSlots(
     date: dateStr,
     isAvailable: true,
     availabilityNote: null,
-    slots: bookableSlots,
+    slots,
     bookedCount: bookedSlotNumbers.size,
-    remainingSlots: APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY - bookedSlotNumbers.size,
+    remainingSlots: Math.max(0, APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY - bookedSlotNumbers.size),
   };
 }
 
@@ -211,19 +255,18 @@ export async function bookAppointment(data: {
   userAgent?: string;
 }): Promise<{ success: boolean; appointment?: any; error?: string }> {
   const prisma = getPrisma();
-  const date = new Date(data.appointmentDate);
+  const date = parseDateOnly(data.appointmentDate);
   
   // Validate day of week
-  if (!isValidBookingDay(date)) {
-    return { success: false, error: 'Appointments are only available Monday to Friday' };
+  if (isBookingDateDisabled(date)) {
+    return { success: false, error: 'Selected date is not available for booking' };
   }
   
   // Validate slot number
-  if (data.slotNumber < 1 || data.slotNumber > APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY) {
+  const allSlots = generateTimeSlots();
+  if (data.slotNumber < 1 || data.slotNumber > allSlots.length) {
     return { success: false, error: 'Invalid slot number' };
   }
-  
-  const allSlots = generateTimeSlots();
   const selectedSlot = allSlots.find(s => s.slotNumber === data.slotNumber);
   
   if (!selectedSlot) {
@@ -231,7 +274,7 @@ export async function bookAppointment(data: {
   }
   
   // Check if slot is expired
-  if (isSlotExpired(date, selectedSlot.startTime)) {
+  if (isSlotDisabled(date, selectedSlot.startTime)) {
     return { success: false, error: 'This slot is no longer available for booking' };
   }
   

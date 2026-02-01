@@ -19,7 +19,11 @@ interface CareersJob {
   type: string;
   location: string | null;
   description: string | null;
+  requirements: string | null;
+  responsibilities: string | null;
   applyBy: string | null;
+  hiringStartsAt: string | null;
+  applyLink: string | null;
   isPublished: boolean;
   createdAt: string;
 }
@@ -28,6 +32,7 @@ export default function CareersPage() {
   const [forms, setForms] = useState<CareersForm[]>([]);
   const [jobs, setJobs] = useState<CareersJob[]>([]);
   const [newJobPopup, setNewJobPopup] = useState<CareersJob | null>(null);
+  const [expandedJobId, setExpandedJobId] = useState<number | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -151,6 +156,66 @@ export default function CareersPage() {
                           </p>
                           {job.applyBy ? (
                             <p className="text-xs text-gray-600 mt-1">Apply by: {new Date(job.applyBy).toLocaleDateString()}</p>
+                          ) : null}
+
+                          {job.hiringStartsAt ? (
+                            <p className="text-xs text-gray-600 mt-1">
+                              Hiring starts: {new Date(job.hiringStartsAt).toLocaleDateString()}
+                            </p>
+                          ) : null}
+
+                          <div className="mt-3 flex flex-wrap items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setExpandedJobId((prev) => (prev === job.id ? null : job.id))
+                              }
+                              className="text-sm font-semibold text-blue-950 hover:underline"
+                            >
+                              {expandedJobId === job.id ? 'Hide details' : 'View details'}
+                            </button>
+
+                            {job.applyLink ? (
+                              <a
+                                href={job.applyLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-semibold text-white bg-blue-950 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition-colors"
+                              >
+                                Apply Now
+                              </a>
+                            ) : null}
+                          </div>
+
+                          {expandedJobId === job.id ? (
+                            <div className="mt-3 space-y-3">
+                              {job.description ? (
+                                <div>
+                                  <p className="text-sm font-semibold text-gray-800">Description</p>
+                                  <p className="text-sm text-gray-700 whitespace-pre-line">{job.description}</p>
+                                </div>
+                              ) : null}
+
+                              {job.requirements ? (
+                                <div>
+                                  <p className="text-sm font-semibold text-gray-800">Requirements</p>
+                                  <p className="text-sm text-gray-700 whitespace-pre-line">{job.requirements}</p>
+                                </div>
+                              ) : null}
+
+                              {job.responsibilities ? (
+                                <div>
+                                  <p className="text-sm font-semibold text-gray-800">Responsibilities</p>
+                                  <p className="text-sm text-gray-700 whitespace-pre-line">{job.responsibilities}</p>
+                                </div>
+                              ) : null}
+
+                              {!job.applyLink ? (
+                                <p className="text-xs text-gray-600">
+                                  Apply via AFIU HR / application form. (No apply link provided.)
+                                </p>
+                              ) : null}
+                            </div>
                           ) : null}
                         </div>
                       ))

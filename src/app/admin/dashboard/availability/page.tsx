@@ -37,6 +37,8 @@ const TIME_SLOTS = [
   { number: 8, time: '4:45 PM - 5:00 PM' },
   { number: 9, time: '5:00 PM - 5:15 PM' },
   { number: 10, time: '5:15 PM - 5:30 PM' },
+  { number: 11, time: '5:30 PM - 5:45 PM' },
+  { number: 12, time: '5:45 PM - 6:00 PM' },
 ];
 
 export default function AvailabilityAdminPage() {

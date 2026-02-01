@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { fetchJson } from '@/lib/fetchJson';
 
 interface Stats {
-  galleryAlbums: number;
+  galleryCategories: number;
   patientEducation: number;
   newsEvents: number;
   faculty: number;
@@ -15,7 +15,7 @@ interface Stats {
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<Stats>({ 
-    galleryAlbums: 0, 
+    galleryCategories: 0, 
     patientEducation: 0, 
     newsEvents: 0,
     faculty: 0,
@@ -29,16 +29,16 @@ export default function AdminDashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const [gallery, education, news, faculty, jobs] = await Promise.all([
-        fetchJson('/api/gallery'),
+      const [galleryCategories, education, news, faculty, jobs] = await Promise.all([
+        fetchJson('/api/gallery-categories'),
         fetchJson('/api/patient-education'),
         fetchJson('/api/news-events'),
         fetchJson('/api/faculty'),
-        fetchJson('/api/careers/jobs'),
+        fetchJson('/api/careers-jobs?all=1'),
       ]);
 
       setStats({
-        galleryAlbums: Array.isArray(gallery) ? gallery.length : 0,
+        galleryCategories: Array.isArray(galleryCategories) ? galleryCategories.length : 0,
         patientEducation: Array.isArray(education) ? education.length : 0,
         newsEvents: Array.isArray(news) ? news.length : 0,
         faculty: Array.isArray(faculty) ? faculty.length : 0,
@@ -53,10 +53,10 @@ export default function AdminDashboardPage() {
 
   const cards = [
     {
-      title: 'Gallery Albums',
-      count: stats.galleryAlbums,
+      title: 'Gallery',
+      count: stats.galleryCategories,
       icon: Image,
-      href: '/admin/dashboard/gallery',
+      href: '/admin/dashboard/categorized-gallery',
       gradient: 'from-purple-500 to-pink-500',
       bgColor: 'bg-purple-50',
       borderColor: 'border-purple-200',
@@ -121,7 +121,7 @@ export default function AdminDashboardPage() {
               <Link
                 key={card.title}
                 href={card.href}
-                className={`${card.bgColor} rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 border ${card.borderColor}`}
+                className={`${card.bgColor} rounded-xl shadow-lg p-6 border ${card.borderColor} transition-all duration-200 hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-950 focus-visible:ring-offset-2`}
               >
                 <div className={`bg-gradient-to-r ${card.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                   <Icon className="w-7 h-7 text-white" />

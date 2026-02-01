@@ -17,6 +17,8 @@ interface NewsEvent {
 export default function NewsEventsListPage() {
   const [items, setItems] = useState<NewsEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionError, setActionError] = useState('');
+  const [actionSuccess, setActionSuccess] = useState('');
 
   useEffect(() => {
     fetchItems();
@@ -37,12 +39,14 @@ export default function NewsEventsListPage() {
     if (!confirm('Are you sure you want to delete this item?')) return;
 
     try {
-      const res = await fetch(`/api/news-events/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setItems(items.filter((item) => item.id !== id));
-      }
+      setActionError('');
+      setActionSuccess('');
+
+      await fetchJson(`/api/news-events/${id}`, { method: 'DELETE' });
+      setItems((prev) => prev.filter((item) => item.id !== id));
+      setActionSuccess('Item deleted successfully');
     } catch (error) {
-      console.error('Error deleting item:', error);
+      setActionError(error instanceof Error ? error.message : 'Failed to delete item');
     }
   };
 
@@ -72,6 +76,13 @@ export default function NewsEventsListPage() {
           Add News/Event
         </Link>
       </div>
+
+      {actionError ? (
+        <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6">{actionError}</div>
+      ) : null}
+      {actionSuccess ? (
+        <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm mb-6">{actionSuccess}</div>
+      ) : null}
 
       {loading ? (
         <div className="bg-white rounded-lg shadow p-8 text-center">

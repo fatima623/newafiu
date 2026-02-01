@@ -22,7 +22,7 @@ const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/dashboard/appointments', label: 'Appointments', icon: Calendar },
   { href: '/admin/dashboard/availability', label: 'Availability', icon: Clock },
-  { href: '/admin/dashboard/gallery', label: 'Gallery', icon: Image },
+  { href: '/admin/dashboard/categorized-gallery', label: 'Gallery', icon: Image },
   { href: '/admin/dashboard/patient-education', label: 'Patient Education', icon: BookOpen },
   { href: '/admin/dashboard/news-events', label: 'News & Events', icon: Newspaper },
   { href: '/admin/dashboard/faculty', label: 'Faculty', icon: Users },
@@ -109,10 +109,10 @@ export default function DashboardLayout({
                 key={item.href}
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-6 py-3 transition-colors ${
+                className={`flex items-center gap-3 px-6 py-3 rounded-lg mx-3 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-950 ${
                   isActive
-                    ? 'bg-blue-800 border-r-4 border-white'
-                    : 'hover:bg-blue-800/50'
+                    ? 'bg-blue-800 border-r-4 border-white shadow-sm'
+                    : 'hover:bg-blue-800/60 hover:shadow-md hover:-translate-y-[1px] active:translate-y-0'
                 }`}
               >
                 <Icon size={20} />

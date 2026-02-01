@@ -30,7 +30,7 @@ export default function EducationalResourcesPage() {
 
               <Link href="/educational-resources/physicians" className="bg-[#ADD8E6] rounded-lg p-8 hover:border-blue-950 hover:shadow-xl transition-all">
                 <Users size={48} className="text-blue-950 mb-4" />
-                <h3 className="text-2xl font-bold text-gray-800 mb-3">For Physicians</h3>
+                <h3 className="text-2xl font-bold text-gray-800 mb-3">Physician Referrals</h3>
                 <p className="text-gray-600 mb-4 text-justify">
                   Clinical guidelines, referral information, and continuing medical education resources
                 </p>

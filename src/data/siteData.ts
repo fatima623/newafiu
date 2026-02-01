@@ -48,8 +48,8 @@ export const navItems: NavItem[] = [
     label: 'Educational Resources',
     href: '/educational-resources',
     subItems: [
-      { label: 'Patient Education', href: '/educational-resources/patient-education' },
-      { label: 'Physicians', href: '/educational-resources/physicians' },
+      { label: 'Medical Consent Form', href: '/educational-resources/patient-education' },
+      { label: 'Physician Referrals', href: '/educational-resources/physicians' },
     ],
   },
   {

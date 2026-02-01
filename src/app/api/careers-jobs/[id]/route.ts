@@ -10,7 +10,11 @@ interface CareersJobRow {
   type: string;
   location: string | null;
   description: string | null;
+  requirements: string | null;
+  responsibilities: string | null;
   applyBy: string | null;
+  hiringStartsAt: string | null;
+  applyLink: string | null;
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -59,7 +63,8 @@ export async function GET(
     return NextResponse.json(item);
   } catch (error) {
     console.error('Error fetching careers job:', error);
-    return NextResponse.json({ error: 'Failed to fetch careers job' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to fetch careers job';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -93,7 +98,22 @@ export async function PUT(
     const type = String(body.type ?? existing.type).trim();
     const locationRaw = body.location === undefined ? existing.location : String(body.location || '').trim();
     const descriptionRaw = body.description === undefined ? existing.description : String(body.description || '').trim();
-    const applyBy = body.applyBy === undefined ? null : parseOptionalDate(body.applyBy);
+    const requirementsRaw =
+      body.requirements === undefined ? existing.requirements : String(body.requirements || '').trim();
+    const responsibilitiesRaw =
+      body.responsibilities === undefined
+        ? existing.responsibilities
+        : String(body.responsibilities || '').trim();
+    const applyBy =
+      body.applyBy === undefined
+        ? ((existing as unknown as { applyBy?: Date | null }).applyBy ?? null)
+        : parseOptionalDate(body.applyBy);
+    const hiringStartsAt =
+      body.hiringStartsAt === undefined
+        ? ((existing as unknown as { hiringStartsAt?: Date | null }).hiringStartsAt ?? null)
+        : parseOptionalDate(body.hiringStartsAt);
+    const applyLinkRaw =
+      body.applyLink === undefined ? existing.applyLink : String(body.applyLink || '').trim();
     const isPublished = body.isPublished === undefined ? existing.isPublished : Boolean(body.isPublished);
 
     if (!code || !title || !department || !type) {
@@ -112,7 +132,11 @@ export async function PUT(
         type,
         location: locationRaw || null,
         description: descriptionRaw || null,
+        requirements: requirementsRaw || null,
+        responsibilities: responsibilitiesRaw || null,
         applyBy,
+        hiringStartsAt,
+        applyLink: applyLinkRaw || null,
         isPublished,
       },
     })) as CareersJobRow;
@@ -120,7 +144,8 @@ export async function PUT(
     return NextResponse.json(updated);
   } catch (error) {
     console.error('Error updating careers job:', error);
-    return NextResponse.json({ error: 'Failed to update careers job' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to update careers job';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -145,6 +170,7 @@ export async function DELETE(
     return NextResponse.json(deleted);
   } catch (error) {
     console.error('Error deleting careers job:', error);
-    return NextResponse.json({ error: 'Failed to delete careers job' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to delete careers job';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

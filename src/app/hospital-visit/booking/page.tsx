@@ -18,7 +18,7 @@ interface Slot {
   endTime: string;
   isAvailable: boolean;
   isBooked: boolean;
-  status: 'available' | 'booked' | 'unavailable' | 'expired' | 'doctor_absent';
+  status: 'available' | 'booked' | 'unavailable' | 'disabled' | 'doctor_absent';
 }
 
 interface AvailabilityInfo {
@@ -75,6 +75,8 @@ export default function BookingPage() {
   const [submitError, setSubmitError] = useState('');
   const [bookingConfirmation, setBookingConfirmation] = useState<BookingConfirmation | null>(null);
 
+  const MAX_BOOKING_DAYS_AHEAD = 7;
+
   // Fetch doctors on mount
   useEffect(() => {
     async function fetchDoctors() {
@@ -129,6 +131,51 @@ export default function BookingPage() {
     return today.toISOString().split('T')[0];
   };
 
+  const getMaxDate = () => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const max = new Date(today);
+    max.setDate(max.getDate() + MAX_BOOKING_DAYS_AHEAD);
+    return max.toISOString().split('T')[0];
+  };
+
+  const toISODate = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  const getPakistanPublicHolidays = (year: number) => {
+    const fixed = [
+      `${year}-01-01`,
+      `${year}-02-05`,
+      `${year}-03-23`,
+      `${year}-05-01`,
+      `${year}-08-14`,
+      `${year}-09-06`,
+      `${year}-11-09`,
+      `${year}-12-25`,
+    ];
+    return new Set(fixed);
+  };
+
+  const isBookingDateDisabled = (dateStr: string) => {
+    if (!dateStr) return true;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const date = new Date(`${dateStr}T00:00:00`);
+    const max = new Date(today);
+    max.setDate(max.getDate() + MAX_BOOKING_DAYS_AHEAD);
+    if (date < today) return true;
+    if (date > max) return true;
+    const day = date.getDay();
+    if (day === 0 || day === 6) return true;
+    const holidays = getPakistanPublicHolidays(date.getFullYear());
+    if (holidays.has(toISODate(date))) return true;
+    return false;
+  };
+
   // Check if date is a weekday
   const isWeekday = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -144,6 +191,10 @@ export default function BookingPage() {
       newErrors.fullName = 'Full Name is required';
     } else if (patientDetails.fullName.trim().length < 3) {
       newErrors.fullName = 'Full Name must be at least 3 characters';
+    } else if (patientDetails.fullName.trim().length > 60) {
+      newErrors.fullName = 'Full Name must be 60 characters or less';
+    } else if (!/^[A-Za-z\s]+$/.test(patientDetails.fullName.trim())) {
+      newErrors.fullName = 'Full Name must contain letters only';
     }
     
     if (!patientDetails.cnic.trim()) {
@@ -154,7 +205,7 @@ export default function BookingPage() {
     
     if (!patientDetails.phone.trim()) {
       newErrors.phone = 'Phone number is required';
-    } else if (!/^\+?\d{7,15}$/.test(patientDetails.phone.trim())) {
+    } else if (!/^\d{7,15}$/.test(patientDetails.phone.trim())) {
       newErrors.phone = 'Enter a valid phone number';
     }
     
@@ -219,6 +270,16 @@ export default function BookingPage() {
     return `${h12}:${minutes} ${ampm}`;
   };
 
+  const getArriveByTime = (startTime: string) => {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const d = new Date();
+    d.setHours(hours, minutes, 0, 0);
+    d.setMinutes(d.getMinutes() - 15);
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return formatTime(`${hh}:${mm}`);
+  };
+
   // Format date for display
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -234,7 +295,7 @@ export default function BookingPage() {
   const getSlotColor = (slot: Slot) => {
     if (slot.status === 'available') return 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200';
     if (slot.status === 'booked') return 'bg-red-100 border-red-300 text-red-600 cursor-not-allowed';
-    if (slot.status === 'expired') return 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed';
+    if (slot.status === 'disabled') return 'bg-red-50 border-red-200 text-red-700 cursor-not-allowed';
     return 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed';
   };
 
@@ -276,6 +337,9 @@ export default function BookingPage() {
           <p className="text-sm sm:text-lg text-blue-100 max-w-2xl">
             Book your private appointment at AFIU. Available Monday to Friday, 3:00 PM - 6:00 PM.
             Maximum 10 appointments per doctor per day.
+          </p>
+          <p className="text-xs sm:text-sm text-blue-100 max-w-2xl mt-2">
+            Please arrive at least 15 minutes before your appointment time.
           </p>
         </div>
       </section>
@@ -404,11 +468,24 @@ export default function BookingPage() {
                     type="date"
                     value={selectedDate}
                     min={getMinDate()}
+                    max={getMaxDate()}
                     onChange={(e) => {
                       const date = e.target.value;
+                      if (!date) {
+                        setSelectedDate('');
+                        return;
+                      }
+
+                      if (isBookingDateDisabled(date)) {
+                        setSelectedDate('');
+                        alert('This date is disabled. Please select a weekday (Mon-Fri), within the next 7 days, excluding holidays.');
+                        return;
+                      }
+
                       if (isWeekday(date)) {
                         setSelectedDate(date);
                       } else {
+                        setSelectedDate('');
                         alert('Please select a weekday (Monday to Friday)');
                       }
                     }}
@@ -457,7 +534,7 @@ export default function BookingPage() {
                               <div className="font-medium">{formatTime(slot.startTime)}</div>
                               <div className="text-xs">to {formatTime(slot.endTime)}</div>
                               {slot.status === 'booked' && <div className="text-xs mt-1">Booked</div>}
-                              {slot.status === 'expired' && <div className="text-xs mt-1">Expired</div>}
+                              {slot.status === 'disabled' && <div className="text-xs mt-1">Disabled</div>}
                             </button>
                           ))}
                         </div>
@@ -501,7 +578,13 @@ export default function BookingPage() {
                         <input
                           type="text"
                           value={patientDetails.fullName}
-                          onChange={(e) => setPatientDetails(prev => ({ ...prev, fullName: e.target.value }))}
+                          maxLength={60}
+                          onChange={(e) =>
+                            setPatientDetails((prev) => ({
+                              ...prev,
+                              fullName: e.target.value.replace(/[^a-zA-Z\s]/g, ''),
+                            }))
+                          }
                           className="w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-950"
                         />
                       </div>
@@ -514,7 +597,17 @@ export default function BookingPage() {
                         type="text"
                         placeholder="XXXXX-XXXXXXX-X"
                         value={patientDetails.cnic}
-                        onChange={(e) => setPatientDetails(prev => ({ ...prev, cnic: e.target.value }))}
+                        maxLength={15}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, '').slice(0, 13);
+                          const formatted =
+                            digits.length <= 5
+                              ? digits
+                              : digits.length <= 12
+                                ? `${digits.slice(0, 5)}-${digits.slice(5)}`
+                                : `${digits.slice(0, 5)}-${digits.slice(5, 12)}-${digits.slice(12)}`;
+                          setPatientDetails((prev) => ({ ...prev, cnic: formatted }));
+                        }}
                         className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-950"
                       />
                       {errors.cnic && <p className="mt-1 text-sm text-red-600">{errors.cnic}</p>}
@@ -529,7 +622,13 @@ export default function BookingPage() {
                         <input
                           type="tel"
                           value={patientDetails.phone}
-                          onChange={(e) => setPatientDetails(prev => ({ ...prev, phone: e.target.value }))}
+                          maxLength={15}
+                          onChange={(e) =>
+                            setPatientDetails((prev) => ({
+                              ...prev,
+                              phone: e.target.value.replace(/\D/g, '').slice(0, 15),
+                            }))
+                          }
                           className="w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-950"
                         />
                       </div>
@@ -621,6 +720,10 @@ export default function BookingPage() {
                       <p className="font-medium">{formatTime(selectedSlot.startTime)} - {formatTime(selectedSlot.endTime)}</p>
                     </div>
                     <div>
+                      <span className="text-gray-500">Arrive by:</span>
+                      <p className="font-medium">{getArriveByTime(selectedSlot.startTime)}</p>
+                    </div>
+                    <div>
                       <span className="text-gray-500">Duration:</span>
                       <p className="font-medium">15 minutes</p>
                     </div>
@@ -685,7 +788,7 @@ export default function BookingPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Appointment Booked Successfully!</h2>
                 <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                  Your appointment has been confirmed. Please arrive 10 minutes before your scheduled time.
+                  Your appointment has been confirmed. Please arrive 15 minutes before your scheduled time.
                 </p>
                 
                 <div className="bg-gray-50 rounded-lg p-6 max-w-md mx-auto mb-8">
@@ -707,6 +810,10 @@ export default function BookingPage() {
                       <span className="font-medium">
                         {formatTime(bookingConfirmation.slotStartTime)} - {formatTime(bookingConfirmation.slotEndTime)}
                       </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Arrive by:</span>
+                      <span className="font-medium">{getArriveByTime(bookingConfirmation.slotStartTime)}</span>
                     </div>
                   </div>
                 </div>

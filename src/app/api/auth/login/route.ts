@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { getPrisma } from '@/lib/prisma';
 import { signToken, setSessionCookie, getSession, clearSessionCookie } from '@/lib/auth';
+import { getClientIpFromHeaders, rateLimit } from '@/lib/rateLimit';
 
 // POST /api/auth/login - Login
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIpFromHeaders(request.headers);
     const prisma = getPrisma();
     const { username, password } = await request.json();
 
@@ -16,19 +18,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const rl = rateLimit(`login:${ip}:${String(username).toLowerCase()}`, {
+      windowMs: 60_000,
+      max: 10,
+    });
+    if (!rl.ok) {
+      return NextResponse.json(
+        { error: 'Too many attempts. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const admin = await prisma.adminUser.findUnique({
       where: { username },
     });
 
-    if (!admin) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
-
-    const isValid = await bcrypt.compare(password, admin.passwordHash);
-    if (!isValid) {
+    const isValid = admin ? await bcrypt.compare(password, admin.passwordHash) : false;
+    if (!admin || !isValid) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }

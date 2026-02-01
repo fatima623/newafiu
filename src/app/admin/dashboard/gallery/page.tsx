@@ -15,6 +15,8 @@ interface GalleryAlbum {
 export default function GalleryListPage() {
   const [albums, setAlbums] = useState<GalleryAlbum[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionError, setActionError] = useState('');
+  const [actionSuccess, setActionSuccess] = useState('');
 
   useEffect(() => {
     fetchAlbums();
@@ -35,12 +37,14 @@ export default function GalleryListPage() {
     if (!confirm('Are you sure you want to delete this album?')) return;
 
     try {
-      const res = await fetch(`/api/gallery/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setAlbums(albums.filter((a) => a.id !== id));
-      }
+      setActionError('');
+      setActionSuccess('');
+
+      await fetchJson(`/api/gallery/${id}`, { method: 'DELETE' });
+      setAlbums((prev) => prev.filter((a) => a.id !== id));
+      setActionSuccess('Album deleted successfully');
     } catch (error) {
-      console.error('Error deleting album:', error);
+      setActionError(error instanceof Error ? error.message : 'Failed to delete album');
     }
   };
 
@@ -64,6 +68,13 @@ export default function GalleryListPage() {
           Add Album
         </Link>
       </div>
+
+      {actionError ? (
+        <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6">{actionError}</div>
+      ) : null}
+      {actionSuccess ? (
+        <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm mb-6">{actionSuccess}</div>
+      ) : null}
 
       {loading ? (
         <div className="bg-white rounded-lg shadow p-8 text-center">
