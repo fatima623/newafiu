@@ -90,12 +90,13 @@ export default function DashboardLayout({
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="p-6 flex justify-center">
+        <div className="p-6 flex flex-col items-center">
           <img
             src="/afiulogo.png"
             alt="AFIU Logo"
             className="w-24 h-24 object-contain"
           />
+          <div className="mt-2 text-sm font-semibold tracking-wide">Admin</div>
         </div>
 
         <nav className="mt-6">
@@ -135,11 +136,6 @@ export default function DashboardLayout({
 
       {/* Main content */}
       <main className="lg:ml-64 p-8 pt-16 lg:pt-8">
-        <div className="mb-6 flex items-center justify-end">
-          <div className="text-sm text-gray-600">
-            <span className="font-medium text-gray-900">Welcome,</span> {user?.username}
-          </div>
-        </div>
         {children}
       </main>
 
