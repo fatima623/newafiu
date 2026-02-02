@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 
 // GET - Fetch all official holidays
 export async function GET(request: NextRequest) {
   try {
+    const prisma = getPrisma();
     const { searchParams } = new URL(request.url);
     const upcoming = searchParams.get('upcoming') === 'true';
     const activeOnly = searchParams.get('active') !== 'false';
@@ -38,6 +39,7 @@ export async function GET(request: NextRequest) {
 // POST - Create a new official holiday
 export async function POST(request: NextRequest) {
   try {
+    const prisma = getPrisma();
     const body = await request.json();
     const { date, name, reason } = body;
 
@@ -84,6 +86,7 @@ export async function POST(request: NextRequest) {
 // PUT - Update an existing holiday
 export async function PUT(request: NextRequest) {
   try {
+    const prisma = getPrisma();
     const body = await request.json();
     const { id, date, name, reason, isActive } = body;
 
@@ -123,6 +126,7 @@ export async function PUT(request: NextRequest) {
 // DELETE - Delete a holiday
 export async function DELETE(request: NextRequest) {
   try {
+    const prisma = getPrisma();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

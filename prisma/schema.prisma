@@ -12,6 +12,19 @@ enum NewsEventCategory {
   event
 }
 
+enum GalleryCategory {
+  OPD
+  DAY_CARE
+  SURGERIES
+  DIALYSIS
+  ESWL
+  WARDS
+  URODYNAMIC_STUDIES
+  RADIOLOGY_DEPARTMENT
+  RENAL_TRANSPLANT_SERVICE
+  OTHERS
+}
+
 // ============================================
 // SURGERY CLASSIFICATION SYSTEM
 // ============================================
@@ -219,64 +232,20 @@ model AdminUser {
   updatedAt    DateTime @updatedAt
 }
 
-model GalleryAlbum {
+model GalleryItem {
   id        Int            @id @default(autoincrement())
-  title     String
-  date      DateTime
-  images    GalleryImage[]
+  category  GalleryCategory
+  code      String         @unique
+  originalName String
+  mimeType  String
+  data      Bytes          @db.LongBlob
+  title     String?
+  sortOrder Int            @default(0)
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
-  @@index([date])
-}
-
-model GalleryImage {
-  id        Int          @id @default(autoincrement())
-  albumId   Int
-  album     GalleryAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
-  url       String
-  caption   String?
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-
-  @@index([albumId])
-}
-
-model GalleryCategory {
-  id        Int                   @id @default(autoincrement())
-  name      String                @unique
-  slug      String                @unique
-  sortOrder Int                   @default(0)
-  photos    GalleryCategoryPhoto[]
-  createdAt DateTime              @default(now())
-  updatedAt DateTime              @updatedAt
-
-  @@index([slug])
+  @@index([category])
   @@index([sortOrder])
-}
-
-model GalleryPhoto {
-  id           Int                   @id @default(autoincrement())
-  code         String                @unique
-  originalName String
-  mimeType     String
-  data         Bytes                 @db.LongBlob
-  categories   GalleryCategoryPhoto[]
-  createdAt    DateTime              @default(now())
-  updatedAt    DateTime              @updatedAt
-}
-
-model GalleryCategoryPhoto {
-  categoryId Int
-  photoId    Int
-  category   GalleryCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  photo      GalleryPhoto    @relation(fields: [photoId], references: [id], onDelete: Cascade)
-  sortOrder  Int             @default(0)
-  createdAt  DateTime        @default(now())
-
-  @@id([categoryId, photoId])
-  @@index([categoryId])
-  @@index([photoId])
 }
 
 model PatientEducation {

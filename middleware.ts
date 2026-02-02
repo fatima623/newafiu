@@ -43,6 +43,7 @@ export async function middleware(request: NextRequest) {
   const isAdminPage = pathname.startsWith('/admin/dashboard');
   const isProtectedApi =
     pathname.startsWith('/api/admin') ||
+    pathname.startsWith('/api/gallery-items') ||
     pathname === '/api/upload' ||
     pathname.startsWith('/api/appointments/availability');
 
@@ -81,6 +82,8 @@ export const config = {
   matcher: [
     '/admin/dashboard/:path*',
     '/api/admin/:path*',
+    '/api/gallery-items',
+    '/api/gallery-items/:path*',
     '/api/upload',
     '/api/appointments/availability',
     '/api/appointments/availability/:path*',

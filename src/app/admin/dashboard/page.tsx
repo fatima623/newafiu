@@ -47,8 +47,19 @@ export default function AdminDashboardPage() {
         }
       };
 
-      const [gallery, education, news, faculty, jobs] = await Promise.all([
-        fetchSafe('/api/gallery-categories'),
+      const fetchGalleryCount = async () => {
+        try {
+          const res = await fetch('/api/gallery-items');
+          if (!res.ok) return 0;
+          const data = await res.json();
+          return Array.isArray(data?.items) ? data.items.length : 0;
+        } catch {
+          return 0;
+        }
+      };
+
+      const [galleryCount, education, news, faculty, jobs] = await Promise.all([
+        fetchGalleryCount(),
         fetchSafe('/api/patient-education'),
         fetchSafe('/api/news-events'),
         fetchSafe('/api/faculty'),
@@ -56,7 +67,7 @@ export default function AdminDashboardPage() {
       ]);
 
       setStats({
-        galleryCategories: gallery.length,
+        galleryCategories: galleryCount,
         patientEducation: education.length,
         newsEvents: news.length,
         faculty: faculty.length,
@@ -74,7 +85,7 @@ export default function AdminDashboardPage() {
       title: 'Gallery',
       count: stats.galleryCategories,
       icon: Image,
-      href: '/admin/dashboard/categorized-gallery',
+      href: '/admin/dashboard/gallery',
       gradient: 'from-purple-500 to-pink-500',
       bgColor: 'bg-purple-50',
       borderColor: 'border-purple-200',

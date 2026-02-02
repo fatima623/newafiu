@@ -78,11 +78,16 @@ function toSlug(input) {
 function toCodeFromFileName(fileName) {
   const base = String(fileName).replace(/\.[^/.]+$/, '');
   return base
-    .toLowerCase()
-    .replace(/\s+/g, '_')
-    .replace(/[^a-z0-9_-]+/g, '_')
-    .replace(/_+/g, '_')
-    .replace(/(^_|_$)/g, '');
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+function mimeTypeFromFileName(fileName) {
+  const ext = String(path.extname(fileName)).toLowerCase();
+  if (ext === '.png') return 'image/png';
+  if (ext === '.webp') return 'image/webp';
+  return 'image/jpeg';
 }
 
 function titleFromFilename(filename) {
@@ -360,61 +365,54 @@ async function main() {
 
   const categorizedGallery = [
     {
-      name: 'OPD (Outpatient Department)',
+      category: 'OPD',
       photos: ['UROLOGY OPD.jpg', 'counter.jpg', 'counter-2.jpg'],
     },
     {
-      name: 'Day Care',
+      category: 'DAY_CARE',
       photos: ['dialysis.jpg', 'dialysis-2.jpg', 'waiting area.jpg', 'waiting area-2.jpg', 'waiting area-3.jpg'],
     },
     {
-      name: 'Surgeries',
+      category: 'SURGERIES',
       photos: ['Endo OT.jpg', 'OT.jpg'],
     },
     {
-      name: 'Dialysis',
+      category: 'DIALYSIS',
       photos: ['dialysis.jpg', 'dialysis-2.jpg'],
     },
     {
-      name: 'ESWL (Lithotripsy)',
+      category: 'ESWL',
       photos: ['random-1.jpg', 'random-2.jpg'],
     },
     {
-      name: 'Wards',
+      category: 'WARDS',
       photos: ['wards.jpg', 'ward-2.jpg'],
     },
     {
-      name: 'Urodynamic Studies (UDS)',
+      category: 'URODYNAMIC_STUDIES',
       photos: ['UDS.jpg'],
     },
     {
-      name: 'Radiology Department',
+      category: 'RADIOLOGY_DEPARTMENT',
       photos: ['radio.jpg', 'radio-2.jpg', 'radio-3.jpg'],
     },
     {
-      name: 'Renal Transplant Service',
+      category: 'RENAL_TRANSPLANT_SERVICE',
       photos: ['random-3.jpg', 'random-4.jpg'],
     },
     {
-      name: 'Others',
+      category: 'OTHERS',
       photos: ['pharmacy.jpg', 'pharmacy-2.jpg', 'pharmacy-3.jpg'],
     },
   ];
 
   for (let idx = 0; idx < categorizedGallery.length; idx++) {
     const c = categorizedGallery[idx];
-    const slug = toSlug(c.name);
-
-    const category = await prisma.galleryCategory.upsert({
-      where: { slug },
-      update: { name: c.name, sortOrder: idx },
-      create: { name: c.name, slug, sortOrder: idx },
-    });
 
     for (let pIdx = 0; pIdx < c.photos.length; pIdx++) {
       const fileName = c.photos[pIdx];
       const filePath = path.join(process.cwd(), 'public', fileName);
-      const code = toCodeFromFileName(fileName);
+      const code = `${c.category}-${toCodeFromFileName(fileName)}`;
 
       let buffer = null;
       try {
@@ -425,32 +423,23 @@ async function main() {
         continue;
       }
 
-      const photo = await prisma.galleryPhoto.upsert({
+      await prisma.galleryItem.upsert({
         where: { code },
         update: {
+          category: c.category,
           originalName: fileName,
-          mimeType: 'image/jpeg',
+          mimeType: mimeTypeFromFileName(fileName),
           data: buffer,
+          title: null,
+          sortOrder: pIdx,
         },
         create: {
+          category: c.category,
           code,
           originalName: fileName,
-          mimeType: 'image/jpeg',
+          mimeType: mimeTypeFromFileName(fileName),
           data: buffer,
-        },
-      });
-
-      await prisma.galleryCategoryPhoto.upsert({
-        where: {
-          categoryId_photoId: {
-            categoryId: category.id,
-            photoId: photo.id,
-          },
-        },
-        update: { sortOrder: pIdx },
-        create: {
-          categoryId: category.id,
-          photoId: photo.id,
+          title: null,
           sortOrder: pIdx,
         },
       });
@@ -517,48 +506,26 @@ async function main() {
     }
   }
 
-  const defaultGalleryAlbums = [
-    {
-      title: 'AFIU Gallery',
-      date: '2026-01-01',
-      images: [{ url: '/afiulogo.png', caption: 'AFIU' }],
-    },
-  ];
-
-  for (const a of defaultGalleryAlbums) {
-    const dt = new Date(a.date);
-    const existing = await prisma.galleryAlbum.findFirst({
-      where: { title: a.title },
-      select: { id: true },
-    });
-
-    if (!existing) {
-      await prisma.galleryAlbum.create({
+  const existingGalleryItemCount = await prisma.galleryItem.count();
+  if (existingGalleryItemCount === 0) {
+    try {
+      const fallbackFileName = 'afiulogo.png';
+      const filePath = path.join(process.cwd(), 'public', fallbackFileName);
+      const buffer = await readFile(filePath);
+      await prisma.galleryItem.create({
         data: {
-          title: a.title,
-          date: dt,
-          images: {
-            create: a.images.map((img) => ({
-              url: img.url,
-              caption: img.caption || null,
-            })),
-          },
+          category: 'OTHERS',
+          code: 'OTHERS-AFIU_LOGO',
+          originalName: fallbackFileName,
+          mimeType: mimeTypeFromFileName(fallbackFileName),
+          data: buffer,
+          title: 'AFIU',
+          sortOrder: 0,
         },
       });
-    } else {
-      await prisma.galleryImage.deleteMany({ where: { albumId: existing.id } });
-      await prisma.galleryAlbum.update({
-        where: { id: existing.id },
-        data: {
-          date: dt,
-          images: {
-            create: a.images.map((img) => ({
-              url: img.url,
-              caption: img.caption || null,
-            })),
-          },
-        },
-      });
+    } catch {
+      // eslint-disable-next-line no-console
+      console.log('Fallback gallery image missing in public folder: afiulogo.png');
     }
   }
 

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrisma } from '@/lib/prisma';
 
+export const runtime = 'nodejs';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -9,37 +11,37 @@ export async function GET(
     const prisma = getPrisma() as any;
     const { id } = await params;
 
-    const photoId = Number.parseInt(id, 10);
-    if (!Number.isFinite(photoId)) {
+    const itemId = Number.parseInt(id, 10);
+    if (!Number.isFinite(itemId)) {
       return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
     }
 
-    const photo = await prisma.galleryItem.findUnique({
-      where: { id: photoId },
+    const item = await prisma.galleryItem.findUnique({
+      where: { id: itemId },
       select: { data: true, mimeType: true, originalName: true, updatedAt: true },
     });
 
-    if (!photo) {
+    if (!item) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
-    const body = Buffer.from(photo.data);
+    const body = Buffer.from(item.data);
 
     return new NextResponse(body, {
       status: 200,
       headers: {
-        'Content-Type': photo.mimeType,
+        'Content-Type': item.mimeType,
         'Content-Length': String(body.byteLength),
         'Cache-Control': 'public, max-age=3600',
-        'Content-Disposition': `inline; filename="${photo.originalName.replace(/\"/g, '')}"`,
+        'Content-Disposition': `inline; filename="${item.originalName.replace(/\"/g, '')}"`,
       },
     });
   } catch (error) {
-    console.error('Error fetching gallery photo:', error);
+    console.error('Error fetching gallery item photo:', error);
     const message =
       error instanceof Error && error.message === 'DATABASE_URL is not configured'
         ? error.message
-        : 'Failed to fetch gallery photo';
+        : 'Failed to fetch gallery item photo';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

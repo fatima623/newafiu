@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { getPrisma } from '@/lib/prisma';
+import { GALLERY_CATEGORIES } from '@/lib/galleryCategories';
 
 export async function GET() {
   try {
@@ -9,40 +9,13 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const prisma = getPrisma() as any;
-
-    const categories = await prisma.galleryCategory.findMany({
-      orderBy: { sortOrder: 'asc' },
-      include: {
-        photos: {
-          orderBy: { sortOrder: 'asc' },
-          include: {
-            photo: {
-              select: {
-                id: true,
-                code: true,
-                originalName: true,
-                mimeType: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
     return NextResponse.json(
-      categories.map((c) => ({
-        id: c.id,
-        name: c.name,
+      GALLERY_CATEGORIES.map((c, idx) => ({
+        id: idx + 1,
+        name: c.label,
         slug: c.slug,
-        sortOrder: c.sortOrder,
-        photos: c.photos.map((cp) => ({
-          id: cp.photo.id,
-          code: cp.photo.code,
-          originalName: cp.photo.originalName,
-          mimeType: cp.photo.mimeType,
-          sortOrder: cp.sortOrder,
-        })),
+        sortOrder: idx,
+        photos: [],
       }))
     );
   } catch (error) {
@@ -68,43 +41,10 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const prisma = getPrisma() as any;
-
-    const body = await request.json();
-    const name = typeof body?.name === 'string' ? body.name.trim() : '';
-
-    if (!name) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
-    }
-
-    const slug = toSlug(name);
-    if (!slug) {
-      return NextResponse.json({ error: 'Invalid name' }, { status: 400 });
-    }
-
-    const existing = await prisma.galleryCategory.findUnique({ where: { slug } });
-    if (existing) {
-      return NextResponse.json(
-        { error: 'Category already exists', category: existing },
-        { status: 409 }
-      );
-    }
-
-    const last = await prisma.galleryCategory.findFirst({
-      orderBy: { sortOrder: 'desc' },
-      select: { sortOrder: true },
-    });
-
-    const created = await prisma.galleryCategory.create({
-      data: {
-        name,
-        slug,
-        sortOrder: (last?.sortOrder ?? 0) + 1,
-      },
-    });
-
-    return NextResponse.json(created, { status: 201 });
+    return NextResponse.json(
+      { error: 'Categories are predefined' },
+      { status: 405 }
+    );
   } catch (error) {
     console.error('Error creating categorized gallery category:', error);
     return NextResponse.json(
