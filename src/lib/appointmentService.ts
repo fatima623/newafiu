@@ -65,7 +65,11 @@ export function generateTimeSlots(): { slotNumber: number; startTime: string; en
 }
 
 function parseDateOnly(dateStr: string): Date {
-  return new Date(`${dateStr}T00:00:00`);
+  // Store/compare MySQL DATE values in a timezone-stable way.
+  // Prisma serializes JS Dates in UTC; constructing via Date.UTC prevents
+  // local timezone shifts (e.g., PKT) from changing the calendar date.
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
 }
 
 function toISODate(d: Date): string {
@@ -490,7 +494,7 @@ export async function getDoctorSchedule(
   dateStr: string
 ): Promise<any[]> {
   const prisma = getPrisma();
-  const date = new Date(dateStr);
+  const date = parseDateOnly(dateStr);
   
   const appointments = await prisma.appointment.findMany({
     where: {
@@ -512,7 +516,7 @@ export async function setDoctorAvailability(
   overrideType?: 'LEAVE' | 'EMERGENCY_BLOCK' | 'CUSTOM_HOURS'
 ): Promise<{ success: boolean; error?: string }> {
   const prisma = getPrisma();
-  const date = new Date(dateStr);
+  const date = parseDateOnly(dateStr);
   
   try {
     await prisma.doctorAvailability.upsert({

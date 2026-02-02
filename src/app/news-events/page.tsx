@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Calendar } from 'lucide-react';
 import { fetchJson } from '@/lib/fetchJson';
@@ -14,7 +14,7 @@ interface NewsEventItem {
   category: 'news' | 'event';
 }
 
-export default function NewsEventsPage() {
+function NewsEventsContent() {
   const [items, setItems] = useState<NewsEventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [highlightedId, setHighlightedId] = useState<number | null>(null);
@@ -129,5 +129,19 @@ export default function NewsEventsPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function NewsEventsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-950 mx-auto"></div>
+        </div>
+      }
+    >
+      <NewsEventsContent />
+    </Suspense>
   );
 }

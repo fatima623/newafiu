@@ -326,6 +326,11 @@ export default function BookingPage() {
       
       if (res.ok && data.success) {
         setBookingConfirmation(data.appointment);
+
+        // Refresh slots so this slot is immediately marked as booked
+        // (useful if user goes back or tries to book another slot).
+        await fetchSlots();
+
         setCurrentStep('success');
       } else {
         setSubmitError(data.error || 'Failed to book appointment');

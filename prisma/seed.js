@@ -15,41 +15,49 @@ const facultyData = [
     designation: 'Consultant Urologist & Transplant Surgeon',
     qualifications: 'MBBS, FCPS (Surgery), FCPS (Urology), FEBU (Europe), MHPE (RIU)',
     specialization: 'FEBU (Europe), MHPE (RIU)',
+    specializationCategory: 'UROLOGIST',
     image: '/person.png',
   },
   {
     name: 'Dr. Badar Murtaza',
-    designation: 'Consultant Urologist & Transplant Surgeon',
-    qualifications: 'MBBS, FCPS (Surgery), FRCS (IRE), FCPS (Urology), MCPS-HPE',
+    designation: 'Brigadier (Professor) – Consultant Urologist & Transplant Surgeon',
+    qualifications:
+      'MBBS, FCPS (Surgery), FCPS (URE), FCPS (Urology), MCPS, HPE, Certificate of Medical Teaching (UHS), Diploma in Reproductive and Sexual Medicine (Lambert)',
     specialization: null,
+    specializationCategory: 'UROLOGIST',
     image: '/person.png',
   },
   {
     name: 'Dr. Hussain Ahmad',
-    designation: 'Consultant Urologist & Transplant Surgeon',
-    qualifications: 'MBBS, FCPS (Surgery), FCPS (Urology), OJT Urology UHB-UK',
-    specialization: null,
+    designation: 'Brigadier (Professor) – Consultant Urologist & Transplant Surgeon',
+    qualifications: 'MBBS, FCPS (Surgery), FCPS (Urology), FRCS (Urology)',
+    specialization: 'Adult Urology UHB – UK, Advanced Medical Education (FEU)',
+    specializationCategory: 'UROLOGIST',
     image: '/person.png',
   },
   {
     name: 'Dr. Qamar Zia',
-    designation: 'Consultant Urologist & Transplant Surgeon',
-    qualifications: 'MBBS, MRCS (Ed), FCPS General Surgery (Pak), FCPS (Urology) FACS (USA), FRCS (Ed), FRCS (Urology)',
-    specialization: null,
+    designation: 'Brigadier (Associate Professor) – Consultant Urologist & Transplant Surgeon',
+    qualifications: 'MBBS, MRCS (Ed), FCPS (Pak), FACS (USA), FRCS (Eng), FRCS (Ed), FRCS (Urol)',
+    specialization: 'MGSS Certification Urol RCS-Ed, Clinical Fellowship Uro-Oncology UHB-UK',
+    specializationCategory: 'UROLOGIST',
     image: '/person.png',
   },
   {
     name: 'Dr. Khubaib Shahzad',
-    designation: 'Consultant Urologist & Transplant Surgeon',
-    qualifications: 'MBBS, FCPS (Surgery), FRCS Ed (Urology)',
-    specialization: null,
+    designation: 'Brigadier (Professor) – Consultant Urologist & Transplant Surgeon',
+    qualifications:
+      'MBBS, FCPS (Surgery), FCPS (Urology), Advanced Certification in Medical Education (ACMED), Foundation University Islamabad',
+    specialization: 'OPD Days: Tuesday & Thursday',
+    specializationCategory: 'UROLOGIST',
     image: '/person.png',
   },
   {
     name: 'Dr. Faran Kiani',
-    designation: 'Consultant Urologist & Transplant Surgeon',
-    qualifications: 'MBBS, FCPS (Surgery), FCPS (Urology)',
+    designation: 'Colonel – Consultant Urologist & Transplant Surgeon',
+    qualifications: 'MBBS, FCPS (Surgery), FRCS Ed (Urology)',
     specialization: null,
+    specializationCategory: 'UROLOGIST',
     image: '/person.png',
   },
   {
@@ -57,6 +65,7 @@ const facultyData = [
     designation: 'FRCP (Glasgow), Consultant Nephrologist , Head of Department of Nephrology',
     qualifications: 'MBBS (QAU), FCPS (Medicine), FCPS (Nephrology), CHPE - NUMS, MASN (USA)',
     specialization: null,
+    specializationCategory: 'NEPHROLOGIST',
     image: '/person.png',
   },
   {
@@ -64,6 +73,55 @@ const facultyData = [
     designation: 'Consultant Nephrologist',
     qualifications: 'MBBS (QAU), MCPS, FCPS (Medicine), FCPS (Nephrology)',
     specialization: null,
+    specializationCategory: 'NEPHROLOGIST',
+    image: '/person.png',
+  },
+  {
+    name: 'Brig Amir Sohail',
+    designation: 'HOD Anesthesia, Consultant Anesthetist & Pain Specialist',
+    qualifications: 'MBBS, FCPS Anesthesiology, CHPE, MSc Pain Medicine',
+    specialization: 'Pain Medicine',
+    specializationCategory: 'ANAESTHETIC',
+    image: '/person.png',
+  },
+  {
+    name: 'Col Ashfaq Ahmed',
+    designation: 'Consultant Anesthetist',
+    qualifications: 'MBBS, FCPS Anesthesiology',
+    specialization: null,
+    specializationCategory: 'ANAESTHETIC',
+    image: '/person.png',
+  },
+  {
+    name: 'Maj Jawad UL Hassan',
+    designation: 'Consultant Anesthetist',
+    qualifications: 'MBBS, FCPS Anesthesiology',
+    specialization: null,
+    specializationCategory: 'ANAESTHETIC',
+    image: '/person.png',
+  },
+  {
+    name: 'Maj Muhammad Mazhar UL Haq',
+    designation: 'Consultant Anesthetist',
+    qualifications: 'MBBS, FCPS Anesthesiology, CHPE',
+    specialization: null,
+    specializationCategory: 'ANAESTHETIC',
+    image: '/person.png',
+  },
+  {
+    name: 'Ltcol Amer Hayat Haider',
+    designation: 'Classified Radiologist',
+    qualifications: 'MBBS (AAU), DMA (NUML), DIPRAD (AFPGMI), FCPS (DGR)',
+    specialization: null,
+    specializationCategory: 'RADIOLOGIST',
+    image: '/person.png',
+  },
+  {
+    name: 'Maj Bareeha Elahi',
+    designation: 'Classified Radiologist',
+    qualifications: 'MBBS, FCPS',
+    specialization: null,
+    specializationCategory: 'RADIOLOGIST',
     image: '/person.png',
   },
 ];
@@ -127,8 +185,12 @@ async function main() {
       // eslint-disable-next-line no-console
       console.log(`Seeded faculty: ${faculty.name}`);
     } else {
+      await prisma.faculty.update({
+        where: { id: existing.id },
+        data: faculty,
+      });
       // eslint-disable-next-line no-console
-      console.log(`Faculty already exists: ${faculty.name}`);
+      console.log(`Updated faculty: ${faculty.name}`);
     }
   }
 
