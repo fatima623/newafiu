@@ -9,7 +9,6 @@ export interface Faculty {
   name: string;
   designation: string;
   qualifications: string;
-  specialization: string;
   image: string;
   bio?: string;
 }
@@ -118,7 +117,6 @@ export interface DoctorForBooking {
   id: number;
   name: string;
   designation: string;
-  specialization?: string;
   image?: string;
   isAvailable: boolean;
   availabilityNote?: string;

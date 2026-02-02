@@ -14,7 +14,7 @@ const facultyData = [
     name: 'Dr. Haroon Sabir Khan',
     designation: 'Consultant Urologist & Transplant Surgeon',
     qualifications: 'MBBS, FCPS (Surgery), FCPS (Urology), FEBU (Europe), MHPE (RIU)',
-    specialization: 'FEBU (Europe), MHPE (RIU)',
+    specialization: null,
     specializationCategory: 'UROLOGIST',
     image: '/person.png',
   },
@@ -31,7 +31,7 @@ const facultyData = [
     name: 'Dr. Hussain Ahmad',
     designation: 'Brigadier (Professor) – Consultant Urologist & Transplant Surgeon',
     qualifications: 'MBBS, FCPS (Surgery), FCPS (Urology), FRCS (Urology)',
-    specialization: 'Adult Urology UHB – UK, Advanced Medical Education (FEU)',
+    specialization: null,
     specializationCategory: 'UROLOGIST',
     image: '/person.png',
   },
@@ -39,7 +39,7 @@ const facultyData = [
     name: 'Dr. Qamar Zia',
     designation: 'Brigadier (Associate Professor) – Consultant Urologist & Transplant Surgeon',
     qualifications: 'MBBS, MRCS (Ed), FCPS (Pak), FACS (USA), FRCS (Eng), FRCS (Ed), FRCS (Urol)',
-    specialization: 'MGSS Certification Urol RCS-Ed, Clinical Fellowship Uro-Oncology UHB-UK',
+    specialization: null,
     specializationCategory: 'UROLOGIST',
     image: '/person.png',
   },
@@ -48,7 +48,7 @@ const facultyData = [
     designation: 'Brigadier (Professor) – Consultant Urologist & Transplant Surgeon',
     qualifications:
       'MBBS, FCPS (Surgery), FCPS (Urology), Advanced Certification in Medical Education (ACMED), Foundation University Islamabad',
-    specialization: 'OPD Days: Tuesday & Thursday',
+    specialization: null,
     specializationCategory: 'UROLOGIST',
     image: '/person.png',
   },
@@ -80,7 +80,7 @@ const facultyData = [
     name: 'Brig Amir Sohail',
     designation: 'HOD Anesthesia, Consultant Anesthetist & Pain Specialist',
     qualifications: 'MBBS, FCPS Anesthesiology, CHPE, MSc Pain Medicine',
-    specialization: 'Pain Medicine',
+    specialization: null,
     specializationCategory: 'ANAESTHETIC',
     image: '/person.png',
   },
@@ -193,6 +193,10 @@ async function main() {
       console.log(`Updated faculty: ${faculty.name}`);
     }
   }
+
+  await prisma.faculty.updateMany({
+    data: { specialization: null },
+  });
 
   const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
   try {

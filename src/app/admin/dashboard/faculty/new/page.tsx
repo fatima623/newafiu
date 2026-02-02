@@ -19,7 +19,6 @@ export default function NewFacultyPage() {
   const [name, setName] = useState('');
   const [designation, setDesignation] = useState('');
   const [qualifications, setQualifications] = useState('');
-  const [specialization, setSpecialization] = useState('');
   const [specializationCategory, setSpecializationCategory] = useState('');
   const [image, setImage] = useState('');
   const [bio, setBio] = useState('');
@@ -63,7 +62,6 @@ export default function NewFacultyPage() {
           name,
           designation,
           qualifications,
-          specialization,
           specializationCategory: specializationCategory || null,
           image,
           bio,
@@ -159,21 +157,6 @@ export default function NewFacultyPage() {
               ))}
             </select>
             <p className="text-xs text-gray-500 mt-1">Select the primary specialization category for this faculty member</p>
-          </div>
-
-          <div>
-            <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 mb-2">
-              Additional Specialization Details
-            </label>
-            <input
-              id="specialization"
-              type="text"
-              value={specialization}
-              onChange={(e) => setSpecialization(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., Kidney Transplant, Stone Surgery, FEBU (Europe)"
-            />
-            <p className="text-xs text-gray-500 mt-1">Additional specialization details or certifications</p>
           </div>
 
           <div>

@@ -126,7 +126,6 @@ export const faculty: Faculty[] = [
     name: 'Dr. Haroon Sabir Khan',
     designation: 'Consultant Urologist & Transplant Surgeon',
     qualifications: 'MBBS, FCPS (Surgery), FCPS (Urology), FEBU (Europe), MHPE (RIU)',
-    specialization: 'FEBU (Europe), MHPE (RIU)',
     image: '/person.png',
   },
   {
@@ -134,7 +133,6 @@ export const faculty: Faculty[] = [
     name: 'Dr. Badar Murtaza',
     designation: 'Consultant Urologist & Transplant Surgeon',
     qualifications: 'MBBS, FCPS (Surgery), FRCS (IRE), FCPS (Urology), MCPS-HPE',
-    specialization: 'no data',
     image: '/person.png',
   },
   {
@@ -142,7 +140,6 @@ export const faculty: Faculty[] = [
     name: 'Dr. Hussain Ahmad',
     designation: 'Consultant Urologist & Transplant Surgeon',
     qualifications: 'MBBS, FCPS (Surgery), FCPS (Urology), OJT Urology UHB-UK',
-    specialization: 'no data',
     image: '/person.png',
   },
   {
@@ -150,7 +147,6 @@ export const faculty: Faculty[] = [
     name: 'Dr. Qamar Zia',
     designation: 'Consultant Urologist & Transplant Surgeon',
     qualifications: 'MBBS, MRCS (Ed), FCPS General Surgery (Pak), FCPS (Urology) FACS (USA), FRCS (Ed), FRCS (Urology)',
-    specialization: 'no data',
     image: '/person.png',
   },
   {
@@ -158,7 +154,6 @@ export const faculty: Faculty[] = [
     name: 'Dr. Khubaib Shahzad',
     designation: 'Consultant Urologist & Transplant Surgeon',
     qualifications: 'MBBS, FCPS (Surgery), FRCS Ed (Urology)',
-    specialization: 'no data',
     image: '/person.png',
   },
   {
@@ -166,7 +161,6 @@ export const faculty: Faculty[] = [
     name: 'Dr. Faran Kiani',
     designation: 'Consultant Urologist & Transplant Surgeon',
     qualifications: 'MBBS, FCPS (Surgery), FCPS (Urology)',
-    specialization: 'no data',
     image: '/person.png',
   },
   {
@@ -174,7 +168,6 @@ export const faculty: Faculty[] = [
     name: 'Dr. Nauman Kashif',
     designation: 'FRCP (Glasgow), Consultant Nephrologist , Head of Department of Nephrology',
     qualifications: 'MBBS (QAU), FCPS (Medicine), FCPS (Nephrology), CHPE - NUMS, MASN (USA)',
-    specialization: 'no data',
     image: '/person.png',
   },
   {
@@ -182,7 +175,6 @@ export const faculty: Faculty[] = [
     name: 'Dr. Farrukh Islam',
     designation: 'Consultant Nephrologist',
     qualifications: 'MBBS (QAU), MCPS, FCPS (Medicine), FCPS (Nephrology)',
-    specialization: 'no data',
     image: '/person.png',
   },
 ];

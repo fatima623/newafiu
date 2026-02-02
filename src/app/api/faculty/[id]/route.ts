@@ -40,7 +40,7 @@ export async function PUT(
     }
 
     const { id } = await params;
-    const { name, designation, qualifications, specialization, specializationCategory, image, bio } = await request.json();
+    const { name, designation, qualifications, specializationCategory, image, bio } = await request.json();
 
     if (!name || !designation || !qualifications) {
       return NextResponse.json(
@@ -55,7 +55,7 @@ export async function PUT(
         name,
         designation,
         qualifications,
-        specialization: specialization || null,
+        specialization: null,
         specializationCategory: specializationCategory || null,
         image: image || null,
         bio: bio || null,

@@ -18,7 +18,6 @@ interface Faculty {
   name: string;
   designation: string;
   qualifications: string;
-  specialization: string | null;
   specializationCategory: string | null;
   image: string | null;
 }
@@ -141,9 +140,6 @@ export default function FacultyListPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Specialization
-                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -170,7 +166,6 @@ export default function FacultyListPage() {
                       <span className="text-gray-400">-</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-gray-500">{item.specialization || '-'}</td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
                       <Link
