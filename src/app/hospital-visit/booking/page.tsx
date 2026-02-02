@@ -9,8 +9,23 @@ interface Doctor {
   name: string;
   designation: string;
   specialization: string | null;
+  specializationCategory: string | null;
   image: string | null;
 }
+
+interface OfficialHoliday {
+  id: number;
+  date: string;
+  name: string;
+  reason: string | null;
+}
+
+const SPECIALIZATION_CATEGORIES = [
+  { value: 'UROLOGIST', label: 'Urologist' },
+  { value: 'NEPHROLOGIST', label: 'Nephrologist' },
+  { value: 'ANAESTHETIC', label: 'Anaesthetic' },
+  { value: 'RADIOLOGIST', label: 'Radiologist' },
+];
 
 interface Slot {
   slotNumber: number;
@@ -75,6 +90,13 @@ export default function BookingPage() {
   const [submitError, setSubmitError] = useState('');
   const [bookingConfirmation, setBookingConfirmation] = useState<BookingConfirmation | null>(null);
 
+  // Specialization filter
+  const [selectedSpecialization, setSelectedSpecialization] = useState<string>('');
+  
+  // Holidays
+  const [holidays, setHolidays] = useState<OfficialHoliday[]>([]);
+  const [hoveredDate, setHoveredDate] = useState<string | null>(null);
+
   const MAX_BOOKING_DAYS_AHEAD = 7;
 
   // Fetch doctors on mount
@@ -93,6 +115,22 @@ export default function BookingPage() {
       }
     }
     fetchDoctors();
+  }, []);
+
+  // Fetch holidays on mount
+  useEffect(() => {
+    async function fetchHolidays() {
+      try {
+        const res = await fetch('/api/appointments/holidays?upcoming=true&active=true');
+        const data = await res.json();
+        if (data.holidays) {
+          setHolidays(data.holidays);
+        }
+      } catch (error) {
+        console.error('Failed to fetch holidays:', error);
+      }
+    }
+    fetchHolidays();
   }, []);
 
   // Fetch slots when doctor and date are selected
@@ -160,6 +198,15 @@ export default function BookingPage() {
     return new Set(fixed);
   };
 
+  // Check if date is an official holiday (admin-managed)
+  const getOfficialHoliday = (dateStr: string): OfficialHoliday | null => {
+    const holiday = holidays.find(h => {
+      const holidayDate = new Date(h.date).toISOString().split('T')[0];
+      return holidayDate === dateStr;
+    });
+    return holiday || null;
+  };
+
   const isBookingDateDisabled = (dateStr: string) => {
     if (!dateStr) return true;
     const now = new Date();
@@ -171,10 +218,39 @@ export default function BookingPage() {
     if (date > max) return true;
     const day = date.getDay();
     if (day === 0 || day === 6) return true;
-    const holidays = getPakistanPublicHolidays(date.getFullYear());
-    if (holidays.has(toISODate(date))) return true;
+    const staticHolidays = getPakistanPublicHolidays(date.getFullYear());
+    if (staticHolidays.has(toISODate(date))) return true;
+    // Check admin-managed holidays
+    if (getOfficialHoliday(dateStr)) return true;
     return false;
   };
+
+  // Get holiday reason for tooltip
+  const getHolidayReason = (dateStr: string): string | null => {
+    const officialHoliday = getOfficialHoliday(dateStr);
+    if (officialHoliday) {
+      return officialHoliday.reason || `Holiday: ${officialHoliday.name}`;
+    }
+    const staticHolidays = getPakistanPublicHolidays(new Date(dateStr).getFullYear());
+    if (staticHolidays.has(dateStr)) {
+      return 'Public Holiday';
+    }
+    return null;
+  };
+
+  // Filter doctors by specialization
+  const filteredDoctors = selectedSpecialization
+    ? doctors.filter(doc => doc.specializationCategory === selectedSpecialization)
+    : doctors;
+
+  // Group doctors by specialization for display
+  const doctorsBySpecialization = SPECIALIZATION_CATEGORIES.reduce((acc, cat) => {
+    acc[cat.value] = doctors.filter(doc => doc.specializationCategory === cat.value);
+    return acc;
+  }, {} as Record<string, Doctor[]>);
+
+  // Doctors without specialization
+  const doctorsWithoutSpecialization = doctors.filter(doc => !doc.specializationCategory);
 
   // Check if date is a weekday
   const isWeekday = (dateStr: string) => {
@@ -388,7 +464,37 @@ export default function BookingPage() {
             {/* Step 1: Select Doctor */}
             {currentStep === 'doctor' && (
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Select a Doctor</h2>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">Select a Doctor</h2>
+                
+                {/* Specialization Filter */}
+                <div className="mb-6">
+                  <label className="block text-gray-700 font-medium mb-2">Filter by Specialization</label>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setSelectedSpecialization('')}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        selectedSpecialization === ''
+                          ? 'bg-blue-950 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      All Doctors
+                    </button>
+                    {SPECIALIZATION_CATEGORIES.map((cat) => (
+                      <button
+                        key={cat.value}
+                        onClick={() => setSelectedSpecialization(cat.value)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                          selectedSpecialization === cat.value
+                            ? 'bg-blue-950 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {cat.label} ({doctorsBySpecialization[cat.value]?.length || 0})
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 
                 {loadingDoctors ? (
                   <div className="flex items-center justify-center py-12">
@@ -398,33 +504,128 @@ export default function BookingPage() {
                   <div className="text-center py-12 text-gray-500">
                     No doctors available at the moment.
                   </div>
+                ) : selectedSpecialization ? (
+                  /* Filtered view - show only selected specialization */
+                  <div>
+                    {filteredDoctors.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        No doctors found for this specialization.
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {filteredDoctors.map((doctor) => (
+                          <button
+                            key={doctor.id}
+                            onClick={() => {
+                              setSelectedDoctor(doctor);
+                              setCurrentStep('datetime');
+                            }}
+                            className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+                          >
+                            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                              {doctor.image ? (
+                                <img src={doctor.image} alt={doctor.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <UserCircle size={40} className="text-gray-400" />
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-800">{doctor.name}</h3>
+                              <p className="text-sm text-gray-600">{doctor.designation}</p>
+                              {doctor.specializationCategory && (
+                                <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                  {SPECIALIZATION_CATEGORIES.find(c => c.value === doctor.specializationCategory)?.label}
+                                </span>
+                              )}
+                              {doctor.specialization && doctor.specialization !== 'no data' && (
+                                <p className="text-xs text-gray-500 mt-1">{doctor.specialization}</p>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {doctors.map((doctor) => (
-                      <button
-                        key={doctor.id}
-                        onClick={() => {
-                          setSelectedDoctor(doctor);
-                          setCurrentStep('datetime');
-                        }}
-                        className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
-                      >
-                        <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
-                          {doctor.image ? (
-                            <img src={doctor.image} alt={doctor.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <UserCircle size={40} className="text-gray-400" />
-                          )}
+                  /* Grouped view - show all doctors grouped by specialization */
+                  <div className="space-y-8">
+                    {SPECIALIZATION_CATEGORIES.map((cat) => {
+                      const categoryDoctors = doctorsBySpecialization[cat.value];
+                      if (!categoryDoctors || categoryDoctors.length === 0) return null;
+                      
+                      return (
+                        <div key={cat.value}>
+                          <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                            <span className="w-3 h-3 bg-blue-950 rounded-full"></span>
+                            {cat.label}s ({categoryDoctors.length})
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {categoryDoctors.map((doctor) => (
+                              <button
+                                key={doctor.id}
+                                onClick={() => {
+                                  setSelectedDoctor(doctor);
+                                  setCurrentStep('datetime');
+                                }}
+                                className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+                              >
+                                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                                  {doctor.image ? (
+                                    <img src={doctor.image} alt={doctor.name} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <UserCircle size={40} className="text-gray-400" />
+                                  )}
+                                </div>
+                                <div>
+                                  <h3 className="font-semibold text-gray-800">{doctor.name}</h3>
+                                  <p className="text-sm text-gray-600">{doctor.designation}</p>
+                                  {doctor.specialization && doctor.specialization !== 'no data' && (
+                                    <p className="text-xs text-gray-500 mt-1">{doctor.specialization}</p>
+                                  )}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-800">{doctor.name}</h3>
-                          <p className="text-sm text-gray-600">{doctor.designation}</p>
-                          {doctor.specialization && doctor.specialization !== 'no data' && (
-                            <p className="text-xs text-blue-600 mt-1">{doctor.specialization}</p>
-                          )}
+                      );
+                    })}
+                    
+                    {/* Doctors without specialization */}
+                    {doctorsWithoutSpecialization.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                          <span className="w-3 h-3 bg-gray-400 rounded-full"></span>
+                          Other Specialists ({doctorsWithoutSpecialization.length})
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {doctorsWithoutSpecialization.map((doctor) => (
+                            <button
+                              key={doctor.id}
+                              onClick={() => {
+                                setSelectedDoctor(doctor);
+                                setCurrentStep('datetime');
+                              }}
+                              className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+                            >
+                              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                                {doctor.image ? (
+                                  <img src={doctor.image} alt={doctor.name} className="w-full h-full object-cover" />
+                                ) : (
+                                  <UserCircle size={40} className="text-gray-400" />
+                                )}
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-gray-800">{doctor.name}</h3>
+                                <p className="text-sm text-gray-600">{doctor.designation}</p>
+                                {doctor.specialization && doctor.specialization !== 'no data' && (
+                                  <p className="text-xs text-gray-500 mt-1">{doctor.specialization}</p>
+                                )}
+                              </div>
+                            </button>
+                          ))}
                         </div>
-                      </button>
-                    ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

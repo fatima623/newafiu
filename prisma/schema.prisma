@@ -125,6 +125,13 @@ enum AvailabilityOverrideType {
   CUSTOM_HOURS
 }
 
+enum SpecializationCategory {
+  UROLOGIST
+  NEPHROLOGIST
+  ANAESTHETIC
+  RADIOLOGIST
+}
+
 model DoctorAvailability {
   id                Int                       @id @default(autoincrement())
   facultyId         Int
@@ -300,19 +307,35 @@ model NewsEvent {
 }
 
 model Faculty {
-  id             Int      @id @default(autoincrement())
-  name           String
-  designation    String
-  qualifications String
-  specialization String?
-  image          String?
-  bio            String?  @db.Text
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  availability   DoctorAvailability[]
-  appointments   Appointment[]
+  id                     Int                     @id @default(autoincrement())
+  name                   String
+  designation            String
+  qualifications         String
+  specialization         String?
+  specializationCategory SpecializationCategory?
+  image                  String?
+  bio                    String?                 @db.Text
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  availability           DoctorAvailability[]
+  appointments           Appointment[]
 
   @@index([name])
+  @@index([specializationCategory])
+}
+
+model OfficialHoliday {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @db.Date
+  name      String
+  reason    String?  @db.Text
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date])
+  @@index([date])
+  @@index([isActive])
 }
 
  model CareersForm {

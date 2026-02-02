@@ -11,6 +11,7 @@ export async function GET() {
         name: doc.name,
         designation: doc.designation,
         specialization: doc.specialization,
+        specializationCategory: doc.specializationCategory,
         image: doc.image,
       })),
     });

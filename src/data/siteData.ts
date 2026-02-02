@@ -353,10 +353,10 @@ export const contactInfo: ContactInfo = {
 };
 
 export const statistics = [
-  { label: 'Years of Excellence', value: '32+' },
-  { label: 'Successful Surgeries', value: '100000+' },
-  { label: 'Expert Doctors', value: '49+' },
-  { label: 'Satisfied Patients', value: '100000+' },
+  { label: 'Years of Excellence', value: '37+' },
+  { label: 'Successful Surgeries', value: '140,249+' },
+  { label: 'Expert Doctors', value: '37+' },
+  { label: 'Satisfied Patients', value: '1,190,419+' },
 ];
 
 export const commandant = {

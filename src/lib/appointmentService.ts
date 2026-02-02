@@ -554,6 +554,7 @@ export async function getDoctorsForBooking(): Promise<any[]> {
       name: true,
       designation: true,
       specialization: true,
+      specializationCategory: true,
       image: true,
     },
   });

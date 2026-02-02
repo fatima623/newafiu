@@ -6,12 +6,21 @@ import Link from 'next/link';
 import { ArrowLeft, Upload } from 'lucide-react';
 import { fetchJson } from '@/lib/fetchJson';
 
+const SPECIALIZATION_CATEGORIES = [
+  { value: '', label: 'Select Specialization Category' },
+  { value: 'UROLOGIST', label: 'Urologist' },
+  { value: 'NEPHROLOGIST', label: 'Nephrologist' },
+  { value: 'ANAESTHETIC', label: 'Anaesthetic' },
+  { value: 'RADIOLOGIST', label: 'Radiologist' },
+];
+
 interface Faculty {
   id: number;
   name: string;
   designation: string;
   qualifications: string;
   specialization: string | null;
+  specializationCategory: string | null;
   image: string | null;
   bio: string | null;
 }
@@ -25,6 +34,7 @@ export default function EditFacultyPage() {
   const [designation, setDesignation] = useState('');
   const [qualifications, setQualifications] = useState('');
   const [specialization, setSpecialization] = useState('');
+  const [specializationCategory, setSpecializationCategory] = useState('');
   const [image, setImage] = useState('');
   const [bio, setBio] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -43,6 +53,7 @@ export default function EditFacultyPage() {
       setDesignation(data.designation);
       setQualifications(data.qualifications);
       setSpecialization(data.specialization || '');
+      setSpecializationCategory(data.specializationCategory || '');
       setImage(data.image || '');
       setBio(data.bio || '');
     } catch (err) {
@@ -89,6 +100,7 @@ export default function EditFacultyPage() {
           designation,
           qualifications,
           specialization,
+          specializationCategory: specializationCategory || null,
           image,
           bio,
         }),
@@ -177,8 +189,27 @@ export default function EditFacultyPage() {
           </div>
 
           <div>
+            <label htmlFor="specializationCategory" className="block text-sm font-medium text-gray-700 mb-2">
+              Specialization Category *
+            </label>
+            <select
+              id="specializationCategory"
+              value={specializationCategory}
+              onChange={(e) => setSpecializationCategory(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              {SPECIALIZATION_CATEGORIES.map((cat) => (
+                <option key={cat.value} value={cat.value}>
+                  {cat.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">Select the primary specialization category for this faculty member</p>
+          </div>
+
+          <div>
             <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 mb-2">
-              Specialization
+              Additional Specialization Details
             </label>
             <input
               id="specialization"
@@ -186,8 +217,9 @@ export default function EditFacultyPage() {
               value={specialization}
               onChange={(e) => setSpecialization(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., Kidney Transplant, Stone Surgery"
+              placeholder="e.g., Kidney Transplant, Stone Surgery, FEBU (Europe)"
             />
+            <p className="text-xs text-gray-500 mt-1">Additional specialization details or certifications</p>
           </div>
 
           <div>
