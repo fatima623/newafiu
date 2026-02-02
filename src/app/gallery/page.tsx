@@ -1,202 +1,348 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useMemo, useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, Image as ImageIcon, Search, X } from 'lucide-react';
 import { fetchJson } from '@/lib/fetchJson';
 
-type GalleryImage = {
+type GalleryPhoto = {
   id: number;
-  url: string;
-  caption: string | null;
+  code: string;
+  originalName: string;
 };
 
-type GalleryAlbum = {
+type GalleryCategory = {
   id: number;
-  title: string;
-  date: string;
-  images: GalleryImage[];
+  name: string;
+  slug: string;
+  photos: GalleryPhoto[];
 };
 
 export default function GalleryPage() {
-  const [galleryAlbums, setGalleryAlbums] = useState<GalleryAlbum[]>([]);
+  const [categories, setCategories] = useState<GalleryCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedEvent, setSelectedEvent] = useState<GalleryAlbum | null>(null);
+  const [error, setError] = useState('');
+  const [activeSlug, setActiveSlug] = useState<string>('');
+  const [query, setQuery] = useState('');
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
-    fetchGallery();
+    fetchCategories();
   }, []);
 
-  const fetchGallery = async () => {
+  useEffect(() => {
+    if (!activeSlug && categories.length > 0) {
+      setActiveSlug(categories[0].slug);
+    }
+  }, [activeSlug, categories]);
+
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [activeSlug]);
+
+  const fetchCategories = async () => {
     try {
-      const data = await fetchJson('/api/gallery');
-      setGalleryAlbums(Array.isArray(data) ? data : []);
+      setError('');
+      const data = await fetchJson('/api/gallery-categories');
+      setCategories(Array.isArray(data) ? (data as GalleryCategory[]) : []);
     } catch (error) {
-      console.error('Error fetching gallery:', error);
+      console.error('Error fetching gallery categories:', error);
+      setError('Failed to load gallery. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const openEvent = (event: GalleryAlbum) => {
-    setSelectedEvent(event);
-    setCurrentImageIndex(0);
-    document.body.style.overflow = 'hidden';
+  const filteredCategories = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return categories;
+    return categories.filter((c) => c.name.toLowerCase().includes(q));
+  }, [categories, query]);
+
+  const activeCategory = useMemo(
+    () => categories.find((c) => c.slug === activeSlug) || null,
+    [categories, activeSlug]
+  );
+
+  const activePhotos = useMemo(() => {
+    return activeCategory?.photos || [];
+  }, [activeCategory]);
+
+  const activePhoto = activePhotos[currentImageIndex] || null;
+
+  const openViewer = (index: number) => {
+    if (!activePhotos[index]) return;
+    setCurrentImageIndex(index);
+    setIsViewerOpen(true);
   };
 
   const closeModal = () => {
-    setSelectedEvent(null);
-    document.body.style.overflow = 'auto';
+    setIsViewerOpen(false);
   };
 
   const goToNextImage = () => {
-    if (!selectedEvent) return;
+    if (activePhotos.length === 0) return;
     setCurrentImageIndex((prevIndex) => 
-      prevIndex === selectedEvent.images.length - 1 ? 0 : prevIndex + 1
+      prevIndex === activePhotos.length - 1 ? 0 : prevIndex + 1
     );
   };
 
   const goToPrevImage = () => {
-    if (!selectedEvent) return;
+    if (activePhotos.length === 0) return;
     setCurrentImageIndex((prevIndex) => 
-      prevIndex === 0 ? selectedEvent.images.length - 1 : prevIndex - 1
+      prevIndex === 0 ? activePhotos.length - 1 : prevIndex - 1
     );
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+  useEffect(() => {
+    if (!isViewerOpen) return;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        return;
+      }
+
+      if (e.key === 'ArrowRight') {
+        goToNextImage();
+        return;
+      }
+
+      if (e.key === 'ArrowLeft') {
+        goToPrevImage();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isViewerOpen, activePhotos.length]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-blue-950 mb-4">Gallery</h1>
-          <p className="text-lg text-gray-600">Explore our media gallery</p>
-        </div>
-
-        {loading ? (
-          <div className="col-span-full text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-950 mx-auto"></div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-blue-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+          <div className="max-w-3xl">
+            <p className="text-blue-100 text-sm font-medium tracking-wide">AFIU</p>
+            <h1 className="mt-3 text-4xl sm:text-5xl font-bold text-white">Gallery</h1>
+            <p className="mt-4 text-blue-100 text-lg">
+              A curated look at our facilities, services, and memorable moments.
+            </p>
           </div>
-        ) : galleryAlbums.length === 0 ? (
-          <div className="col-span-full text-center py-12">
-            <p className="text-gray-500">No gallery albums available yet.</p>
-          </div>
-        ) : null}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {galleryAlbums.map((album) => (
-            <div 
-              key={album.id} 
-              className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300"
-              onClick={() => openEvent(album)}
-            >
-              <div className="h-48 relative">
-                {album.images[0] ? (
-                  <img
-                    src={album.images[0].url}
-                    alt={album.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-400">No image</span>
-                  </div>
-                )}
-                {album.images.length > 1 && (
-                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-                    {album.images.length} photos
-                  </div>
-                )}
-              </div>
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">{album.title}</h3>
-                <p className="text-sm text-gray-500">{formatDate(album.date)}</p>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 
-      {/* Modal for viewing images */}
-      {selectedEvent && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-          <button 
-            onClick={closeModal}
-            className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
-            aria-label="Close gallery"
-          >
-            <X size={32} />
-          </button>
-          
-          <div className="relative max-w-4xl w-full">
-            <div className="relative aspect-video bg-black">
-              <img
-                src={selectedEvent.images[currentImageIndex].url}
-                alt={selectedEvent.images[currentImageIndex].caption || selectedEvent.title}
-                className="w-full h-full object-contain"
-              />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid lg:grid-cols-12 gap-6">
+          <aside className="lg:col-span-3 lg:order-2">
+            <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-4 lg:sticky lg:top-6">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white">
+                <Search size={16} className="text-gray-400" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search categories"
+                  className="w-full bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-400"
+                />
+              </div>
 
-              {selectedEvent.images.length > 1 && (
-                <>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      goToPrevImage();
-                    }}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-colors"
-                    aria-label="Previous image"
-                  >
-                    <ChevronLeft size={32} />
-                  </button>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      goToNextImage();
-                    }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-colors"
-                    aria-label="Next image"
-                  >
-                    <ChevronRight size={32} />
-                  </button>
-                </>
-              )}
-            </div>
-
-            <div className="bg-white p-4">
-              <h3 className="text-xl font-semibold text-gray-900">{selectedEvent.title}</h3>
-              {selectedEvent.images[currentImageIndex].caption && (
-                <p className="text-gray-700 mt-1">
-                  {selectedEvent.images[currentImageIndex].caption}
-                </p>
-              )}
-              <p className="text-sm text-gray-500 mt-2">
-                {formatDate(selectedEvent.date)}
-              </p>
-              {selectedEvent.images.length > 1 && (
-                <div className="flex items-center justify-center mt-4 space-x-2">
-                  {selectedEvent.images.map((_, index) => (
+              <div className="mt-4 space-y-1 max-h-[60vh] overflow-auto pr-1">
+                {filteredCategories.map((c) => {
+                  const isActive = c.slug === activeSlug;
+                  return (
                     <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`w-3 h-3 rounded-full ${
-                        index === currentImageIndex ? 'bg-blue-600' : 'bg-gray-300'
+                      key={c.id}
+                      type="button"
+                      onClick={() => setActiveSlug(c.slug)}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'bg-blue-950 text-white'
+                          : 'text-gray-700 hover:bg-gray-50'
                       }`}
-                      aria-label={`Go to image ${index + 1}`}
-                    />
+                    >
+                      <span className="truncate">{c.name}</span>
+                    </button>
+                  );
+                })}
+
+                {!loading && categories.length > 0 && filteredCategories.length === 0 ? (
+                  <div className="px-3 py-6 text-sm text-gray-500 text-center">No matching categories</div>
+                ) : null}
+              </div>
+            </div>
+          </aside>
+
+          <section className="lg:col-span-9 lg:order-1">
+            <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-6">
+              <div className="flex items-end justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-blue-950">
+                    {activeCategory?.name || 'Gallery'}
+                  </h2>
+                </div>
+              </div>
+
+              {error ? (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700 text-sm">
+                  {error}
+                </div>
+              ) : null}
+
+              {loading ? (
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
+                  {Array.from({ length: 12 }).map((_, idx) => (
+                    <div
+                      key={idx}
+                      className="animate-pulse rounded-2xl overflow-hidden border border-gray-200 bg-white"
+                    >
+                      <div className="aspect-[4/3] bg-gray-200" />
+                      <div className="p-3">
+                        <div className="h-3 bg-gray-200 rounded w-3/4" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : categories.length === 0 ? (
+                <div className="text-center py-14">
+                  <ImageIcon className="w-14 h-14 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-600 font-medium">No gallery photos yet</p>
+                  <p className="text-gray-500 text-sm mt-1">Please check back soon.</p>
+                </div>
+              ) : activePhotos.length === 0 ? (
+                <div className="text-center py-14">
+                  <ImageIcon className="w-14 h-14 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-600 font-medium">No photos in this category</p>
+                  <p className="text-gray-500 text-sm mt-1">Try another category.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
+                  {activePhotos.map((photo, index) => (
+                    <button
+                      key={photo.id}
+                      type="button"
+                      onClick={() => openViewer(index)}
+                      className="group text-left rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition"
+                      aria-label={`View ${photo.originalName}`}
+                    >
+                      <div className="relative aspect-[4/3] bg-gray-100">
+                        <img
+                          src={`/api/gallery-photos/${photo.id}`}
+                          alt={photo.originalName}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-t from-black/40 via-black/0 to-black/0" />
+                      </div>
+                    </button>
                   ))}
                 </div>
               )}
             </div>
+          </section>
+        </div>
+      </div>
+
+      {/* Modal for viewing images */}
+      {isViewerOpen && activePhoto ? (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="absolute inset-0" onClick={closeModal} />
+
+          <div className="relative w-full max-w-5xl">
+            <div className="relative rounded-2xl overflow-hidden bg-blue-950 border border-blue-950 shadow-2xl">
+              <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between gap-3 p-3 bg-gradient-to-b from-blue-950 via-blue-950/20 to-transparent">
+                <div className="min-w-0">
+                  <div className="text-white text-sm font-medium truncate">
+                    {activeCategory?.name || 'Gallery'}
+                  </div>
+                  <div className="text-blue-100 text-xs truncate">{activePhoto.originalName}</div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={closeModal}
+                    className="p-2 rounded-xl text-white/90 hover:text-white hover:bg-white/10 transition-colors"
+                    aria-label="Close gallery"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="relative aspect-[16/10] bg-black">
+                <img
+                  src={`/api/gallery-photos/${activePhoto.id}`}
+                  alt={activePhoto.originalName}
+                  className="w-full h-full object-contain"
+                />
+
+                {activePhotos.length > 1 ? (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goToPrevImage();
+                      }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-black/40 text-white hover:bg-black/60 transition-colors"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft size={26} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goToNextImage();
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-black/40 text-white hover:bg-black/60 transition-colors"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight size={26} />
+                    </button>
+                  </>
+                ) : null}
+              </div>
+
+              {activePhotos.length > 1 ? (
+                <div className="p-3 bg-black/60 border-t border-white/10">
+                  <div className="flex gap-2 overflow-auto">
+                    {activePhotos.map((p, idx) => {
+                      const isActive = idx === currentImageIndex;
+                      return (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => setCurrentImageIndex(idx)}
+                          className={`shrink-0 rounded-lg overflow-hidden border transition-colors ${
+                            isActive
+                              ? 'border-white'
+                              : 'border-white/20 hover:border-white/60'
+                          }`}
+                          aria-label={`Go to image ${idx + 1}`}
+                        >
+                          <img
+                            src={`/api/gallery-photos/${p.id}`}
+                            alt={p.originalName}
+                            className="w-16 h-12 object-cover"
+                            loading="lazy"
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

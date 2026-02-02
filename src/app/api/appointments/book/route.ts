@@ -24,6 +24,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const doctorIdNum = parseInt(String(doctorId), 10);
+    if (Number.isNaN(doctorIdNum)) {
+      return NextResponse.json(
+        { error: 'Invalid doctorId' },
+        { status: 400 }
+      );
+    }
+
+    const slotNumberNum = parseInt(String(slotNumber), 10);
+    if (Number.isNaN(slotNumberNum)) {
+      return NextResponse.json(
+        { error: 'Invalid slotNumber' },
+        { status: 400 }
+      );
+    }
+
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(String(appointmentDate))) {
+      return NextResponse.json(
+        { error: 'Invalid appointmentDate format. Use YYYY-MM-DD' },
+        { status: 400 }
+      );
+    }
+
+    const name = String(patientName).trim();
+    if (name.length < 3 || name.length > 60 || !/^[A-Za-z\s]+$/.test(name)) {
+      return NextResponse.json(
+        { error: 'Invalid name. Use letters only (3-60 characters)' },
+        { status: 400 }
+      );
+    }
+
     // Validate CNIC format
     const cnicRegex = /^(\d{5}-\d{7}-\d|\d{13})$/;
     if (!cnicRegex.test(patientCnic.trim())) {
@@ -43,8 +75,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate phone format
-    const phoneRegex = /^\+?\d{7,15}$/;
-    if (!phoneRegex.test(patientPhone.trim())) {
+    const phoneRegex = /^\d{7,15}$/;
+    if (!phoneRegex.test(String(patientPhone).trim())) {
       return NextResponse.json(
         { error: 'Invalid phone number format' },
         { status: 400 }
@@ -56,13 +88,13 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
     const result = await bookAppointment({
-      doctorId: parseInt(doctorId, 10),
-      patientName: patientName.trim(),
+      doctorId: doctorIdNum,
+      patientName: name,
       patientCnic: patientCnic.trim(),
-      patientPhone: patientPhone.trim(),
+      patientPhone: String(patientPhone).trim(),
       patientEmail: patientEmail.trim().toLowerCase(),
-      appointmentDate,
-      slotNumber: parseInt(slotNumber, 10),
+      appointmentDate: String(appointmentDate),
+      slotNumber: slotNumberNum,
       notes: notes?.trim() || undefined,
       ipAddress,
       userAgent,

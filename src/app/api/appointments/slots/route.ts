@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     if (!availability) {
       return NextResponse.json(
-        { error: 'Doctor not found or date is not a valid booking day (Mon-Fri only)' },
+        { error: 'Doctor not found or date is not available for booking' },
         { status: 404 }
       );
     }

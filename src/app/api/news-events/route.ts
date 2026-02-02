@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
     const items = await prisma.newsEvent.findMany({
       where: category ? { category: category as 'news' | 'event' } : undefined,
-      orderBy: { date: 'desc' },
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
     });
     return NextResponse.json(items);
   } catch (error) {

@@ -151,13 +151,15 @@ export default function PatientEducationListPage() {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this item?')) return;
 
+    setActionError('');
+    setActionSuccess('');
+
     try {
-      const res = await fetch(`/api/patient-education/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setItems(items.filter((item) => item.id !== id));
-      }
+      await fetchJson(`/api/patient-education/${id}`, { method: 'DELETE' });
+      setItems((prev) => prev.filter((item) => item.id !== id));
+      setActionSuccess('Item deleted successfully');
     } catch (error) {
-      console.error('Error deleting item:', error);
+      setActionError(error instanceof Error ? error.message : 'Failed to delete item');
     }
   };
 

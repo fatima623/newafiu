@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { HeroSlide } from '@/types';
@@ -55,14 +54,6 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
               <p className="text-lg md:text-xl mb-8 fade-in">
                 {slide.subtitle}
               </p>
-              {slide.cta && (
-                <Link
-                  href={slide.cta.link}
-                  className="inline-block bg-blue-950 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors fade-in"
-                >
-                  {slide.cta.text}
-                </Link>
-              )}
             </div>
           </div>
         </div>

@@ -1,9 +1,16 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'afiu-admin-secret-key-change-in-production'
-);
+function getJwtSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET is not configured');
+    }
+    return new TextEncoder().encode('afiu-admin-secret-key-change-in-production');
+  }
+  return new TextEncoder().encode(secret);
+}
 
 const COOKIE_NAME = 'admin_token';
 
@@ -16,12 +23,12 @@ export async function signToken(payload: AdminPayload): Promise<string> {
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime('7d')
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 }
 
 export async function verifyToken(token: string): Promise<AdminPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     return payload as unknown as AdminPayload;
   } catch {
     return null;
@@ -40,7 +47,7 @@ export async function setSessionCookie(token: string) {
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'strict',
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',
   });

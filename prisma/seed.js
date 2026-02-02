@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const path = require('path');
-const { stat } = require('fs/promises');
+const { stat, readFile, readdir } = require('fs/promises');
 
 const prisma = new PrismaClient();
 
@@ -68,6 +68,32 @@ const facultyData = [
   },
 ];
 
+function toSlug(input) {
+  return String(input)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+function toCodeFromFileName(fileName) {
+  const base = String(fileName).replace(/\.[^/.]+$/, '');
+  return base
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-z0-9_-]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/(^_|_$)/g, '');
+}
+
+function titleFromFilename(filename) {
+  const base = String(filename).replace(/\.[^/.]+$/, '');
+  return base
+    .replace(/^[0-9]+-/, '')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 async function main() {
   const username = process.env.ADMIN_USERNAME || 'admin';
   const password = process.env.ADMIN_PASSWORD || 'admin123';
@@ -99,6 +125,35 @@ async function main() {
       // eslint-disable-next-line no-console
       console.log(`Faculty already exists: ${faculty.name}`);
     }
+  }
+
+  const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+  try {
+    const entries = await readdir(uploadsDir, { withFileTypes: true });
+    const pdfFiles = entries
+      .filter((e) => e.isFile() && e.name.toLowerCase().endsWith('.pdf'))
+      .map((e) => e.name)
+      .sort();
+
+    for (const fileName of pdfFiles) {
+      const pdfUrl = encodePublicPath(`uploads/${fileName}`);
+      const existingByUrl = await prisma.patientEducation.findFirst({
+        where: { pdfUrl },
+      });
+      const title = titleFromFilename(fileName) || fileName;
+
+      if (!existingByUrl) {
+        await prisma.patientEducation.create({
+          data: { title, description: null, pdfUrl },
+        });
+      } else {
+        await prisma.patientEducation.update({
+          where: { id: existingByUrl.id },
+          data: { title: existingByUrl.title || title, description: existingByUrl.description ?? null, pdfUrl },
+        });
+      }
+    }
+  } catch {
   }
 
   // eslint-disable-next-line no-console
@@ -216,7 +271,11 @@ async function main() {
       type: 'Full-time',
       location: null,
       description: null,
+      requirements: 'MBBS with relevant postgraduate qualification in Urology. Valid registration. Minimum relevant experience preferred.',
+      responsibilities: 'Provide clinical care, outpatient consultations, and surgical services. Participate in teaching and clinical governance activities.',
       applyBy: null,
+      hiringStartsAt: null,
+      applyLink: null,
       isPublished: true,
     },
     {
@@ -226,7 +285,11 @@ async function main() {
       type: 'Full-time',
       location: null,
       description: null,
+      requirements: 'Relevant residency/house job experience. Strong clinical knowledge and willingness to work in a tertiary care environment.',
+      responsibilities: 'Assist consultants in patient care, maintain documentation, support procedures/rounds, and participate in on-call duties as required.',
       applyBy: null,
+      hiringStartsAt: null,
+      applyLink: null,
       isPublished: true,
     },
     {
@@ -236,7 +299,11 @@ async function main() {
       type: 'Full-time',
       location: null,
       description: null,
+      requirements: 'Registered Nurse (RN) with valid certification. Relevant hospital experience preferred.',
+      responsibilities: 'Provide nursing care, administer medications as prescribed, assist in procedures, and ensure patient safety and comfort.',
       applyBy: null,
+      hiringStartsAt: null,
+      applyLink: null,
       isPublished: true,
     },
     {
@@ -246,7 +313,11 @@ async function main() {
       type: 'Full-time',
       location: null,
       description: null,
+      requirements: 'Relevant diploma/degree in medical laboratory technology. Knowledge of lab safety and standard procedures.',
+      responsibilities: 'Perform laboratory tests, maintain equipment, follow quality control protocols, and support reporting workflows.',
       applyBy: null,
+      hiringStartsAt: null,
+      applyLink: null,
       isPublished: true,
     },
   ];
@@ -260,7 +331,11 @@ async function main() {
         type: j.type,
         location: j.location,
         description: j.description,
+        requirements: j.requirements,
+        responsibilities: j.responsibilities,
         applyBy: j.applyBy,
+        hiringStartsAt: j.hiringStartsAt,
+        applyLink: j.applyLink,
         isPublished: j.isPublished,
       },
       create: {
@@ -270,13 +345,221 @@ async function main() {
         type: j.type,
         location: j.location,
         description: j.description,
+        requirements: j.requirements,
+        responsibilities: j.responsibilities,
         applyBy: j.applyBy,
+        hiringStartsAt: j.hiringStartsAt,
+        applyLink: j.applyLink,
         isPublished: j.isPublished,
       },
     });
 
     // eslint-disable-next-line no-console
     console.log(`Seeded careers job: ${j.code}`);
+  }
+
+  const categorizedGallery = [
+    {
+      name: 'OPD (Outpatient Department)',
+      photos: ['UROLOGY OPD.jpg', 'counter.jpg', 'counter-2.jpg'],
+    },
+    {
+      name: 'Day Care',
+      photos: ['dialysis.jpg', 'dialysis-2.jpg', 'waiting area.jpg', 'waiting area-2.jpg', 'waiting area-3.jpg'],
+    },
+    {
+      name: 'Surgeries',
+      photos: ['Endo OT.jpg', 'OT.jpg'],
+    },
+    {
+      name: 'Dialysis',
+      photos: ['dialysis.jpg', 'dialysis-2.jpg'],
+    },
+    {
+      name: 'ESWL (Lithotripsy)',
+      photos: ['random-1.jpg', 'random-2.jpg'],
+    },
+    {
+      name: 'Wards',
+      photos: ['wards.jpg', 'ward-2.jpg'],
+    },
+    {
+      name: 'Urodynamic Studies (UDS)',
+      photos: ['UDS.jpg'],
+    },
+    {
+      name: 'Radiology Department',
+      photos: ['radio.jpg', 'radio-2.jpg', 'radio-3.jpg'],
+    },
+    {
+      name: 'Renal Transplant Service',
+      photos: ['random-3.jpg', 'random-4.jpg'],
+    },
+    {
+      name: 'Others',
+      photos: ['pharmacy.jpg', 'pharmacy-2.jpg', 'pharmacy-3.jpg'],
+    },
+  ];
+
+  for (let idx = 0; idx < categorizedGallery.length; idx++) {
+    const c = categorizedGallery[idx];
+    const slug = toSlug(c.name);
+
+    const category = await prisma.galleryCategory.upsert({
+      where: { slug },
+      update: { name: c.name, sortOrder: idx },
+      create: { name: c.name, slug, sortOrder: idx },
+    });
+
+    for (let pIdx = 0; pIdx < c.photos.length; pIdx++) {
+      const fileName = c.photos[pIdx];
+      const filePath = path.join(process.cwd(), 'public', fileName);
+      const code = toCodeFromFileName(fileName);
+
+      let buffer = null;
+      try {
+        buffer = await readFile(filePath);
+      } catch {
+        // eslint-disable-next-line no-console
+        console.log(`Gallery photo missing in public folder: ${fileName}`);
+        continue;
+      }
+
+      const photo = await prisma.galleryPhoto.upsert({
+        where: { code },
+        update: {
+          originalName: fileName,
+          mimeType: 'image/jpeg',
+          data: buffer,
+        },
+        create: {
+          code,
+          originalName: fileName,
+          mimeType: 'image/jpeg',
+          data: buffer,
+        },
+      });
+
+      await prisma.galleryCategoryPhoto.upsert({
+        where: {
+          categoryId_photoId: {
+            categoryId: category.id,
+            photoId: photo.id,
+          },
+        },
+        update: { sortOrder: pIdx },
+        create: {
+          categoryId: category.id,
+          photoId: photo.id,
+          sortOrder: pIdx,
+        },
+      });
+    }
+  }
+
+  const defaultNewsEvents = [
+    {
+      title: 'AFIU Updates',
+      date: '2026-01-01',
+      excerpt: 'Updates and announcements from AFIU.',
+      imageUrl: null,
+      content: null,
+      category: 'news',
+      showInBanner: false,
+      bannerExpiresAt: null,
+    },
+    {
+      title: 'OPD Timings',
+      date: '2026-01-15',
+      excerpt: 'Private OPD timings: Mon-Fri 3:00 PM - 6:00 PM.',
+      imageUrl: null,
+      content: null,
+      category: 'news',
+      showInBanner: true,
+      bannerExpiresAt: null,
+    },
+  ];
+
+  for (const n of defaultNewsEvents) {
+    const dt = new Date(n.date);
+    const existing = await prisma.newsEvent.findFirst({
+      where: {
+        title: n.title,
+        date: dt,
+      },
+    });
+
+    if (!existing) {
+      await prisma.newsEvent.create({
+        data: {
+          title: n.title,
+          date: dt,
+          excerpt: n.excerpt,
+          imageUrl: n.imageUrl,
+          content: n.content,
+          category: n.category,
+          showInBanner: n.showInBanner,
+          bannerExpiresAt: n.bannerExpiresAt,
+        },
+      });
+    } else {
+      await prisma.newsEvent.update({
+        where: { id: existing.id },
+        data: {
+          excerpt: n.excerpt,
+          imageUrl: n.imageUrl,
+          content: n.content,
+          category: n.category,
+          showInBanner: n.showInBanner,
+          bannerExpiresAt: n.bannerExpiresAt,
+        },
+      });
+    }
+  }
+
+  const defaultGalleryAlbums = [
+    {
+      title: 'AFIU Gallery',
+      date: '2026-01-01',
+      images: [{ url: '/afiulogo.png', caption: 'AFIU' }],
+    },
+  ];
+
+  for (const a of defaultGalleryAlbums) {
+    const dt = new Date(a.date);
+    const existing = await prisma.galleryAlbum.findFirst({
+      where: { title: a.title },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      await prisma.galleryAlbum.create({
+        data: {
+          title: a.title,
+          date: dt,
+          images: {
+            create: a.images.map((img) => ({
+              url: img.url,
+              caption: img.caption || null,
+            })),
+          },
+        },
+      });
+    } else {
+      await prisma.galleryImage.deleteMany({ where: { albumId: existing.id } });
+      await prisma.galleryAlbum.update({
+        where: { id: existing.id },
+        data: {
+          date: dt,
+          images: {
+            create: a.images.map((img) => ({
+              url: img.url,
+              caption: img.caption || null,
+            })),
+          },
+        },
+      });
+    }
   }
 
   // Seed Appointment Settings
@@ -289,12 +572,23 @@ async function main() {
         startTime: '15:00',
         endTime: '18:00',
         allowedDays: '1,2,3,4,5',
-        bookingCutoffMinutes: 30,
+        bookingCutoffMinutes: 15,
       },
     });
     // eslint-disable-next-line no-console
     console.log('Seeded appointment settings');
   } else {
+    await prisma.appointmentSettings.update({
+      where: { id: existingSettings.id },
+      data: {
+        maxAppointmentsPerDay: 10,
+        slotDurationMinutes: 15,
+        startTime: '15:00',
+        endTime: '18:00',
+        allowedDays: '1,2,3,4,5',
+        bookingCutoffMinutes: 15,
+      },
+    });
     // eslint-disable-next-line no-console
     console.log('Appointment settings already exist');
   }

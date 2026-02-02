@@ -14,7 +14,7 @@ export async function GET() {
           { bannerExpiresAt: { gt: now } },
         ],
       },
-      orderBy: { date: 'desc' },
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
       select: {
         id: true,
         title: true,

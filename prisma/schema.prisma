@@ -235,6 +235,43 @@ model GalleryImage {
   @@index([albumId])
 }
 
+model GalleryCategory {
+  id        Int                   @id @default(autoincrement())
+  name      String                @unique
+  slug      String                @unique
+  sortOrder Int                   @default(0)
+  photos    GalleryCategoryPhoto[]
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+
+  @@index([slug])
+  @@index([sortOrder])
+}
+
+model GalleryPhoto {
+  id           Int                   @id @default(autoincrement())
+  code         String                @unique
+  originalName String
+  mimeType     String
+  data         Bytes                 @db.LongBlob
+  categories   GalleryCategoryPhoto[]
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+}
+
+model GalleryCategoryPhoto {
+  categoryId Int
+  photoId    Int
+  category   GalleryCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  photo      GalleryPhoto    @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  sortOrder  Int             @default(0)
+  createdAt  DateTime        @default(now())
+
+  @@id([categoryId, photoId])
+  @@index([categoryId])
+  @@index([photoId])
+}
+
 model PatientEducation {
   id          Int      @id @default(autoincrement())
   title       String
@@ -302,7 +339,11 @@ model Faculty {
    type        String
    location    String?
    description String?  @db.Text
+   requirements String?  @db.Text
+   responsibilities String?  @db.Text
    applyBy     DateTime?
+   hiringStartsAt DateTime?
+   applyLink   String?
    isPublished Boolean  @default(true)
    createdAt   DateTime @default(now())
    updatedAt   DateTime @updatedAt

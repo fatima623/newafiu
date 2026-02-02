@@ -25,6 +25,10 @@ interface CareersJob {
   location: string | null;
   description: string | null;
   applyBy: string | null;
+  requirements: string | null;
+  responsibilities: string | null;
+  hiringStartsAt: string | null;
+  applyLink: string | null;
   isPublished: boolean;
   createdAt: string;
 }
@@ -38,9 +42,11 @@ export default function CareersAdminPage() {
 
   const [showAddJobForm, setShowAddJobForm] = useState(false);
   const addJobFormRef = useRef<HTMLDivElement | null>(null);
+  const editJobFormRef = useRef<HTMLDivElement | null>(null);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const addFormRef = useRef<HTMLDivElement | null>(null);
+  const editFormRef = useRef<HTMLDivElement | null>(null);
 
   const [newCode, setNewCode] = useState('');
   const [newTitle, setNewTitle] = useState('');
@@ -65,8 +71,12 @@ export default function CareersAdminPage() {
   const [newJobType, setNewJobType] = useState('');
   const [newJobLocation, setNewJobLocation] = useState('');
   const [newJobApplyBy, setNewJobApplyBy] = useState('');
+  const [newJobHiringStartsAt, setNewJobHiringStartsAt] = useState('');
+  const [newJobApplyLink, setNewJobApplyLink] = useState('');
   const [newJobIsPublished, setNewJobIsPublished] = useState(true);
   const [newJobDescription, setNewJobDescription] = useState('');
+  const [newJobRequirements, setNewJobRequirements] = useState('');
+  const [newJobResponsibilities, setNewJobResponsibilities] = useState('');
 
   const [editingJobId, setEditingJobId] = useState<number | null>(null);
   const [editJobCode, setEditJobCode] = useState('');
@@ -75,8 +85,12 @@ export default function CareersAdminPage() {
   const [editJobType, setEditJobType] = useState('');
   const [editJobLocation, setEditJobLocation] = useState('');
   const [editJobApplyBy, setEditJobApplyBy] = useState('');
+  const [editJobHiringStartsAt, setEditJobHiringStartsAt] = useState('');
+  const [editJobApplyLink, setEditJobApplyLink] = useState('');
   const [editJobIsPublished, setEditJobIsPublished] = useState(true);
   const [editJobDescription, setEditJobDescription] = useState('');
+  const [editJobRequirements, setEditJobRequirements] = useState('');
+  const [editJobResponsibilities, setEditJobResponsibilities] = useState('');
 
   useEffect(() => {
     fetchItems();
@@ -94,6 +108,18 @@ export default function CareersAdminPage() {
       addFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [showAddForm]);
+
+  useEffect(() => {
+    if (editingJobId) {
+      editJobFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [editingJobId]);
+
+  useEffect(() => {
+    if (editingId) {
+      editFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [editingId]);
 
   const fetchItems = async () => {
     try {
@@ -253,8 +279,12 @@ export default function CareersAdminPage() {
           type: newJobType.trim(),
           location: newJobLocation.trim() || null,
           applyBy: newJobApplyBy.trim() || null,
+          hiringStartsAt: newJobHiringStartsAt.trim() || null,
+          applyLink: newJobApplyLink.trim() || null,
           isPublished: newJobIsPublished,
           description: newJobDescription.trim() || null,
+          requirements: newJobRequirements.trim() || null,
+          responsibilities: newJobResponsibilities.trim() || null,
         }),
       });
 
@@ -265,8 +295,12 @@ export default function CareersAdminPage() {
       setNewJobType('');
       setNewJobLocation('');
       setNewJobApplyBy('');
+      setNewJobHiringStartsAt('');
+      setNewJobApplyLink('');
       setNewJobIsPublished(true);
       setNewJobDescription('');
+      setNewJobRequirements('');
+      setNewJobResponsibilities('');
       setJobsSuccess('Job created successfully');
     } catch (err) {
       setJobsError(err instanceof Error ? err.message : 'Failed to create job');
@@ -283,8 +317,14 @@ export default function CareersAdminPage() {
     setEditJobType(job.type);
     setEditJobLocation(job.location || '');
     setEditJobApplyBy(job.applyBy ? new Date(job.applyBy).toISOString().slice(0, 10) : '');
+    setEditJobHiringStartsAt(
+      job.hiringStartsAt ? new Date(job.hiringStartsAt).toISOString().slice(0, 10) : ''
+    );
+    setEditJobApplyLink(job.applyLink || '');
     setEditJobIsPublished(Boolean(job.isPublished));
     setEditJobDescription(job.description || '');
+    setEditJobRequirements(job.requirements || '');
+    setEditJobResponsibilities(job.responsibilities || '');
     setJobsError('');
     setJobsSuccess('');
   };
@@ -297,8 +337,12 @@ export default function CareersAdminPage() {
     setEditJobType('');
     setEditJobLocation('');
     setEditJobApplyBy('');
+    setEditJobHiringStartsAt('');
+    setEditJobApplyLink('');
     setEditJobIsPublished(true);
     setEditJobDescription('');
+    setEditJobRequirements('');
+    setEditJobResponsibilities('');
     setJobsError('');
   };
 
@@ -326,8 +370,12 @@ export default function CareersAdminPage() {
           type: editJobType.trim(),
           location: editJobLocation.trim() || null,
           applyBy: editJobApplyBy.trim() || null,
+          hiringStartsAt: editJobHiringStartsAt.trim() || null,
+          applyLink: editJobApplyLink.trim() || null,
           isPublished: editJobIsPublished,
           description: editJobDescription.trim() || null,
+          requirements: editJobRequirements.trim() || null,
+          responsibilities: editJobResponsibilities.trim() || null,
         }),
       });
 
@@ -340,8 +388,12 @@ export default function CareersAdminPage() {
       setEditJobType('');
       setEditJobLocation('');
       setEditJobApplyBy('');
+      setEditJobHiringStartsAt('');
+      setEditJobApplyLink('');
       setEditJobIsPublished(true);
       setEditJobDescription('');
+      setEditJobRequirements('');
+      setEditJobResponsibilities('');
     } catch (err) {
       setJobsError(err instanceof Error ? err.message : 'Failed to update job');
     } finally {
@@ -352,26 +404,30 @@ export default function CareersAdminPage() {
   const handleDeleteJob = async (id: number) => {
     if (!confirm('Are you sure you want to delete this job?')) return;
 
+    setJobsError('');
+    setJobsSuccess('');
+
     try {
-      const res = await fetch(`/api/careers-jobs/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setJobs((prev) => prev.filter((x) => x.id !== id));
-      }
+      await fetchJson(`/api/careers-jobs/${id}`, { method: 'DELETE' });
+      setJobs((prev) => prev.filter((x) => x.id !== id));
+      setJobsSuccess('Job deleted successfully');
     } catch (err) {
-      console.error('Error deleting careers job:', err);
+      setJobsError(err instanceof Error ? err.message : 'Failed to delete job');
     }
   };
 
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this form?')) return;
 
+    setFormsError('');
+    setFormsSuccess('');
+
     try {
-      const res = await fetch(`/api/careers-forms/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setItems((prev) => prev.filter((x) => x.id !== id));
-      }
+      await fetchJson(`/api/careers-forms/${id}`, { method: 'DELETE' });
+      setItems((prev) => prev.filter((x) => x.id !== id));
+      setFormsSuccess('Form deleted successfully');
     } catch (err) {
-      console.error('Error deleting careers form:', err);
+      setFormsError(err instanceof Error ? err.message : 'Failed to delete form');
     }
   };
 
@@ -525,6 +581,26 @@ export default function CareersAdminPage() {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Hiring Starts At</label>
+              <input
+                type="date"
+                value={newJobHiringStartsAt}
+                onChange={(e) => setNewJobHiringStartsAt(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Apply Link</label>
+              <input
+                value={newJobApplyLink}
+                onChange={(e) => setNewJobApplyLink(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+                placeholder="https://..."
+              />
+            </div>
+
+            <div>
               <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
                 <input
                   type="checkbox"
@@ -546,6 +622,26 @@ export default function CareersAdminPage() {
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
+              <textarea
+                value={newJobRequirements}
+                onChange={(e) => setNewJobRequirements(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+                rows={4}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Responsibilities</label>
+              <textarea
+                value={newJobResponsibilities}
+                onChange={(e) => setNewJobResponsibilities(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+                rows={4}
+              />
+            </div>
+
             {jobsError ? <div className="text-red-600 text-sm">{jobsError}</div> : null}
             {jobsSuccess ? <div className="text-green-700 text-sm">{jobsSuccess}</div> : null}
 
@@ -562,7 +658,7 @@ export default function CareersAdminPage() {
       ) : null}
 
       {editingJobId ? (
-        <div className="bg-white rounded-lg shadow p-6 mt-8">
+        <div ref={editJobFormRef} className="bg-white rounded-lg shadow p-6 mt-8">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-gray-900">Edit Job</h2>
             <button onClick={cancelEditJob} className="p-2 text-gray-600 hover:bg-gray-100 rounded">
@@ -627,6 +723,26 @@ export default function CareersAdminPage() {
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Hiring Starts At</label>
+                <input
+                  type="date"
+                  value={editJobHiringStartsAt}
+                  onChange={(e) => setEditJobHiringStartsAt(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Apply Link</label>
+                <input
+                  value={editJobApplyLink}
+                  onChange={(e) => setEditJobApplyLink(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+                  placeholder="https://..."
+                />
+              </div>
+
+              <div>
                 <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
                   <input
                     type="checkbox"
@@ -643,6 +759,26 @@ export default function CareersAdminPage() {
                 <textarea
                   value={editJobDescription}
                   onChange={(e) => setEditJobDescription(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+                  rows={4}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
+                <textarea
+                  value={editJobRequirements}
+                  onChange={(e) => setEditJobRequirements(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+                  rows={4}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Responsibilities</label>
+                <textarea
+                  value={editJobResponsibilities}
+                  onChange={(e) => setEditJobResponsibilities(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
                   rows={4}
                 />
@@ -804,7 +940,7 @@ export default function CareersAdminPage() {
         ) : null}
 
         {editingId ? (
-          <div className="bg-white rounded-lg shadow p-6 mt-8">
+          <div ref={editFormRef} className="bg-white rounded-lg shadow p-6 mt-8">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-gray-900">Edit Form</h2>
               <button onClick={cancelEdit} className="p-2 text-gray-600 hover:bg-gray-100 rounded">

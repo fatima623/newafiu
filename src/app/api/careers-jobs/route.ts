@@ -10,7 +10,11 @@ interface CareersJobRow {
   type: string;
   location: string | null;
   description: string | null;
+  requirements: string | null;
+  responsibilities: string | null;
   applyBy: string | null;
+  hiringStartsAt: string | null;
+  applyLink: string | null;
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -58,7 +62,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(items);
   } catch (error) {
     console.error('Error fetching careers jobs:', error);
-    return NextResponse.json({ error: 'Failed to fetch careers jobs' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to fetch careers jobs';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -80,7 +85,11 @@ export async function POST(request: NextRequest) {
     const type = String(body.type || '').trim();
     const location = String(body.location || '').trim();
     const description = String(body.description || '').trim();
+    const requirements = String(body.requirements || '').trim();
+    const responsibilities = String(body.responsibilities || '').trim();
     const applyBy = parseOptionalDate(body.applyBy);
+    const hiringStartsAt = parseOptionalDate(body.hiringStartsAt);
+    const applyLink = String(body.applyLink || '').trim();
     const isPublished = body.isPublished === undefined ? true : Boolean(body.isPublished);
 
     if (!code || !title || !department || !type) {
@@ -98,7 +107,11 @@ export async function POST(request: NextRequest) {
         type,
         location: location || null,
         description: description || null,
+        requirements: requirements || null,
+        responsibilities: responsibilities || null,
         applyBy,
+        hiringStartsAt,
+        applyLink: applyLink || null,
         isPublished,
       },
     })) as CareersJobRow;
@@ -106,6 +119,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(created, { status: 201 });
   } catch (error) {
     console.error('Error creating careers job:', error);
-    return NextResponse.json({ error: 'Failed to create careers job' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to create careers job';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
