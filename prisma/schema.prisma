@@ -343,3 +343,20 @@ model OfficialHoliday {
    @@index([isPublished])
    @@index([createdAt])
  }
+
+// ============================================
+// EMAIL OTP VERIFICATION
+// ============================================
+
+model EmailOTP {
+  id        Int      @id @default(autoincrement())
+  email     String
+  otp       String
+  purpose   String   // 'booking' or 'contact'
+  verified  Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email, purpose])
+  @@index([expiresAt])
+}

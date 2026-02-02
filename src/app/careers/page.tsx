@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Briefcase, Download } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { Briefcase, Download, X, ArrowRight } from 'lucide-react';
 
 interface CareersForm {
   id?: number;
@@ -31,8 +31,9 @@ interface CareersJob {
 export default function CareersPage() {
   const [forms, setForms] = useState<CareersForm[]>([]);
   const [jobs, setJobs] = useState<CareersJob[]>([]);
-  const [newJobPopup, setNewJobPopup] = useState<CareersJob | null>(null);
+  const [showOpeningsPopup, setShowOpeningsPopup] = useState(false);
   const [expandedJobId, setExpandedJobId] = useState<number | null>(null);
+  const jobRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
   useEffect(() => {
     const load = async () => {
@@ -60,14 +61,10 @@ export default function CareersPage() {
         const data = await res.json();
         const list = Array.isArray(data) ? (data as CareersJob[]) : [];
         setJobs(list);
-
+        
+        // Show popup automatically if there are job openings
         if (list.length > 0) {
-          const latestCreatedAt = list[0]?.createdAt;
-          const key = 'careers:lastSeenJobCreatedAt';
-          const existing = localStorage.getItem(key);
-          if (!existing && latestCreatedAt) {
-            localStorage.setItem(key, latestCreatedAt);
-          }
+          setShowOpeningsPopup(true);
         }
       } catch {
         setJobs([]);
@@ -77,35 +74,18 @@ export default function CareersPage() {
     load();
   }, []);
 
-  useEffect(() => {
-    const key = 'careers:lastSeenJobCreatedAt';
-
-    const checkLatest = async () => {
-      try {
-        const res = await fetch('/api/careers-jobs?latest=1');
-        const data = await res.json();
-        const list = Array.isArray(data) ? (data as CareersJob[]) : [];
-        const latest = list[0];
-        if (!latest?.createdAt) return;
-
-        const lastSeen = localStorage.getItem(key);
-        if (lastSeen && new Date(latest.createdAt).getTime() > new Date(lastSeen).getTime()) {
-          setNewJobPopup(latest);
-        }
-      } catch {
-        return;
+  // Handle clicking on a job in the popup - scroll to that job section
+  const handleJobClick = (jobId: number) => {
+    setShowOpeningsPopup(false);
+    setExpandedJobId(jobId);
+    
+    // Smooth scroll to the job after popup closes
+    setTimeout(() => {
+      const jobElement = jobRefs.current[jobId];
+      if (jobElement) {
+        jobElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
-    };
-
-    const interval = window.setInterval(checkLatest, 30000);
-    return () => window.clearInterval(interval);
-  }, []);
-
-  const dismissPopup = () => {
-    if (newJobPopup?.createdAt) {
-      localStorage.setItem('careers:lastSeenJobCreatedAt', newJobPopup.createdAt);
-    }
-    setNewJobPopup(null);
+    }, 100);
   };
 
   return (
@@ -148,7 +128,12 @@ export default function CareersPage() {
                       </div>
                     ) : (
                       jobs.map((job) => (
-                        <div key={job.id} className="bg-[#ADD8E6] p-4 rounded-lg">
+                        <div 
+                          key={job.id} 
+                          className="bg-[#ADD8E6] p-4 rounded-lg"
+                          id={`job-${job.id}`}
+                          ref={(el) => { jobRefs.current[job.id] = el; }}
+                        >
                           <h4 className="font-bold text-gray-800">{job.title}</h4>
                           <p className="text-sm text-gray-600">
                             {job.department} • {job.type}
@@ -253,25 +238,77 @@ export default function CareersPage() {
         </div>
       </section>
 
-      {newJobPopup ? (
-        <div className="fixed bottom-6 right-6 z-50 max-w-sm">
-          <div className="bg-white border border-blue-950 rounded-lg shadow-lg p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold text-blue-950">New Job Posted</p>
-                <p className="text-sm text-gray-800 mt-1">{newJobPopup.title}</p>
-                <p className="text-xs text-gray-600 mt-1">{newJobPopup.department} • {newJobPopup.type}</p>
+      {/* Current Openings Popup Modal */}
+      {showOpeningsPopup && jobs.length > 0 && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden animate-in fade-in zoom-in duration-200">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-blue-950 to-blue-800 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Briefcase size={20} className="text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">Current Openings</h2>
+                  <p className="text-blue-100 text-sm">{jobs.length} position{jobs.length > 1 ? 's' : ''} available</p>
+                </div>
               </div>
               <button
-                onClick={dismissPopup}
-                className="text-blue-950 text-sm font-semibold hover:underline"
+                onClick={() => setShowOpeningsPopup(false)}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                aria-label="Close popup"
               >
-                Close
+                <X size={24} className="text-white" />
               </button>
+            </div>
+            
+            {/* Modal Body - Job List */}
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
+              <div className="space-y-3">
+                {jobs.map((job) => (
+                  <button
+                    key={job.id}
+                    onClick={() => handleJobClick(job.id)}
+                    className="w-full text-left p-4 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-xl transition-all group"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 group-hover:text-blue-950 transition-colors">
+                          {job.title}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <span className="text-sm text-gray-600">{job.department}</span>
+                          <span className="text-gray-300">•</span>
+                          <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">{job.type}</span>
+                          {job.location && (
+                            <>
+                              <span className="text-gray-300">•</span>
+                              <span className="text-sm text-gray-500">{job.location}</span>
+                            </>
+                          )}
+                        </div>
+                        {job.applyBy && (
+                          <p className="text-xs text-gray-500 mt-2">
+                            Apply by: {new Date(job.applyBy).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                      <ArrowRight size={18} className="text-gray-400 group-hover:text-blue-600 transition-colors mt-1" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+              <p className="text-sm text-gray-600 text-center">
+                Click on a position to view details and apply
+              </p>
             </div>
           </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

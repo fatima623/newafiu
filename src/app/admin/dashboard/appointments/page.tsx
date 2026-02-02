@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, User, Search, Filter, RefreshCw, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, User, Search, Filter, RefreshCw, CheckCircle, XCircle, AlertCircle, Edit2, X, Loader2 } from 'lucide-react';
 
 interface Appointment {
   id: number;
@@ -29,6 +29,21 @@ interface Doctor {
   designation: string;
 }
 
+const TIME_SLOTS = [
+  { number: 1, time: '3:00 PM - 3:15 PM' },
+  { number: 2, time: '3:15 PM - 3:30 PM' },
+  { number: 3, time: '3:30 PM - 3:45 PM' },
+  { number: 4, time: '3:45 PM - 4:00 PM' },
+  { number: 5, time: '4:00 PM - 4:15 PM' },
+  { number: 6, time: '4:15 PM - 4:30 PM' },
+  { number: 7, time: '4:30 PM - 4:45 PM' },
+  { number: 8, time: '4:45 PM - 5:00 PM' },
+  { number: 9, time: '5:00 PM - 5:15 PM' },
+  { number: 10, time: '5:15 PM - 5:30 PM' },
+  { number: 11, time: '5:30 PM - 5:45 PM' },
+  { number: 12, time: '5:45 PM - 6:00 PM' },
+];
+
 export default function AppointmentsAdminPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -37,6 +52,17 @@ export default function AppointmentsAdminPage() {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Edit modal state
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [editAction, setEditAction] = useState<'update' | 'cancel'>('update');
+  const [editDoctorId, setEditDoctorId] = useState<string>('');
+  const [editDate, setEditDate] = useState<string>('');
+  const [editSlot, setEditSlot] = useState<string>('');
+  const [editReason, setEditReason] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState('');
+  const [editSuccess, setEditSuccess] = useState('');
 
   // Fetch doctors
   useEffect(() => {
@@ -138,6 +164,84 @@ export default function AppointmentsAdminPage() {
       }
     } catch (error) {
       console.error('Failed to update status:', error);
+    }
+  };
+
+  // Open edit modal
+  const openEditModal = (appointment: Appointment, action: 'update' | 'cancel') => {
+    setEditingAppointment(appointment);
+    setEditAction(action);
+    setEditDoctorId(appointment.faculty.id.toString());
+    const dateStr = new Date(appointment.appointmentDate).toISOString().split('T')[0];
+    setEditDate(dateStr);
+    setEditSlot(appointment.slotNumber.toString());
+    setEditReason('');
+    setEditError('');
+    setEditSuccess('');
+  };
+
+  // Close edit modal
+  const closeEditModal = () => {
+    setEditingAppointment(null);
+    setEditReason('');
+    setEditError('');
+    setEditSuccess('');
+  };
+
+  // Handle edit/cancel submission
+  const handleEditSubmit = async () => {
+    if (!editingAppointment) return;
+    
+    if (!editReason.trim() || editReason.trim().length < 5) {
+      setEditError('Please provide a reason (at least 5 characters)');
+      return;
+    }
+
+    setEditLoading(true);
+    setEditError('');
+    setEditSuccess('');
+
+    try {
+      const body: Record<string, unknown> = {
+        appointmentId: editingAppointment.id,
+        action: editAction,
+        reason: editReason.trim(),
+      };
+
+      if (editAction === 'update') {
+        if (editDoctorId !== editingAppointment.faculty.id.toString()) {
+          body.doctorId = editDoctorId;
+        }
+        const originalDate = new Date(editingAppointment.appointmentDate).toISOString().split('T')[0];
+        if (editDate !== originalDate) {
+          body.appointmentDate = editDate;
+        }
+        if (editSlot !== editingAppointment.slotNumber.toString()) {
+          body.slotNumber = editSlot;
+        }
+      }
+
+      const res = await fetch('/api/admin/appointments/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setEditSuccess(data.message);
+        fetchAppointments();
+        setTimeout(() => {
+          closeEditModal();
+        }, 1500);
+      } else {
+        setEditError(data.error || 'Failed to update appointment');
+      }
+    } catch (error) {
+      setEditError('Network error. Please try again.');
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -286,6 +390,20 @@ export default function AppointmentsAdminPage() {
                         {apt.status === 'CONFIRMED' && (
                           <>
                             <button
+                              onClick={() => openEditModal(apt, 'update')}
+                              className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                              title="Edit Appointment"
+                            >
+                              <Edit2 size={18} />
+                            </button>
+                            <button
+                              onClick={() => openEditModal(apt, 'cancel')}
+                              className="p-1 text-red-600 hover:bg-red-50 rounded"
+                              title="Cancel Appointment"
+                            >
+                              <XCircle size={18} />
+                            </button>
+                            <button
                               onClick={() => updateStatus(apt.id, 'COMPLETED')}
                               className="p-1 text-green-600 hover:bg-green-50 rounded"
                               title="Mark Completed"
@@ -331,6 +449,142 @@ export default function AppointmentsAdminPage() {
           );
         })}
       </div>
+
+      {/* Edit/Cancel Modal */}
+      {editingAppointment && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className={`px-6 py-4 border-b flex items-center justify-between ${editAction === 'cancel' ? 'bg-red-50' : 'bg-blue-50'}`}>
+              <h2 className={`text-xl font-bold ${editAction === 'cancel' ? 'text-red-800' : 'text-blue-800'}`}>
+                {editAction === 'cancel' ? 'Cancel Appointment' : 'Edit Appointment'}
+              </h2>
+              <button onClick={closeEditModal} className="text-gray-500 hover:text-gray-700">
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {/* Current Appointment Info */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-800 mb-2">Current Appointment</h3>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-gray-500">Patient:</span>
+                    <p className="font-medium">{editingAppointment.patientName}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Doctor:</span>
+                    <p className="font-medium">{editingAppointment.faculty.name}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Date:</span>
+                    <p className="font-medium">{formatDate(editingAppointment.appointmentDate)}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Time:</span>
+                    <p className="font-medium">{formatTime(editingAppointment.slotStartTime)} - {formatTime(editingAppointment.slotEndTime)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Edit Fields (only for update action) */}
+              {editAction === 'update' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Change Doctor</label>
+                    <select
+                      value={editDoctorId}
+                      onChange={(e) => setEditDoctorId(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    >
+                      {doctors.map((doc) => (
+                        <option key={doc.id} value={doc.id.toString()}>
+                          {doc.name} - {doc.designation}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Change Date</label>
+                    <input
+                      type="date"
+                      value={editDate}
+                      onChange={(e) => setEditDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Change Time Slot</label>
+                    <select
+                      value={editSlot}
+                      onChange={(e) => setEditSlot(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    >
+                      {TIME_SLOTS.map((slot) => (
+                        <option key={slot.number} value={slot.number.toString()}>
+                          Slot {slot.number}: {slot.time}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {/* Reason Field (required for both) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Reason for {editAction === 'cancel' ? 'Cancellation' : 'Update'} *
+                </label>
+                <textarea
+                  value={editReason}
+                  onChange={(e) => setEditReason(e.target.value)}
+                  placeholder={`Enter reason for ${editAction === 'cancel' ? 'cancellation' : 'updating the appointment'}...`}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">This will be sent to the patient via email.</p>
+              </div>
+
+              {/* Error/Success Messages */}
+              {editError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+                  {editError}
+                </div>
+              )}
+              {editSuccess && (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm">
+                  {editSuccess}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={closeEditModal}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEditSubmit}
+                  disabled={editLoading}
+                  className={`flex-1 px-4 py-2 rounded-lg text-white font-medium transition-colors flex items-center justify-center gap-2 ${
+                    editAction === 'cancel' 
+                      ? 'bg-red-600 hover:bg-red-700 disabled:bg-red-400' 
+                      : 'bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400'
+                  }`}
+                >
+                  {editLoading && <Loader2 size={16} className="animate-spin" />}
+                  {editAction === 'cancel' ? 'Cancel Appointment' : 'Update Appointment'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

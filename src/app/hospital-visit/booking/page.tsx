@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Calendar, Clock, User, Phone, Mail, Send, CheckCircle2, AlertCircle, Loader2, UserCircle, X } from 'lucide-react';
+import { Calendar, Clock, User, Phone, Mail, Send, CheckCircle2, AlertCircle, Loader2, UserCircle, X, ChevronDown } from 'lucide-react';
 
 interface Doctor {
   id: number;
@@ -90,11 +90,23 @@ export default function BookingPage() {
   const [submitError, setSubmitError] = useState('');
   const [bookingConfirmation, setBookingConfirmation] = useState<BookingConfirmation | null>(null);
 
+  // Calendar open state
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  
   // Specialization filter
   const [selectedSpecialization, setSelectedSpecialization] = useState<string>('');
   
   // Holidays
   const [holidays, setHolidays] = useState<OfficialHoliday[]>([]);
+
+  // OTP verification state
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpValue, setOtpValue] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpCountdown, setOtpCountdown] = useState(0);
+  const [verifiedEmail, setVerifiedEmail] = useState(''); // Track which email was verified
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
 
   const MAX_BOOKING_DAYS_AHEAD = 7;
@@ -132,6 +144,91 @@ export default function BookingPage() {
     }
     fetchHolidays();
   }, []);
+
+  // OTP countdown timer
+  useEffect(() => {
+    if (otpCountdown <= 0) return;
+    const timer = setInterval(() => {
+      setOtpCountdown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [otpCountdown]);
+
+  // Reset OTP state if email changes
+  useEffect(() => {
+    if (patientDetails.email.toLowerCase() !== verifiedEmail.toLowerCase()) {
+      setOtpVerified(false);
+      setOtpSent(false);
+      setOtpValue('');
+      setOtpError('');
+    }
+  }, [patientDetails.email, verifiedEmail]);
+
+  // Send OTP function
+  const handleSendOTP = async () => {
+    const email = patientDetails.email.trim();
+    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      setOtpError('Please enter a valid email address');
+      return;
+    }
+
+    setOtpLoading(true);
+    setOtpError('');
+
+    try {
+      const res = await fetch('/api/otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'send', email, purpose: 'booking' }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setOtpSent(true);
+        setOtpCountdown(60);
+        setOtpValue('');
+      } else {
+        setOtpError(data.error || 'Failed to send verification code');
+      }
+    } catch {
+      setOtpError('Network error. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // Verify OTP function
+  const handleVerifyOTP = async () => {
+    const email = patientDetails.email.trim();
+    if (otpValue.length !== 6) {
+      setOtpError('Please enter the 6-digit code');
+      return;
+    }
+
+    setOtpLoading(true);
+    setOtpError('');
+
+    try {
+      const res = await fetch('/api/otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'verify', email, otp: otpValue, purpose: 'booking' }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.verified) {
+        setOtpVerified(true);
+        setVerifiedEmail(email.toLowerCase());
+        setOtpError('');
+      } else {
+        setOtpError(data.error || 'Invalid verification code');
+      }
+    } catch {
+      setOtpError('Network error. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
 
   // Fetch slots when doctor and date are selected
   const fetchSlots = useCallback(async () => {
@@ -289,6 +386,8 @@ export default function BookingPage() {
       newErrors.email = 'Email is required';
     } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(patientDetails.email.trim())) {
       newErrors.email = 'Enter a valid email address';
+    } else if (!otpVerified || patientDetails.email.trim().toLowerCase() !== verifiedEmail.toLowerCase()) {
+      newErrors.email = 'Please verify your email address';
     }
     
     if (!patientDetails.consent) {
@@ -569,112 +668,129 @@ export default function BookingPage() {
                     Select Date (Monday - Friday only)
                   </label>
                   
-                  {/* Custom Calendar Grid */}
-                  <div className="bg-white border border-gray-200 rounded-lg p-4 max-w-md">
-                    {/* Calendar Header */}
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="font-semibold text-gray-800">
-                        {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                      </span>
+                  {/* Date Input Field - Click to open calendar */}
+                  <button
+                    type="button"
+                    onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+                    className="w-full max-w-md flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-blue-500 focus:ring-2 focus:ring-blue-950 focus:border-transparent transition-all text-left"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Calendar size={18} className="text-gray-400" />
+                      {selectedDate ? (
+                        <span className="text-gray-800">{formatDate(selectedDate)}</span>
+                      ) : (
+                        <span className="text-gray-400">Click to select a date</span>
+                      )}
                     </div>
-                    
-                    {/* Day Headers */}
-                    <div className="grid grid-cols-7 gap-1 mb-2">
-                      {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
-                        <div key={day} className="text-center text-xs font-medium text-gray-500 py-1">
-                          {day}
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* Calendar Days */}
-                    <div className="grid grid-cols-7 gap-1">
-                      {(() => {
-                        const today = new Date();
-                        const year = today.getFullYear();
-                        const month = today.getMonth();
-                        const firstDay = new Date(year, month, 1).getDay();
-                        const daysInMonth = new Date(year, month + 1, 0).getDate();
-                        const days = [];
-                        
-                        // Empty cells for days before first of month
-                        for (let i = 0; i < firstDay; i++) {
-                          days.push(<div key={`empty-${i}`} className="p-2"></div>);
-                        }
-                        
-                        // Days of the month
-                        for (let day = 1; day <= daysInMonth; day++) {
-                          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                          const isDisabled = isBookingDateDisabled(dateStr);
-                          const holiday = getOfficialHoliday(dateStr);
-                          const isSelected = selectedDate === dateStr;
-                          const isToday = day === today.getDate();
-                          const dateObj = new Date(dateStr);
-                          const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-                          const isPast = dateObj < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                          
-                          days.push(
-                            <div key={day} className="relative group">
-                              <button
-                                type="button"
-                                disabled={isDisabled}
-                                onClick={() => {
-                                  if (!isDisabled) {
-                                    setSelectedDate(dateStr);
-                                  }
-                                }}
-                                className={`
-                                  w-full p-2 text-sm rounded-lg transition-all
-                                  ${isSelected ? 'bg-blue-950 text-white font-semibold' : ''}
-                                  ${holiday && !isSelected ? 'bg-yellow-100 text-yellow-800 font-medium' : ''}
-                                  ${isToday && !isSelected && !holiday ? 'bg-blue-100 text-blue-800 font-medium' : ''}
-                                  ${isWeekend && !isSelected ? 'text-gray-300' : ''}
-                                  ${isPast && !isSelected ? 'text-gray-300' : ''}
-                                  ${isDisabled && !holiday ? 'text-gray-300 cursor-not-allowed' : ''}
-                                  ${!isDisabled && !isSelected && !holiday && !isToday ? 'hover:bg-gray-100 text-gray-700' : ''}
-                                  ${isDisabled && holiday ? 'cursor-not-allowed' : ''}
-                                `}
-                              >
-                                {day}
-                              </button>
-                              
-                              {/* Tooltip for holidays */}
-                              {holiday && (
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
-                                  <div className="font-semibold">{holiday.name}</div>
-                                  {holiday.reason && <div className="text-gray-300">{holiday.reason}</div>}
-                                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        }
-                        
-                        return days;
-                      })()}
-                    </div>
-                    
-                    {/* Legend */}
-                    <div className="mt-4 pt-3 border-t border-gray-100 flex flex-wrap gap-4 text-xs text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <div className="w-4 h-4 bg-yellow-100 rounded"></div>
-                        <span>Holiday</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-4 h-4 bg-blue-950 rounded"></div>
-                        <span>Selected</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-4 h-4 bg-blue-100 rounded"></div>
-                        <span>Today</span>
-                      </div>
-                    </div>
-                  </div>
+                    <ChevronDown 
+                      size={18} 
+                      className={`text-gray-400 transition-transform ${isCalendarOpen ? 'rotate-180' : ''}`} 
+                    />
+                  </button>
                   
-                  {selectedDate && (
-                    <p className="mt-2 text-sm text-green-600">
-                      Selected: {formatDate(selectedDate)}
-                    </p>
+                  {/* Custom Calendar Grid - Collapsible */}
+                  {isCalendarOpen && (
+                    <div className="mt-2 bg-white border border-gray-200 rounded-lg p-4 max-w-md shadow-lg">
+                      {/* Calendar Header */}
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="font-semibold text-gray-800">
+                          {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                        </span>
+                      </div>
+                      
+                      {/* Day Headers */}
+                      <div className="grid grid-cols-7 gap-1 mb-2">
+                        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
+                          <div key={day} className="text-center text-xs font-medium text-gray-500 py-1">
+                            {day}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Calendar Days */}
+                      <div className="grid grid-cols-7 gap-1">
+                        {(() => {
+                          const today = new Date();
+                          const year = today.getFullYear();
+                          const month = today.getMonth();
+                          const firstDay = new Date(year, month, 1).getDay();
+                          const daysInMonth = new Date(year, month + 1, 0).getDate();
+                          const days = [];
+                          
+                          // Empty cells for days before first of month
+                          for (let i = 0; i < firstDay; i++) {
+                            days.push(<div key={`empty-${i}`} className="p-2"></div>);
+                          }
+                          
+                          // Days of the month
+                          for (let day = 1; day <= daysInMonth; day++) {
+                            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                            const isDisabled = isBookingDateDisabled(dateStr);
+                            const holiday = getOfficialHoliday(dateStr);
+                            const isSelected = selectedDate === dateStr;
+                            const isToday = day === today.getDate();
+                            const dateObj = new Date(dateStr);
+                            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+                            const isPast = dateObj < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                            
+                            days.push(
+                              <div key={day} className="relative group">
+                                <button
+                                  type="button"
+                                  disabled={isDisabled}
+                                  onClick={() => {
+                                    if (!isDisabled) {
+                                      setSelectedDate(dateStr);
+                                      setIsCalendarOpen(false); // Auto-close after selection
+                                    }
+                                  }}
+                                  className={`
+                                    w-full p-2 text-sm rounded-lg transition-all
+                                    ${isSelected ? 'bg-blue-950 text-white font-semibold' : ''}
+                                    ${holiday && !isSelected ? 'bg-yellow-100 text-yellow-800 font-medium' : ''}
+                                    ${isToday && !isSelected && !holiday ? 'bg-blue-100 text-blue-800 font-medium' : ''}
+                                    ${isWeekend && !isSelected ? 'text-gray-300' : ''}
+                                    ${isPast && !isSelected ? 'text-gray-300' : ''}
+                                    ${isDisabled && !holiday ? 'text-gray-300 cursor-not-allowed' : ''}
+                                    ${!isDisabled && !isSelected && !holiday && !isToday ? 'hover:bg-gray-100 text-gray-700' : ''}
+                                    ${isDisabled && holiday ? 'cursor-not-allowed' : ''}
+                                  `}
+                                >
+                                  {day}
+                                </button>
+                                
+                                {/* Tooltip for holidays */}
+                                {holiday && (
+                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                                    <div className="font-semibold">{holiday.name}</div>
+                                    {holiday.reason && <div className="text-gray-300">{holiday.reason}</div>}
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          }
+                          
+                          return days;
+                        })()}
+                      </div>
+                      
+                      {/* Legend */}
+                      <div className="mt-4 pt-3 border-t border-gray-100 flex flex-wrap gap-4 text-xs text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <div className="w-4 h-4 bg-yellow-100 rounded"></div>
+                          <span>Holiday</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-4 h-4 bg-blue-950 rounded"></div>
+                          <span>Selected</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-4 h-4 bg-blue-100 rounded"></div>
+                          <span>Today</span>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
 
@@ -821,16 +937,89 @@ export default function BookingPage() {
                     </div>
 
                     <div>
-                      <label className="block text-gray-700 font-medium mb-2">Email Address *</label>
-                      <div className="relative">
-                        <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input
-                          type="email"
-                          value={patientDetails.email}
-                          onChange={(e) => setPatientDetails(prev => ({ ...prev, email: e.target.value }))}
-                          className="w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-950"
-                        />
+                      <label className="block text-gray-700 font-medium mb-2">
+                        Email Address *
+                        {otpVerified && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase() && (
+                          <span className="ml-2 inline-flex items-center text-green-600 text-sm font-normal">
+                            <CheckCircle2 size={14} className="mr-1" /> Verified
+                          </span>
+                        )}
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input
+                            type="email"
+                            value={patientDetails.email}
+                            onChange={(e) => setPatientDetails(prev => ({ ...prev, email: e.target.value }))}
+                            disabled={otpVerified && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()}
+                            className={`w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-950 ${
+                              otpVerified && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()
+                                ? 'bg-green-50 border-green-300'
+                                : ''
+                            }`}
+                          />
+                        </div>
+                        {!otpVerified || patientDetails.email.trim().toLowerCase() !== verifiedEmail.toLowerCase() ? (
+                          <button
+                            type="button"
+                            onClick={handleSendOTP}
+                            disabled={
+                              otpLoading ||
+                              otpCountdown > 0 ||
+                              !patientDetails.email.trim() ||
+                              !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(patientDetails.email.trim())
+                            }
+                            className="px-4 py-3 bg-blue-950 text-white rounded-lg font-medium hover:bg-blue-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed whitespace-nowrap"
+                          >
+                            {otpLoading ? (
+                              <Loader2 size={18} className="animate-spin" />
+                            ) : otpCountdown > 0 ? (
+                              `Resend (${otpCountdown}s)`
+                            ) : otpSent ? (
+                              'Resend Code'
+                            ) : (
+                              'Verify Email'
+                            )}
+                          </button>
+                        ) : null}
                       </div>
+                      
+                      {/* OTP Input Section */}
+                      {otpSent && !otpVerified && (
+                        <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <p className="text-sm text-blue-800 mb-3">
+                            We&apos;ve sent a 6-digit verification code to <strong>{patientDetails.email}</strong>
+                          </p>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={otpValue}
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                setOtpValue(value);
+                                setOtpError('');
+                              }}
+                              placeholder="Enter 6-digit code"
+                              maxLength={6}
+                              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-center text-lg tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-blue-950"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleVerifyOTP}
+                              disabled={otpLoading || otpValue.length !== 6}
+                              className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            >
+                              {otpLoading ? <Loader2 size={18} className="animate-spin" /> : 'Verify'}
+                            </button>
+                          </div>
+                          {otpError && <p className="mt-2 text-sm text-red-600">{otpError}</p>}
+                          <p className="mt-2 text-xs text-gray-500">
+                            The code will expire in 10 minutes. Check your spam folder if you don&apos;t see the email.
+                          </p>
+                        </div>
+                      )}
+                      
                       {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                     </div>
                   </div>
@@ -921,14 +1110,6 @@ export default function BookingPage() {
                     <div>
                       <span className="text-gray-500">Name:</span>
                       <p className="font-medium">{patientDetails.fullName}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">CNIC:</span>
-                      <p className="font-medium">{patientDetails.cnic}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Phone:</span>
-                      <p className="font-medium">{patientDetails.phone}</p>
                     </div>
                     <div>
                       <span className="text-gray-500">Email:</span>
