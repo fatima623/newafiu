@@ -45,7 +45,7 @@ export default function AdminDashboardPage() {
         fetchSafe('/api/patient-education'),
         fetchSafe('/api/news-events'),
         fetchSafe('/api/faculty'),
-        fetchSafe('/api/careers/jobs'),
+        fetchSafe('/api/careers-jobs'),
       ]);
 
       setStats({
