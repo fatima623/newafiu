@@ -2,8 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Edit, Trash2, Users } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, Filter } from 'lucide-react';
 import { fetchJson } from '@/lib/fetchJson';
+
+const SPECIALIZATION_CATEGORIES = [
+  { value: '', label: 'All Doctors' },
+  { value: 'UROLOGIST', label: 'Urologist' },
+  { value: 'NEPHROLOGIST', label: 'Nephrologist' },
+  { value: 'ANAESTHETIC', label: 'Anaesthetic' },
+  { value: 'RADIOLOGIST', label: 'Radiologist' },
+];
 
 interface Faculty {
   id: number;
@@ -11,6 +19,7 @@ interface Faculty {
   designation: string;
   qualifications: string;
   specialization: string | null;
+  specializationCategory: string | null;
   image: string | null;
 }
 
@@ -19,6 +28,7 @@ export default function FacultyListPage() {
   const [loading, setLoading] = useState(true);
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   useEffect(() => {
     fetchItems();
@@ -50,17 +60,46 @@ export default function FacultyListPage() {
     }
   };
 
+  // Filter items by selected category
+  const filteredItems = selectedCategory
+    ? items.filter(item => item.specializationCategory === selectedCategory)
+    : items;
+
+  // Get category label
+  const getCategoryLabel = (category: string | null) => {
+    if (!category) return '-';
+    const found = SPECIALIZATION_CATEGORIES.find(c => c.value === category);
+    return found ? found.label : category;
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Faculty Members</h1>
-        <Link
-          href="/admin/dashboard/faculty/new"
-          className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors"
-        >
-          <Plus size={20} />
-          Add Faculty
-        </Link>
+        <div className="flex items-center gap-3">
+          {/* Category Filter Dropdown */}
+          <div className="flex items-center gap-2">
+            <Filter size={18} className="text-gray-500" />
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            >
+              {SPECIALIZATION_CATEGORIES.map((cat) => (
+                <option key={cat.value} value={cat.value}>
+                  {cat.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Link
+            href="/admin/dashboard/faculty/new"
+            className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors"
+          >
+            <Plus size={20} />
+            Add Faculty
+          </Link>
+        </div>
       </div>
 
       {actionError ? (
@@ -100,6 +139,9 @@ export default function FacultyListPage() {
                   Designation
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Category
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Specialization
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -108,7 +150,7 @@ export default function FacultyListPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {items.map((item) => (
+              {filteredItems.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <img
@@ -119,6 +161,15 @@ export default function FacultyListPage() {
                   </td>
                   <td className="px-6 py-4 font-medium text-gray-900">{item.name}</td>
                   <td className="px-6 py-4 text-gray-500">{item.designation}</td>
+                  <td className="px-6 py-4">
+                    {item.specializationCategory ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {getCategoryLabel(item.specializationCategory)}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </td>
                   <td className="px-6 py-4 text-gray-500">{item.specialization || '-'}</td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">

@@ -52,7 +52,7 @@ export default function AdminLoginPage() {
       {/* Login Card */}
       <div className="relative z-10 bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-white/20">
         <div className="text-center mb-8">
-          <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-950 to-blue-700 rounded-2xl flex items-center justify-center mb-4 shadow-lg transform rotate-3 hover:rotate-0 transition-transform">
+          <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-950 to-blue-700 rounded-2xl flex items-center justify-center mb-4 shadow-lg hover:scale-105 transition-transform">
             <Shield className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Admin Portal</h1>

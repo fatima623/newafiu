@@ -3,19 +3,49 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ChevronDown, Calendar } from 'lucide-react';
+import { Menu, X, ChevronDown, Calendar, Briefcase, ArrowRight } from 'lucide-react';
 import { navItems } from '@/data/siteData';
+
+interface CareerJob {
+  id: number;
+  code: string;
+  title: string;
+  department: string;
+  type: string;
+  applyBy: string | null;
+}
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const [careerJobs, setCareerJobs] = useState<CareerJob[]>([]);
+  const [careersLoaded, setCareersLoaded] = useState(false);
   const pathname = usePathname();
   const hideOnDashboard = pathname?.startsWith('/admin/dashboard');
   const hideOnLogin = pathname?.startsWith('/admin/login');
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const navbarRef = useRef<HTMLElement | null>(null);
   const [isBrandAnimated, setIsBrandAnimated] = useState(false);
+
+  // Fetch latest career jobs for the dropdown
+  useEffect(() => {
+    async function fetchCareers() {
+      try {
+        const res = await fetch('/api/careers-jobs');
+        if (res.ok) {
+          const data = await res.json();
+          // Get latest 5 jobs
+          setCareerJobs(data.slice(0, 5));
+        }
+      } catch (error) {
+        console.error('Failed to fetch career jobs:', error);
+      } finally {
+        setCareersLoaded(true);
+      }
+    }
+    fetchCareers();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -128,6 +158,76 @@ export default function Navbar() {
                   const baseLinkClasses = `py-2 text-sm font-medium hover:bg-blue-800 rounded transition-colors ${
                     pathname === item.href ? 'text-white font-semibold' : 'text-blue-100 hover:text-white'
                   }`;
+                  
+                  // Special handling for Careers with job openings dropdown
+                  if (item.label === 'Careers' && careersLoaded) {
+                    return (
+                      <div
+                        key={item.label}
+                        className="relative group"
+                        ref={(el) => {
+                          dropdownRefs.current[item.label] = el;
+                        }}
+                        onMouseEnter={() => setOpenDropdown(item.label)}
+                        onMouseLeave={() => setOpenDropdown(null)}
+                      >
+                        <Link
+                          href={item.href}
+                          className={`${baseLinkClasses} px-4 flex items-center gap-1 rounded`}
+                        >
+                          <span>{item.label}</span>
+                          {careerJobs.length > 0 && (
+                            <ChevronDown
+                              size={14}
+                              className={`transform transition-transform ${
+                                openDropdown === item.label ? 'rotate-180' : ''
+                              }`}
+                            />
+                          )}
+                        </Link>
+                        {careerJobs.length > 0 && openDropdown === item.label && (
+                          <div
+                            className="absolute left-0 w-80 bg-white shadow-xl rounded-lg z-20 border border-gray-100 overflow-hidden"
+                            onMouseEnter={() => setOpenDropdown(item.label)}
+                            onMouseLeave={() => setOpenDropdown(null)}
+                          >
+                            <div className="bg-gradient-to-r from-blue-950 to-blue-800 px-4 py-2">
+                              <div className="flex items-center gap-2 text-white">
+                                <Briefcase size={16} />
+                                <span className="font-semibold text-sm">Current Openings</span>
+                              </div>
+                            </div>
+                            <div className="py-1 max-h-80 overflow-y-auto">
+                              {careerJobs.map((job) => (
+                                <Link
+                                  key={job.id}
+                                  href={`/careers?job=${job.code}`}
+                                  className="block px-4 py-2.5 hover:bg-blue-50 transition-colors border-b border-gray-50 last:border-0"
+                                  onClick={() => setOpenDropdown(null)}
+                                >
+                                  <div className="font-medium text-gray-900 text-sm">{job.title}</div>
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <span className="text-xs text-gray-500">{job.department}</span>
+                                    <span className="text-xs text-gray-300">•</span>
+                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">{job.type}</span>
+                                  </div>
+                                </Link>
+                              ))}
+                            </div>
+                            <Link
+                              href="/careers"
+                              className="flex items-center justify-center gap-1 px-4 py-2.5 bg-gray-50 text-blue-950 hover:bg-blue-100 transition-colors text-sm font-medium"
+                              onClick={() => setOpenDropdown(null)}
+                            >
+                              View All Openings
+                              <ArrowRight size={14} />
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  
                   return (
                     <div
                       key={item.label}

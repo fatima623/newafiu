@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 
 // GET - Fetch all official holidays
 export async function GET(request: NextRequest) {
   try {
+    const prisma = getPrisma();
     const { searchParams } = new URL(request.url);
     const upcoming = searchParams.get('upcoming') === 'true';
     const activeOnly = searchParams.get('active') !== 'false';
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
       where.date = { gte: today };
     }
 
-    const holidays = await prisma.officialHoliday.findMany({
+    const holidays = await (prisma as any).officialHoliday.findMany({
       where,
       orderBy: { date: 'asc' },
     });
@@ -38,6 +39,7 @@ export async function GET(request: NextRequest) {
 // POST - Create a new official holiday
 export async function POST(request: NextRequest) {
   try {
+    const prisma = getPrisma() as any;
     const body = await request.json();
     const { date, name, reason } = body;
 
@@ -48,8 +50,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const holidayDate = new Date(date);
-    holidayDate.setHours(0, 0, 0, 0);
+    // Parse date string as local date to avoid timezone issues
+    // Input format is "YYYY-MM-DD" from date picker
+    const [year, month, day] = date.split('-').map(Number);
+    const holidayDate = new Date(year, month - 1, day, 12, 0, 0, 0);
 
     // Check if holiday already exists for this date
     const existing = await prisma.officialHoliday.findUnique({
@@ -84,6 +88,7 @@ export async function POST(request: NextRequest) {
 // PUT - Update an existing holiday
 export async function PUT(request: NextRequest) {
   try {
+    const prisma = getPrisma() as any;
     const body = await request.json();
     const { id, date, name, reason, isActive } = body;
 
@@ -97,8 +102,10 @@ export async function PUT(request: NextRequest) {
     const updateData: Record<string, unknown> = {};
     
     if (date) {
-      const holidayDate = new Date(date);
-      holidayDate.setHours(0, 0, 0, 0);
+      // Parse date string as local date to avoid timezone issues
+      // Input format is "YYYY-MM-DD" from date picker
+      const [year, month, day] = date.split('-').map(Number);
+      const holidayDate = new Date(year, month - 1, day, 12, 0, 0, 0);
       updateData.date = holidayDate;
     }
     if (name !== undefined) updateData.name = name;
@@ -123,6 +130,7 @@ export async function PUT(request: NextRequest) {
 // DELETE - Delete a holiday
 export async function DELETE(request: NextRequest) {
   try {
+    const prisma = getPrisma() as any;
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

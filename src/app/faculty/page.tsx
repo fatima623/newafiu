@@ -1,4 +1,15 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import FacultyCard from '@/components/ui/FacultyCard';
+
+const SPECIALIZATION_CATEGORIES = [
+  { value: '', label: 'All Doctors' },
+  { value: 'UROLOGIST', label: 'Urologist' },
+  { value: 'NEPHROLOGIST', label: 'Nephrologist' },
+  { value: 'ANAESTHETIC', label: 'Anaesthetic' },
+  { value: 'RADIOLOGIST', label: 'Radiologist' },
+];
 
 interface Faculty {
   id: number;
@@ -6,25 +17,36 @@ interface Faculty {
   designation: string;
   qualifications: string;
   specialization: string | null;
+  specializationCategory: string | null;
   image: string | null;
   bio: string | null;
 }
 
-async function getFaculty(): Promise<Faculty[]> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/faculty`, {
-      cache: 'no-store',
-    });
-    if (!res.ok) return [];
-    return res.json();
-  } catch {
-    return [];
-  }
-}
+export default function FacultyPage() {
+  const [faculty, setFaculty] = useState<Faculty[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState('');
 
-export default async function FacultyPage() {
-  const faculty = await getFaculty();
+  useEffect(() => {
+    async function fetchFaculty() {
+      try {
+        const res = await fetch('/api/faculty');
+        if (res.ok) {
+          const data = await res.json();
+          setFaculty(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        console.error('Error fetching faculty:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchFaculty();
+  }, []);
+
+  const filteredFaculty = selectedCategory
+    ? faculty.filter(member => member.specializationCategory === selectedCategory)
+    : faculty;
 
   return (
     <div>
@@ -51,13 +73,34 @@ export default async function FacultyPage() {
               </p>
             </div>
 
-            {faculty.length === 0 ? (
+            {/* Category Filter Dropdown */}
+            <div className="flex justify-center mb-8">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 min-w-[200px]"
+              >
+                {SPECIALIZATION_CATEGORIES.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-950"></div>
+              </div>
+            ) : filteredFaculty.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">No faculty members available at the moment.</p>
+                <p className="text-gray-500 text-lg">
+                  {selectedCategory ? 'No faculty members found for this category.' : 'No faculty members available at the moment.'}
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 auto-rows-fr">
-                {faculty.map((member) => (
+                {filteredFaculty.map((member) => (
                   <FacultyCard
                     key={member.id}
                     faculty={{

@@ -195,7 +195,12 @@ export default function AvailabilityAdminPage() {
   // Load holiday for editing
   const loadHolidayForEdit = (holiday: OfficialHoliday) => {
     setEditingHoliday(holiday);
-    const dateStr = new Date(holiday.date).toISOString().split('T')[0];
+    // Parse the date and format it correctly for the date input
+    const d = new Date(holiday.date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
     setHolidayDate(dateStr);
     setHolidayName(holiday.name);
     setHolidayReason(holiday.reason || '');
@@ -371,11 +376,13 @@ export default function AvailabilityAdminPage() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
+    // Use UTC methods to display the date correctly regardless of timezone
     return date.toLocaleDateString('en-US', {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
       year: 'numeric',
+      timeZone: 'UTC',
     });
   };
 

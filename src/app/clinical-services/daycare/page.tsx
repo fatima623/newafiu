@@ -14,11 +14,7 @@ export default function DaycarePage() {
         'Circumcision - Safe and professional procedure',
         'PPV (Preputioplasty) - Foreskin correction surgery',
         'Orchidopexy - Surgical treatment for undescended testicle',
-        'Cystoscopy and bladder procedures',
-        'Minor stone removal procedures',
-        'Urethral dilatation',
-        'Catheter changes and management',
-        'Injection therapies'
+        
       ]}
       benefits={[
         'No overnight stay required',
