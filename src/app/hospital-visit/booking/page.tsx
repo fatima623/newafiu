@@ -8,7 +8,6 @@ interface Doctor {
   id: number;
   name: string;
   designation: string;
-  specialization: string | null;
   specializationCategory: string | null;
   image: string | null;
 }
@@ -522,9 +521,6 @@ export default function BookingPage() {
                             <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
                               {SPECIALIZATION_CATEGORIES.find(c => c.value === doctor.specializationCategory)?.label}
                             </span>
-                          )}
-                          {doctor.specialization && doctor.specialization !== 'no data' && (
-                            <p className="text-xs text-gray-500 mt-1">{doctor.specialization}</p>
                           )}
                         </div>
                       </button>

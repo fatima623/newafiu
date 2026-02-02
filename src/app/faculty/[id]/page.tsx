@@ -1,12 +1,11 @@
 import { notFound } from 'next/navigation';
-import { Mail, Phone, Award } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 
 interface Faculty {
   id: number;
   name: string;
   designation: string;
   qualifications: string;
-  specialization: string | null;
   image: string | null;
   bio: string | null;
 }
@@ -38,7 +37,6 @@ export default async function FacultyDetailPage({
   }
 
   const displayImage = member.image || '/person.png';
-  const displaySpecialization = member.specialization || 'General Urology';
 
   return (
     <div>
@@ -68,12 +66,6 @@ export default async function FacultyDetailPage({
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
               <div className="bg-blue-50 p-6 rounded-lg">
-                <Award size={32} className="text-blue-600 mb-3" />
-                <h3 className="font-bold text-gray-800 mb-2">Specialization</h3>
-                <p className="text-gray-600">{displaySpecialization}</p>
-              </div>
-
-              <div className="bg-blue-50 p-6 rounded-lg">
                 <Phone size={32} className="text-blue-600 mb-3" />
                 <h3 className="font-bold text-gray-800 mb-2">Appointments</h3>
                 <p className="text-gray-600">Call: +92 51 9270077</p>
@@ -89,18 +81,11 @@ export default async function FacultyDetailPage({
             <div>
               <h2 className="text-3xl font-bold text-gray-800 mb-6">About</h2>
               <p className="text-lg text-gray-600 mb-6">
-                {member.bio || `${member.name} is a highly experienced urologist specializing in ${displaySpecialization}. With extensive training and years of clinical experience, ${member.name.split(' ')[0]} provides expert care to patients with various urological conditions.`}
+                {member.bio || `${member.name} is a highly experienced medical professional. With extensive training and years of clinical experience, ${member.name.split(' ')[0]} provides expert care to patients with various conditions.`}
               </p>
 
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Qualifications</h3>
               <p className="text-gray-600 mb-6">{member.qualifications}</p>
-
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">Areas of Expertise</h3>
-              <ul className="list-disc list-inside space-y-2 text-gray-600">
-                {displaySpecialization.split(',').map((spec, index) => (
-                  <li key={index}>{spec.trim()}</li>
-                ))}
-              </ul>
             </div>
           </div>
         </div>

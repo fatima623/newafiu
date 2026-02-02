@@ -23,7 +23,6 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
         </div>
         <div className="p-4 flex-1 flex flex-col justify-between">
           <p className="text-sm text-gray-600 mb-2">{faculty.qualifications}</p>
-          <p className="text-sm text-blue-950 font-semibold">{faculty.specialization}</p>
         </div>
       </div>
     </Link>

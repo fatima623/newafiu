@@ -16,7 +16,6 @@ interface Faculty {
   name: string;
   designation: string;
   qualifications: string;
-  specialization: string | null;
   specializationCategory: string | null;
   image: string | null;
   bio: string | null;
@@ -108,7 +107,6 @@ export default function FacultyPage() {
                       name: member.name,
                       designation: member.designation,
                       qualifications: member.qualifications,
-                      specialization: member.specialization || '',
                       image: member.image || '/person.png',
                     }}
                   />
