@@ -361,7 +361,7 @@ export const statistics = [
 
 export const commandant = {
   name: 'Professor Haroon Sabir Khan',
-  designation: 'Consultant Urologist & Transplant Surgeon, Advisor to DG Surgery in Urology, Commandant AFIU',
+  designation: 'Consultant Urologist & Transplant Surgeon,  Commandant AFIU',
   credentials: ['MBBS', 'FCPS (Surgery)', 'FCPS (Urology)', 'FEBU (Europe)', 'MHPE (RIU)'],
   image: '/person.png',   // <-- Use image from public folder
   welcomeMessage: {

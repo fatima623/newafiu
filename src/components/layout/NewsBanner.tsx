@@ -60,7 +60,7 @@ export default function NewsBanner() {
             {items.map((item, index) => (
               <Link
                 key={item.id}
-                href="/news-events"
+                href={`/news-events?id=${item.id}`}
                 className="inline-flex items-center gap-2 mx-8 hover:underline"
               >
                 <span className="font-medium">{item.title}</span>
@@ -73,7 +73,7 @@ export default function NewsBanner() {
             {items.map((item, index) => (
               <Link
                 key={`dup-${item.id}`}
-                href="/news-events"
+                href={`/news-events?id=${item.id}`}
                 className="inline-flex items-center gap-2 mx-8 hover:underline"
               >
                 <span className="font-medium">{item.title}</span>

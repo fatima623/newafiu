@@ -464,36 +464,20 @@ export default function BookingPage() {
             {/* Step 1: Select Doctor */}
             {currentStep === 'doctor' && (
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">Select a Doctor</h2>
-                
-                {/* Specialization Filter */}
-                <div className="mb-6">
-                  <label className="block text-gray-700 font-medium mb-2">Filter by Specialization</label>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => setSelectedSpecialization('')}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                        selectedSpecialization === ''
-                          ? 'bg-blue-950 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      All Doctors
-                    </button>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800">Select a Doctor</h2>
+                  <select
+                    value={selectedSpecialization}
+                    onChange={(e) => setSelectedSpecialization(e.target.value)}
+                    className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  >
+                    <option value="">All Doctors</option>
                     {SPECIALIZATION_CATEGORIES.map((cat) => (
-                      <button
-                        key={cat.value}
-                        onClick={() => setSelectedSpecialization(cat.value)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                          selectedSpecialization === cat.value
-                            ? 'bg-blue-950 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {cat.label} ({doctorsBySpecialization[cat.value]?.length || 0})
-                      </button>
+                      <option key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </option>
                     ))}
-                  </div>
+                  </select>
                 </div>
                 
                 {loadingDoctors ? (
@@ -504,128 +488,42 @@ export default function BookingPage() {
                   <div className="text-center py-12 text-gray-500">
                     No doctors available at the moment.
                   </div>
-                ) : selectedSpecialization ? (
-                  /* Filtered view - show only selected specialization */
-                  <div>
-                    {filteredDoctors.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
-                        No doctors found for this specialization.
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {filteredDoctors.map((doctor) => (
-                          <button
-                            key={doctor.id}
-                            onClick={() => {
-                              setSelectedDoctor(doctor);
-                              setCurrentStep('datetime');
-                            }}
-                            className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
-                          >
-                            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
-                              {doctor.image ? (
-                                <img src={doctor.image} alt={doctor.name} className="w-full h-full object-cover" />
-                              ) : (
-                                <UserCircle size={40} className="text-gray-400" />
-                              )}
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-gray-800">{doctor.name}</h3>
-                              <p className="text-sm text-gray-600">{doctor.designation}</p>
-                              {doctor.specializationCategory && (
-                                <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
-                                  {SPECIALIZATION_CATEGORIES.find(c => c.value === doctor.specializationCategory)?.label}
-                                </span>
-                              )}
-                              {doctor.specialization && doctor.specialization !== 'no data' && (
-                                <p className="text-xs text-gray-500 mt-1">{doctor.specialization}</p>
-                              )}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                ) : filteredDoctors.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    No doctors found for this specialization.
                   </div>
                 ) : (
-                  /* Grouped view - show all doctors grouped by specialization */
-                  <div className="space-y-8">
-                    {SPECIALIZATION_CATEGORIES.map((cat) => {
-                      const categoryDoctors = doctorsBySpecialization[cat.value];
-                      if (!categoryDoctors || categoryDoctors.length === 0) return null;
-                      
-                      return (
-                        <div key={cat.value}>
-                          <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                            <span className="w-3 h-3 bg-blue-950 rounded-full"></span>
-                            {cat.label}s ({categoryDoctors.length})
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {categoryDoctors.map((doctor) => (
-                              <button
-                                key={doctor.id}
-                                onClick={() => {
-                                  setSelectedDoctor(doctor);
-                                  setCurrentStep('datetime');
-                                }}
-                                className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
-                              >
-                                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
-                                  {doctor.image ? (
-                                    <img src={doctor.image} alt={doctor.name} className="w-full h-full object-cover" />
-                                  ) : (
-                                    <UserCircle size={40} className="text-gray-400" />
-                                  )}
-                                </div>
-                                <div>
-                                  <h3 className="font-semibold text-gray-800">{doctor.name}</h3>
-                                  <p className="text-sm text-gray-600">{doctor.designation}</p>
-                                  {doctor.specialization && doctor.specialization !== 'no data' && (
-                                    <p className="text-xs text-gray-500 mt-1">{doctor.specialization}</p>
-                                  )}
-                                </div>
-                              </button>
-                            ))}
-                          </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredDoctors.map((doctor) => (
+                      <button
+                        key={doctor.id}
+                        onClick={() => {
+                          setSelectedDoctor(doctor);
+                          setCurrentStep('datetime');
+                        }}
+                        className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+                      >
+                        <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                          {doctor.image ? (
+                            <img src={doctor.image} alt={doctor.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <UserCircle size={40} className="text-gray-400" />
+                          )}
                         </div>
-                      );
-                    })}
-                    
-                    {/* Doctors without specialization */}
-                    {doctorsWithoutSpecialization.length > 0 && (
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                          <span className="w-3 h-3 bg-gray-400 rounded-full"></span>
-                          Other Specialists ({doctorsWithoutSpecialization.length})
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {doctorsWithoutSpecialization.map((doctor) => (
-                            <button
-                              key={doctor.id}
-                              onClick={() => {
-                                setSelectedDoctor(doctor);
-                                setCurrentStep('datetime');
-                              }}
-                              className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
-                            >
-                              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
-                                {doctor.image ? (
-                                  <img src={doctor.image} alt={doctor.name} className="w-full h-full object-cover" />
-                                ) : (
-                                  <UserCircle size={40} className="text-gray-400" />
-                                )}
-                              </div>
-                              <div>
-                                <h3 className="font-semibold text-gray-800">{doctor.name}</h3>
-                                <p className="text-sm text-gray-600">{doctor.designation}</p>
-                                {doctor.specialization && doctor.specialization !== 'no data' && (
-                                  <p className="text-xs text-gray-500 mt-1">{doctor.specialization}</p>
-                                )}
-                              </div>
-                            </button>
-                          ))}
+                        <div>
+                          <h3 className="font-semibold text-gray-800">{doctor.name}</h3>
+                          <p className="text-sm text-gray-600">{doctor.designation}</p>
+                          {doctor.specializationCategory && (
+                            <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
+                              {SPECIALIZATION_CATEGORIES.find(c => c.value === doctor.specializationCategory)?.label}
+                            </span>
+                          )}
+                          {doctor.specialization && doctor.specialization !== 'no data' && (
+                            <p className="text-xs text-gray-500 mt-1">{doctor.specialization}</p>
+                          )}
                         </div>
-                      </div>
-                    )}
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
@@ -659,39 +557,120 @@ export default function BookingPage() {
                   </div>
                 </div>
 
-                {/* Date Selection */}
+                {/* Date Selection - Custom Calendar */}
                 <div className="mb-6">
                   <label className="block text-gray-700 font-medium mb-2">
                     <Calendar size={18} className="inline mr-2" />
                     Select Date (Monday - Friday only)
                   </label>
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    min={getMinDate()}
-                    max={getMaxDate()}
-                    onChange={(e) => {
-                      const date = e.target.value;
-                      if (!date) {
-                        setSelectedDate('');
-                        return;
-                      }
-
-                      if (isBookingDateDisabled(date)) {
-                        setSelectedDate('');
-                        alert('This date is disabled. Please select a weekday (Mon-Fri), within the next 7 days, excluding holidays.');
-                        return;
-                      }
-
-                      if (isWeekday(date)) {
-                        setSelectedDate(date);
-                      } else {
-                        setSelectedDate('');
-                        alert('Please select a weekday (Monday to Friday)');
-                      }
-                    }}
-                    className="w-full max-w-xs rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-950"
-                  />
+                  
+                  {/* Custom Calendar Grid */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 max-w-md">
+                    {/* Calendar Header */}
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="font-semibold text-gray-800">
+                        {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                      </span>
+                    </div>
+                    
+                    {/* Day Headers */}
+                    <div className="grid grid-cols-7 gap-1 mb-2">
+                      {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
+                        <div key={day} className="text-center text-xs font-medium text-gray-500 py-1">
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Calendar Days */}
+                    <div className="grid grid-cols-7 gap-1">
+                      {(() => {
+                        const today = new Date();
+                        const year = today.getFullYear();
+                        const month = today.getMonth();
+                        const firstDay = new Date(year, month, 1).getDay();
+                        const daysInMonth = new Date(year, month + 1, 0).getDate();
+                        const days = [];
+                        
+                        // Empty cells for days before first of month
+                        for (let i = 0; i < firstDay; i++) {
+                          days.push(<div key={`empty-${i}`} className="p-2"></div>);
+                        }
+                        
+                        // Days of the month
+                        for (let day = 1; day <= daysInMonth; day++) {
+                          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                          const isDisabled = isBookingDateDisabled(dateStr);
+                          const holiday = getOfficialHoliday(dateStr);
+                          const isSelected = selectedDate === dateStr;
+                          const isToday = day === today.getDate();
+                          const dateObj = new Date(dateStr);
+                          const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+                          const isPast = dateObj < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                          
+                          days.push(
+                            <div key={day} className="relative group">
+                              <button
+                                type="button"
+                                disabled={isDisabled}
+                                onClick={() => {
+                                  if (!isDisabled) {
+                                    setSelectedDate(dateStr);
+                                  }
+                                }}
+                                className={`
+                                  w-full p-2 text-sm rounded-lg transition-all
+                                  ${isSelected ? 'bg-blue-950 text-white font-semibold' : ''}
+                                  ${holiday && !isSelected ? 'bg-yellow-100 text-yellow-800 font-medium' : ''}
+                                  ${isToday && !isSelected && !holiday ? 'bg-blue-100 text-blue-800 font-medium' : ''}
+                                  ${isWeekend && !isSelected ? 'text-gray-300' : ''}
+                                  ${isPast && !isSelected ? 'text-gray-300' : ''}
+                                  ${isDisabled && !holiday ? 'text-gray-300 cursor-not-allowed' : ''}
+                                  ${!isDisabled && !isSelected && !holiday && !isToday ? 'hover:bg-gray-100 text-gray-700' : ''}
+                                  ${isDisabled && holiday ? 'cursor-not-allowed' : ''}
+                                `}
+                              >
+                                {day}
+                              </button>
+                              
+                              {/* Tooltip for holidays */}
+                              {holiday && (
+                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                                  <div className="font-semibold">{holiday.name}</div>
+                                  {holiday.reason && <div className="text-gray-300">{holiday.reason}</div>}
+                                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }
+                        
+                        return days;
+                      })()}
+                    </div>
+                    
+                    {/* Legend */}
+                    <div className="mt-4 pt-3 border-t border-gray-100 flex flex-wrap gap-4 text-xs text-gray-600">
+                      <div className="flex items-center gap-1">
+                        <div className="w-4 h-4 bg-yellow-100 rounded"></div>
+                        <span>Holiday</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-4 h-4 bg-blue-950 rounded"></div>
+                        <span>Selected</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-4 h-4 bg-blue-100 rounded"></div>
+                        <span>Today</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {selectedDate && (
+                    <p className="mt-2 text-sm text-green-600">
+                      Selected: {formatDate(selectedDate)}
+                    </p>
+                  )}
                 </div>
 
                 {/* Slots */}

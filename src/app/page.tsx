@@ -50,7 +50,7 @@ export default function Home() {
                     </div>
                     <div className="text-sm font-medium text-blue-950 mt-3 space-y-1 leading-tight">
                       <div>Consultant Urologist & Transplant Surgeon</div>
-                      <div>Advisor to DG Surgery in Urology</div>
+                      
                       <div>Commandant AFIU</div>
                     </div>
                   </div>

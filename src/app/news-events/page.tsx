@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Calendar } from 'lucide-react';
 import { fetchJson } from '@/lib/fetchJson';
 
@@ -16,10 +17,35 @@ interface NewsEventItem {
 export default function NewsEventsPage() {
   const [items, setItems] = useState<NewsEventItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [highlightedId, setHighlightedId] = useState<number | null>(null);
+  const searchParams = useSearchParams();
+  const itemRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
   useEffect(() => {
     fetchItems();
   }, []);
+
+  // Handle scroll to highlighted item from URL param
+  useEffect(() => {
+    const newsId = searchParams.get('id');
+    if (newsId && !loading) {
+      const id = parseInt(newsId, 10);
+      setHighlightedId(id);
+      
+      // Scroll to the item after a short delay
+      setTimeout(() => {
+        const element = itemRefs.current[id];
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+
+      // Remove highlight after 3 seconds
+      setTimeout(() => {
+        setHighlightedId(null);
+      }, 3000);
+    }
+  }, [searchParams, loading]);
 
   const fetchItems = async () => {
     try {
@@ -65,7 +91,12 @@ export default function NewsEventsPage() {
                 {items.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                    ref={(el) => { itemRefs.current[item.id] = el; }}
+                    className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-500 ${
+                      highlightedId === item.id 
+                        ? 'ring-4 ring-yellow-400 shadow-xl scale-[1.02]' 
+                        : 'hover:shadow-lg'
+                    }`}
                   >
                     <div className="h-48 relative">
                       {item.imageUrl ? (
@@ -79,15 +110,6 @@ export default function NewsEventsPage() {
                           <span className="text-gray-400">No image</span>
                         </div>
                       )}
-                      <span
-                        className={`absolute top-2 left-2 px-2 py-1 text-xs font-medium rounded ${
-                          item.category === 'news'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-green-100 text-green-800'
-                        }`}
-                      >
-                        {item.category === 'news' ? 'News' : 'Event'}
-                      </span>
                     </div>
                     <div className="p-4">
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
