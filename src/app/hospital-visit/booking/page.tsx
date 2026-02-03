@@ -525,6 +525,7 @@ export default function BookingPage() {
     setPatientDetails({
       fullName: '',
       cnic: '',
+      countryCode: '+92',
       phone: '',
       email: '',
       notes: '',

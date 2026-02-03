@@ -26,100 +26,6 @@ enum GalleryCategory {
 }
 
 // ============================================
-// SURGERY CLASSIFICATION SYSTEM
-// ============================================
-
-model SurgeryCategory {
-  id            Int                   @id @default(autoincrement())
-  name          String                @unique
-  slug          String                @unique
-  description   String?               @db.Text
-  icon          String?
-  image         String?
-  sortOrder     Int                   @default(0)
-  isActive      Boolean               @default(true)
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
-  subcategories SurgerySubcategory[]
-
-  @@index([slug])
-  @@index([sortOrder])
-}
-
-model SurgerySubcategory {
-  id          Int              @id @default(autoincrement())
-  categoryId  Int
-  category    SurgeryCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  name        String
-  slug        String
-  description String?          @db.Text
-  overview    String?          @db.Text
-  icon        String?
-  image       String?
-  sortOrder   Int              @default(0)
-  isActive    Boolean          @default(true)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  procedures  SurgeryProcedure[]
-
-  @@unique([categoryId, slug])
-  @@index([categoryId])
-  @@index([slug])
-}
-
-model SurgeryProcedure {
-  id              Int                    @id @default(autoincrement())
-  subcategoryId   Int
-  subcategory     SurgerySubcategory     @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
-  name            String
-  slug            String
-  fullName        String?
-  overview        String?                @db.Text
-  indications     String?                @db.Text
-  procedureDetails String?               @db.Text
-  recovery        String?                @db.Text
-  risks           String?                @db.Text
-  icon            String?
-  image           String?
-  sortOrder       Int                    @default(0)
-  isActive        Boolean                @default(true)
-  createdAt       DateTime               @default(now())
-  updatedAt       DateTime               @updatedAt
-  tags            ProcedureTag[]
-  relatedFrom     ProcedureRelation[]    @relation("RelatedFrom")
-  relatedTo       ProcedureRelation[]    @relation("RelatedTo")
-
-  @@unique([subcategoryId, slug])
-  @@index([subcategoryId])
-  @@index([slug])
-}
-
-model ProcedureTag {
-  id          Int                @id @default(autoincrement())
-  name        String             @unique
-  slug        String             @unique
-  description String?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  procedures  SurgeryProcedure[]
-
-  @@index([slug])
-}
-
-model ProcedureRelation {
-  id            Int              @id @default(autoincrement())
-  fromProcedureId Int
-  toProcedureId   Int
-  fromProcedure SurgeryProcedure @relation("RelatedFrom", fields: [fromProcedureId], references: [id], onDelete: Cascade)
-  toProcedure   SurgeryProcedure @relation("RelatedTo", fields: [toProcedureId], references: [id], onDelete: Cascade)
-  createdAt     DateTime         @default(now())
-
-  @@unique([fromProcedureId, toProcedureId])
-  @@index([fromProcedureId])
-  @@index([toProcedureId])
-}
-
-// ============================================
 // APPOINTMENT BOOKING SYSTEM
 // ============================================
 
@@ -224,7 +130,7 @@ model AppointmentSettings {
   updatedAt             DateTime @updatedAt
 }
 
-model AdminUser {
+model User {
   id           Int      @id @default(autoincrement())
   username     String   @unique
   passwordHash String

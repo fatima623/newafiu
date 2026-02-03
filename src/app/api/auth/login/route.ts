@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const admin = await prisma.adminUser.findUnique({
+    const admin = await prisma.user.findUnique({
       where: { username },
     });
 
