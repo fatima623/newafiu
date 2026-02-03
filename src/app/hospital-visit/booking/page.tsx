@@ -77,11 +77,41 @@ export default function BookingPage() {
   const [patientDetails, setPatientDetails] = useState({
     fullName: '',
     cnic: '',
+    countryCode: '+92',
     phone: '',
     email: '',
     notes: '',
     consent: false,
   });
+
+  // Common country codes with phone format details
+  const COUNTRY_CODES = [
+    { code: '+92', country: 'Pakistan', flag: '🇵🇰', placeholder: '3001234567', minLen: 10, maxLen: 10, format: '10 digits' },
+    { code: '+1', country: 'USA/Canada', flag: '🇺🇸', placeholder: '2025551234', minLen: 10, maxLen: 10, format: '10 digits' },
+    { code: '+44', country: 'UK', flag: '🇬🇧', placeholder: '7911123456', minLen: 10, maxLen: 11, format: '10-11 digits' },
+    { code: '+971', country: 'UAE', flag: '🇦🇪', placeholder: '501234567', minLen: 9, maxLen: 9, format: '9 digits' },
+    { code: '+966', country: 'Saudi Arabia', flag: '🇸🇦', placeholder: '512345678', minLen: 9, maxLen: 9, format: '9 digits' },
+    { code: '+974', country: 'Qatar', flag: '🇶🇦', placeholder: '55123456', minLen: 8, maxLen: 8, format: '8 digits' },
+    { code: '+965', country: 'Kuwait', flag: '🇰🇼', placeholder: '51234567', minLen: 8, maxLen: 8, format: '8 digits' },
+    { code: '+968', country: 'Oman', flag: '🇴🇲', placeholder: '92123456', minLen: 8, maxLen: 8, format: '8 digits' },
+    { code: '+973', country: 'Bahrain', flag: '🇧🇭', placeholder: '36001234', minLen: 8, maxLen: 8, format: '8 digits' },
+    { code: '+91', country: 'India', flag: '🇮🇳', placeholder: '9876543210', minLen: 10, maxLen: 10, format: '10 digits' },
+    { code: '+86', country: 'China', flag: '🇨🇳', placeholder: '13812345678', minLen: 11, maxLen: 11, format: '11 digits' },
+    { code: '+61', country: 'Australia', flag: '🇦🇺', placeholder: '412345678', minLen: 9, maxLen: 9, format: '9 digits' },
+    { code: '+49', country: 'Germany', flag: '🇩🇪', placeholder: '15123456789', minLen: 10, maxLen: 11, format: '10-11 digits' },
+    { code: '+33', country: 'France', flag: '🇫🇷', placeholder: '612345678', minLen: 9, maxLen: 9, format: '9 digits' },
+    { code: '+39', country: 'Italy', flag: '🇮🇹', placeholder: '3123456789', minLen: 9, maxLen: 10, format: '9-10 digits' },
+    { code: '+34', country: 'Spain', flag: '🇪🇸', placeholder: '612345678', minLen: 9, maxLen: 9, format: '9 digits' },
+    { code: '+90', country: 'Turkey', flag: '🇹🇷', placeholder: '5321234567', minLen: 10, maxLen: 10, format: '10 digits' },
+    { code: '+60', country: 'Malaysia', flag: '🇲🇾', placeholder: '123456789', minLen: 9, maxLen: 10, format: '9-10 digits' },
+    { code: '+65', country: 'Singapore', flag: '🇸🇬', placeholder: '81234567', minLen: 8, maxLen: 8, format: '8 digits' },
+    { code: '+82', country: 'South Korea', flag: '🇰🇷', placeholder: '1012345678', minLen: 9, maxLen: 10, format: '9-10 digits' },
+  ];
+
+  // Get current country config
+  const getCurrentCountryConfig = () => {
+    return COUNTRY_CODES.find(c => c.code === patientDetails.countryCode) || COUNTRY_CODES[0];
+  };
   const [errors, setErrors] = useState<Record<string, string>>({});
   
   // Submission
@@ -186,6 +216,10 @@ export default function BookingPage() {
         setOtpSent(true);
         setOtpCountdown(60);
         setOtpValue('');
+        // In dev mode, auto-fill the OTP for easier testing
+        if (data.devMode && data.devOtp) {
+          setOtpValue(data.devOtp);
+        }
       } else {
         setOtpError(data.error || 'Failed to send verification code');
       }
@@ -375,10 +409,13 @@ export default function BookingPage() {
       newErrors.cnic = 'Enter CNIC in 13 digits or XXXXX-XXXXXXX-X format';
     }
     
+    const countryConfig = COUNTRY_CODES.find(c => c.code === patientDetails.countryCode) || COUNTRY_CODES[0];
     if (!patientDetails.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
-    } else if (!/^\d{7,15}$/.test(patientDetails.phone.trim())) {
-      newErrors.phone = 'Enter a valid phone number';
+      newErrors.phone = 'Mobile number is required';
+    } else if (!/^\d+$/.test(patientDetails.phone.trim())) {
+      newErrors.phone = 'Mobile number must contain only digits';
+    } else if (patientDetails.phone.trim().length < countryConfig.minLen || patientDetails.phone.trim().length > countryConfig.maxLen) {
+      newErrors.phone = `Enter ${countryConfig.format} for ${countryConfig.country}`;
     }
     
     if (!patientDetails.email.trim()) {
@@ -412,7 +449,7 @@ export default function BookingPage() {
           doctorId: selectedDoctor.id,
           patientName: patientDetails.fullName.trim(),
           patientCnic: patientDetails.cnic.trim(),
-          patientPhone: patientDetails.phone.trim(),
+          patientPhone: `${patientDetails.countryCode}${patientDetails.phone.trim()}`,
           patientEmail: patientDetails.email.trim().toLowerCase(),
           appointmentDate: selectedDate,
           slotNumber: selectedSlot.slotNumber,
@@ -913,21 +950,50 @@ export default function BookingPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-gray-700 font-medium mb-2">Phone Number *</label>
-                      <div className="relative">
-                        <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input
-                          type="tel"
-                          value={patientDetails.phone}
-                          maxLength={15}
-                          onChange={(e) =>
-                            setPatientDetails((prev) => ({
-                              ...prev,
-                              phone: e.target.value.replace(/\D/g, '').slice(0, 15),
-                            }))
-                          }
-                          className="w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-950"
-                        />
+                      <label className="block text-gray-700 font-medium mb-2">
+                        Mobile Number *
+                        <span className="ml-2 text-xs text-gray-500 font-normal">
+                          ({getCurrentCountryConfig().format})
+                        </span>
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="relative">
+                          <select
+                            value={patientDetails.countryCode}
+                            onChange={(e) => {
+                              setPatientDetails((prev) => ({
+                                ...prev,
+                                countryCode: e.target.value,
+                                phone: '', // Clear phone when country changes
+                              }));
+                              setErrors((prev) => ({ ...prev, phone: '' }));
+                            }}
+                            className="h-full rounded-lg border border-gray-300 px-3 py-3 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-950 appearance-none bg-white text-sm"
+                          >
+                            {COUNTRY_CODES.map((c) => (
+                              <option key={c.code} value={c.code}>
+                                {c.flag} {c.code}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        </div>
+                        <div className="relative flex-1">
+                          <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input
+                            type="tel"
+                            placeholder={getCurrentCountryConfig().placeholder}
+                            value={patientDetails.phone}
+                            maxLength={getCurrentCountryConfig().maxLen}
+                            onChange={(e) =>
+                              setPatientDetails((prev) => ({
+                                ...prev,
+                                phone: e.target.value.replace(/\D/g, '').slice(0, getCurrentCountryConfig().maxLen),
+                              }))
+                            }
+                            className="w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-950"
+                          />
+                        </div>
                       </div>
                       {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
                     </div>
@@ -946,6 +1012,7 @@ export default function BookingPage() {
                           <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                           <input
                             type="email"
+                            placeholder="example@email.com"
                             value={patientDetails.email}
                             onChange={(e) => setPatientDetails(prev => ({ ...prev, email: e.target.value }))}
                             disabled={otpVerified && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()}

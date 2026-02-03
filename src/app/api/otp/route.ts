@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPrisma } from '@/lib/prisma';
 import { sendOTPEmail, generateOTP } from '@/lib/emailService';
 
+// Check if we're in development mode (skips actual email sending)
+const isDevMode = process.env.DEV_MODE === 'true';
+
 // Store OTPs temporarily in database
 // In production, you might want to use Redis for better performance
 
@@ -67,7 +70,27 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Send OTP email
+      // Development mode: Log OTP to console and skip email sending
+      if (isDevMode) {
+        console.log('\n========================================');
+        console.log('📧 DEV MODE - OTP CODE');
+        console.log('========================================');
+        console.log(`Email: ${normalizedEmail}`);
+        console.log(`OTP Code: ${newOTP}`);
+        console.log(`Purpose: ${selectedPurpose}`);
+        console.log(`Expires: ${expiresAt.toLocaleTimeString()}`);
+        console.log('========================================\n');
+
+        return NextResponse.json({
+          success: true,
+          message: 'Verification code sent to your email',
+          // In dev mode, also return the OTP for easier testing
+          devMode: true,
+          devOtp: newOTP,
+        });
+      }
+
+      // Production mode: Send actual email
       const sent = await sendOTPEmail({
         email: normalizedEmail,
         otp: newOTP,

@@ -65,6 +65,10 @@ export default function ContactPage() {
         setOtpSent(true);
         setOtpCountdown(60);
         setOtpValue('');
+        // In dev mode, auto-fill the OTP for easier testing
+        if (data.devMode && data.devOtp) {
+          setOtpValue(data.devOtp);
+        }
       } else {
         setOtpError(data.error || 'Failed to send verification code');
       }

@@ -74,8 +74,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate phone format
-    const phoneRegex = /^\d{7,15}$/;
+    // Validate phone format (allows optional + for country code)
+    const phoneRegex = /^\+?\d{7,15}$/;
     if (!phoneRegex.test(String(patientPhone).trim())) {
       return NextResponse.json(
         { error: 'Invalid phone number format' },

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, User, Search, Filter, RefreshCw, CheckCircle, XCircle, AlertCircle, Edit2, X, Loader2 } from 'lucide-react';
+import { Calendar, Clock, User, Search, Filter, RefreshCw, CheckCircle, XCircle, AlertCircle, Edit2, X, Loader2, Eye, Send } from 'lucide-react';
 
 interface Appointment {
   id: number;
@@ -63,6 +63,17 @@ export default function AppointmentsAdminPage() {
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState('');
   const [editSuccess, setEditSuccess] = useState('');
+
+  // View modal state
+  const [viewingAppointment, setViewingAppointment] = useState<Appointment | null>(null);
+
+  // Reply modal state
+  const [replyAppointment, setReplyAppointment] = useState<Appointment | null>(null);
+  const [replySubject, setReplySubject] = useState('');
+  const [replyMessage, setReplyMessage] = useState('');
+  const [replyLoading, setReplyLoading] = useState(false);
+  const [replyError, setReplyError] = useState('');
+  const [replySuccess, setReplySuccess] = useState('');
 
   // Fetch doctors
   useEffect(() => {
@@ -245,6 +256,82 @@ export default function AppointmentsAdminPage() {
     }
   };
 
+  // Open view modal
+  const openViewModal = (appointment: Appointment) => {
+    setViewingAppointment(appointment);
+  };
+
+  // Close view modal
+  const closeViewModal = () => {
+    setViewingAppointment(null);
+  };
+
+  // Open reply modal
+  const openReplyModal = (appointment: Appointment) => {
+    setReplyAppointment(appointment);
+    setReplySubject(`Regarding Your Appointment on ${formatDate(appointment.appointmentDate)}`);
+    setReplyMessage('');
+    setReplyError('');
+    setReplySuccess('');
+  };
+
+  // Close reply modal
+  const closeReplyModal = () => {
+    setReplyAppointment(null);
+    setReplySubject('');
+    setReplyMessage('');
+    setReplyError('');
+    setReplySuccess('');
+  };
+
+  // Handle reply submission
+  const handleReplySubmit = async () => {
+    if (!replyAppointment) return;
+
+    if (!replySubject.trim()) {
+      setReplyError('Please enter a subject');
+      return;
+    }
+
+    if (!replyMessage.trim() || replyMessage.trim().length < 10) {
+      setReplyError('Please enter a message (at least 10 characters)');
+      return;
+    }
+
+    setReplyLoading(true);
+    setReplyError('');
+    setReplySuccess('');
+
+    try {
+      const res = await fetch('/api/admin/appointments/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          appointmentId: replyAppointment.id,
+          patientEmail: replyAppointment.patientEmail,
+          patientName: replyAppointment.patientName,
+          subject: replySubject.trim(),
+          message: replyMessage.trim(),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setReplySuccess('Email sent successfully!');
+        setTimeout(() => {
+          closeReplyModal();
+        }, 1500);
+      } else {
+        setReplyError(data.error || 'Failed to send email');
+      }
+    } catch (error) {
+      setReplyError('Network error. Please try again.');
+    } finally {
+      setReplyLoading(false);
+    }
+  };
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -335,7 +422,7 @@ export default function AppointmentsAdminPage() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">S.No</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doctor</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date & Time</th>
@@ -344,13 +431,12 @@ export default function AppointmentsAdminPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredAppointments.map((apt) => (
+                {filteredAppointments.map((apt, index) => (
                   <tr key={apt.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm text-gray-600">#{apt.id}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{index + 1}</td>
                     <td className="px-4 py-3">
                       <div className="text-sm font-medium text-gray-800">{apt.patientName}</div>
-                      <div className="text-xs text-gray-500">{apt.patientCnic}</div>
-                      <div className="text-xs text-gray-500">{apt.patientPhone}</div>
+                     
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-sm font-medium text-gray-800">{apt.faculty.name}</div>
@@ -368,54 +454,73 @@ export default function AppointmentsAdminPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        {apt.status === 'PENDING' && (
-                          <>
-                            <button
-                              onClick={() => updateStatus(apt.id, 'CONFIRMED')}
-                              className="p-1 text-green-600 hover:bg-green-50 rounded"
-                              title="Confirm"
-                            >
-                              <CheckCircle size={18} />
-                            </button>
-                            <button
-                              onClick={() => updateStatus(apt.id, 'CANCELLED')}
-                              className="p-1 text-red-600 hover:bg-red-50 rounded"
-                              title="Cancel"
-                            >
-                              <XCircle size={18} />
-                            </button>
-                          </>
+                      <div className="flex items-center gap-1">
+                        {/* View button - always visible */}
+                        <button
+                          onClick={() => openViewModal(apt)}
+                          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                          title="View Details"
+                        >
+                          <Eye size={16} />
+                        </button>
+
+                        {/* Reply button - always visible */}
+                        <button
+                          onClick={() => openReplyModal(apt)}
+                          className="p-1.5 text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                          title="Send Reply"
+                        >
+                          <Send size={16} />
+                        </button>
+
+                        {/* Edit button - for PENDING and CONFIRMED */}
+                        {(apt.status === 'PENDING' || apt.status === 'CONFIRMED') && (
+                          <button
+                            onClick={() => openEditModal(apt, 'update')}
+                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                            title="Edit Appointment"
+                          >
+                            <Edit2 size={16} />
+                          </button>
                         )}
+
+                        {/* Cancel button - for PENDING and CONFIRMED */}
+                        {(apt.status === 'PENDING' || apt.status === 'CONFIRMED') && (
+                          <button
+                            onClick={() => openEditModal(apt, 'cancel')}
+                            className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                            title="Cancel Appointment"
+                          >
+                            <XCircle size={16} />
+                          </button>
+                        )}
+
+                        {/* Status change buttons */}
+                        {apt.status === 'PENDING' && (
+                          <button
+                            onClick={() => updateStatus(apt.id, 'CONFIRMED')}
+                            className="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors"
+                            title="Confirm"
+                          >
+                            <CheckCircle size={16} />
+                          </button>
+                        )}
+
                         {apt.status === 'CONFIRMED' && (
                           <>
                             <button
-                              onClick={() => openEditModal(apt, 'update')}
-                              className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-                              title="Edit Appointment"
-                            >
-                              <Edit2 size={18} />
-                            </button>
-                            <button
-                              onClick={() => openEditModal(apt, 'cancel')}
-                              className="p-1 text-red-600 hover:bg-red-50 rounded"
-                              title="Cancel Appointment"
-                            >
-                              <XCircle size={18} />
-                            </button>
-                            <button
                               onClick={() => updateStatus(apt.id, 'COMPLETED')}
-                              className="p-1 text-green-600 hover:bg-green-50 rounded"
+                              className="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors"
                               title="Mark Completed"
                             >
-                              <CheckCircle size={18} />
+                              <CheckCircle size={16} />
                             </button>
                             <button
                               onClick={() => updateStatus(apt.id, 'NO_SHOW')}
-                              className="p-1 text-gray-600 hover:bg-gray-50 rounded"
+                              className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition-colors"
                               title="Mark No Show"
                             >
-                              <AlertCircle size={18} />
+                              <AlertCircle size={16} />
                             </button>
                           </>
                         )}
@@ -579,6 +684,224 @@ export default function AppointmentsAdminPage() {
                 >
                   {editLoading && <Loader2 size={16} className="animate-spin" />}
                   {editAction === 'cancel' ? 'Cancel Appointment' : 'Update Appointment'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Appointment Modal */}
+      {viewingAppointment && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b bg-gray-50 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-800">Appointment Details</h2>
+              <button onClick={closeViewModal} className="text-gray-500 hover:text-gray-700">
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {/* Patient Information */}
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h3 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                  <User size={18} /> Patient Information
+                </h3>
+                <div className="grid grid-cols-1 gap-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Name:</span>
+                    <span className="font-medium text-gray-800">{viewingAppointment.patientName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">CNIC:</span>
+                    <span className="font-medium text-gray-800">{viewingAppointment.patientCnic}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Phone:</span>
+                    <span className="font-medium text-gray-800">{viewingAppointment.patientPhone}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Email:</span>
+                    <span className="font-medium text-gray-800">{viewingAppointment.patientEmail}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Appointment Information */}
+              <div className="bg-green-50 rounded-lg p-4">
+                <h3 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
+                  <Calendar size={18} /> Appointment Details
+                </h3>
+                <div className="grid grid-cols-1 gap-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Doctor:</span>
+                    <span className="font-medium text-gray-800">{viewingAppointment.faculty.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Designation:</span>
+                    <span className="font-medium text-gray-800">{viewingAppointment.faculty.designation}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Date:</span>
+                    <span className="font-medium text-gray-800">{formatDate(viewingAppointment.appointmentDate)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Time:</span>
+                    <span className="font-medium text-gray-800">
+                      {formatTime(viewingAppointment.slotStartTime)} - {formatTime(viewingAppointment.slotEndTime)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Slot Number:</span>
+                    <span className="font-medium text-gray-800">{viewingAppointment.slotNumber}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Status:</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(viewingAppointment.status)}`}>
+                      {viewingAppointment.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes */}
+              {viewingAppointment.notes && (
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-yellow-800 mb-2">Notes</h3>
+                  <p className="text-sm text-gray-700">{viewingAppointment.notes}</p>
+                </div>
+              )}
+
+              {/* Booking Info */}
+              <div className="text-xs text-gray-500 text-center pt-2">
+                Booked on: {new Date(viewingAppointment.createdAt).toLocaleString()}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={closeViewModal}
+                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    closeViewModal();
+                    openReplyModal(viewingAppointment);
+                  }}
+                  className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <Send size={16} /> Send Reply
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reply Modal */}
+      {replyAppointment && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b bg-purple-50 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-purple-800">Reply to Patient</h2>
+              <button onClick={closeReplyModal} className="text-gray-500 hover:text-gray-700">
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {/* Appointment Summary */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-800 mb-2">Appointment Information</h3>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-gray-500">Patient:</span>
+                    <p className="font-medium">{replyAppointment.patientName}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Email:</span>
+                    <p className="font-medium text-sm">{replyAppointment.patientEmail}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Doctor:</span>
+                    <p className="font-medium">{replyAppointment.faculty.name}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Date:</span>
+                    <p className="font-medium">{formatDate(replyAppointment.appointmentDate)}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Time:</span>
+                    <p className="font-medium">
+                      {formatTime(replyAppointment.slotStartTime)} - {formatTime(replyAppointment.slotEndTime)}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Status:</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(replyAppointment.status)}`}>
+                      {replyAppointment.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Subject Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Subject *</label>
+                <input
+                  type="text"
+                  value={replySubject}
+                  onChange={(e) => setReplySubject(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  placeholder="Email subject..."
+                />
+              </div>
+
+              {/* Message Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Message *</label>
+                <textarea
+                  value={replyMessage}
+                  onChange={(e) => setReplyMessage(e.target.value)}
+                  placeholder="Type your message to the patient..."
+                  rows={5}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  This message will be sent to: {replyAppointment.patientEmail}
+                </p>
+              </div>
+
+              {/* Error/Success Messages */}
+              {replyError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+                  {replyError}
+                </div>
+              )}
+              {replySuccess && (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm">
+                  {replySuccess}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={closeReplyModal}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReplySubmit}
+                  disabled={replyLoading}
+                  className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  {replyLoading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                  Send Email
                 </button>
               </div>
             </div>
