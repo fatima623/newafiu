@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "set DATABASE_URL=mysql://root@localhost:3306/afiu&& next dev --webpack",
-    "build": "next build --webpack",
+    "build": "prisma generate && next build --webpack",
     "start": "set DATABASE_URL=mysql://root@localhost:3306/afiu&& next start",
     "lint": "eslint",
     "prisma": "set DATABASE_URL=mysql://root@localhost:3306/afiu&& prisma",
