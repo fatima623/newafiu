@@ -27,6 +27,8 @@ export default function GalleryListPage() {
 
   const [showForm, setShowForm] = useState(false);
 
+  const [jumpCategory, setJumpCategory] = useState<string>('');
+
   const [formCategory, setFormCategory] = useState<string>('');
   const [formTitle, setFormTitle] = useState<string>('');
   const [formSortOrder, setFormSortOrder] = useState<string>('');
@@ -57,6 +59,20 @@ export default function GalleryListPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const hash = typeof window !== 'undefined' ? window.location.hash : '';
+    const slug = hash.startsWith('#') ? hash.slice(1) : '';
+    if (!slug) return;
+
+    const match = categories.find((c) => c.slug === slug);
+    if (match) setJumpCategory(match.value);
+
+    const el = document.getElementById(`gallery-category-${slug}`);
+    if (!el) return;
+
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [categories]);
 
   const grouped = useMemo(() => {
     const m = new Map<string, GalleryItem[]>();
@@ -211,20 +227,57 @@ export default function GalleryListPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Gallery</h1>
-        <button
-          type="button"
-          onClick={() => {
-            setActionError('');
-            setActionSuccess('');
-            resetForm();
-            setShowForm(true);
-          }}
-          disabled={busy || loading}
-          className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Plus size={20} />
-          Add Photo
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <label className="sr-only" htmlFor="jump-to-category">
+              Category
+            </label>
+            <select
+              id="jump-to-category"
+              value={jumpCategory}
+              onChange={(e) => {
+                const value = e.target.value;
+                setJumpCategory(value);
+
+                if (!value) {
+                  window.history.replaceState(null, '', window.location.pathname);
+                  return;
+                }
+                const cat = categories.find((c) => c.value === value);
+                if (!cat) return;
+
+                const id = `gallery-category-${cat.slug}`;
+                const el = document.getElementById(id);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                window.history.replaceState(null, '', `#${cat.slug}`);
+              }}
+              className="px-4 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-64"
+              disabled={busy || loading || categories.length === 0}
+            >
+              <option value="">All Categories</option>
+              {categories.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActionError('');
+              setActionSuccess('');
+              resetForm();
+              setShowForm(true);
+            }}
+            disabled={busy || loading}
+            className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Plus size={20} />
+            Add Photo
+          </button>
+        </div>
       </div>
 
       {actionError ? (
@@ -373,9 +426,14 @@ export default function GalleryListPage() {
       ) : (
         <div className="space-y-8">
           {categories.map((cat) => {
+            if (jumpCategory && cat.value !== jumpCategory) return null;
             const list = grouped.get(cat.value) || [];
             return (
-              <div key={cat.value} className="bg-white rounded-lg shadow p-6">
+              <div
+                key={cat.value}
+                id={`gallery-category-${cat.slug}`}
+                className="bg-white rounded-lg shadow p-6"
+              >
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-gray-900">{cat.label}</h2>
                   <div className="text-sm text-gray-500">{list.length} photo(s)</div>
