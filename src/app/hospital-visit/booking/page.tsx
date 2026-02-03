@@ -552,8 +552,9 @@ export default function BookingPage() {
           </nav>
           <h1 className="text-3xl sm:text-4xl font-bold mb-3">Book an Appointment</h1>
           <p className="text-sm sm:text-lg text-blue-100 max-w-2xl">
-            Book your private appointment at AFIU. Available Monday to Friday, 3:00 PM - 6:00 PM.
-            Maximum 10 appointments per doctor per day.
+            Book your private appointment at AFIU. <br></br>
+            Available Monday to Friday, 3:00 PM - 6:00 PM.
+            
           </p>
           <p className="text-xs sm:text-sm text-blue-100 max-w-2xl mt-2">
             Please arrive at least 15 minutes before your appointment time.
