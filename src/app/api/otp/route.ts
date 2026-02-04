@@ -173,6 +173,22 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('OTP error:', error);
+
+    const prismaErrorCode =
+      typeof error === 'object' && error !== null && 'code' in error
+        ? (error as { code?: unknown }).code
+        : undefined;
+
+    if (prismaErrorCode === 'P2021') {
+      return NextResponse.json(
+        {
+          error:
+            'OTP database table is missing. Run `npx prisma db push` (or `npx prisma migrate dev`) to create the EmailOTP table, then restart the dev server.',
+        },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
       { error: 'An error occurred. Please try again.' },
       { status: 500 }
