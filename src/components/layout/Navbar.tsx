@@ -98,9 +98,9 @@ export default function Navbar() {
             <div className="flex items-center gap-3">
               <Link
                 href="/hospital-visit/booking"
-                className="inline-flex items-center gap-2 bg-blue-950 text-white font-bold px-4 py-2 rounded transition-colors"
+                className="inline-flex items-center gap-2 bg-blue-950 text-white font-bold px-6 py-3 rounded-lg text-base transition-colors"
               >
-                <Calendar size={18} />
+                <Calendar size={20} />
                 <span className="hidden sm:inline">Appointment</span>
               </Link>
 

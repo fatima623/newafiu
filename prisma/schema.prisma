@@ -240,6 +240,7 @@ model OfficialHoliday {
    requirements String?  @db.Text
    responsibilities String?  @db.Text
    applyBy     DateTime?
+   expiresAt   DateTime?
    hiringStartsAt DateTime?
    applyLink   String?
    isPublished Boolean  @default(true)

@@ -16,7 +16,6 @@ interface AvailabilityRecord {
   isAvailable: boolean;
   unavailabilityType: string | null;
   blockedSlots: string | null;
-  overrideType: string | null;
   reason: string | null;
   faculty: {
     id: number;
@@ -57,7 +56,6 @@ export default function AvailabilityAdminPage() {
   const [currentDateInput, setCurrentDateInput] = useState<string>('');
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [reason, setReason] = useState<string>('');
-  const [overrideType, setOverrideType] = useState<string>('LEAVE');
   const [unavailabilityType, setUnavailabilityType] = useState<string>('FULL_DAY');
   const [blockedSlots, setBlockedSlots] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
@@ -175,7 +173,6 @@ export default function AvailabilityAdminPage() {
     setCurrentDateInput('');
     setIsAvailable(false);
     setReason('');
-    setOverrideType('LEAVE');
     setUnavailabilityType('FULL_DAY');
     setBlockedSlots([]);
     setEditingRecord(null);
@@ -280,7 +277,6 @@ export default function AvailabilityAdminPage() {
     setIsAvailable(record.isAvailable);
     setReason(record.reason || '');
     setShowDoctorModal(true);
-    setOverrideType(record.overrideType || 'LEAVE');
     setUnavailabilityType(record.unavailabilityType || 'FULL_DAY');
     if (record.blockedSlots) {
       try {
@@ -347,7 +343,6 @@ export default function AvailabilityAdminPage() {
           dates: selectedDates,
           isAvailable,
           reason: !isAvailable ? reason : undefined,
-          overrideType: !isAvailable ? overrideType : undefined,
           unavailabilityType: !isAvailable ? unavailabilityType : undefined,
           blockedSlots: !isAvailable && unavailabilityType === 'SPECIFIC_SLOTS' ? blockedSlots : undefined,
         }),
@@ -392,11 +387,14 @@ export default function AvailabilityAdminPage() {
         <h1 className="text-2xl font-bold text-gray-800">Availability Management</h1>
         <div className="flex gap-2">
           <button
-            onClick={() => setShowDoctorModal(true)}
+            onClick={() => {
+              resetForm();
+              setShowDoctorModal(true);
+            }}
             className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors"
           >
             <Plus size={18} />
-            Add Doctor Leave
+            Add Doctor Unavailability
           </button>
           <button
             onClick={() => setShowHolidayModal(true)}
@@ -482,7 +480,6 @@ export default function AvailabilityAdminPage() {
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doctor</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Blocked Slots</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -508,17 +505,6 @@ export default function AvailabilityAdminPage() {
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-600">
                             {formatDate(record.date)}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              record.overrideType === 'EMERGENCY_BLOCK'
-                                ? 'bg-red-100 text-red-800'
-                                : record.overrideType === 'LEAVE'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-blue-100 text-blue-800'
-                            }`}>
-                              {record.overrideType || 'Leave'}
-                            </span>
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-600">
                             {blockedSlotsDisplay}
@@ -574,15 +560,6 @@ export default function AvailabilityAdminPage() {
                   <span className="w-2 h-2 bg-blue-950 rounded-full mt-1.5 flex-shrink-0"></span>
                   <span>Maximum <strong>10 appointments</strong> per doctor per day</span>
                 </li>
-              </ul>
-            </div>
-
-            <div className="bg-blue-50 rounded-lg p-6">
-              <h3 className="font-semibold text-blue-900 mb-2">Reason Types</h3>
-              <ul className="space-y-2 text-sm text-blue-800">
-                <li><strong>Leave:</strong> Planned leave/vacation</li>
-                <li><strong>Emergency Block:</strong> Urgent unavailability</li>
-                <li><strong>Custom Hours:</strong> Modified schedule</li>
               </ul>
             </div>
           </div>
@@ -886,23 +863,9 @@ export default function AvailabilityAdminPage() {
                     </div>
                   )}
 
-                  {/* Override Type */}
-                  <div>
-                    <label className="block text-gray-700 font-medium mb-2">Reason Type</label>
-                    <select
-                      value={overrideType}
-                      onChange={(e) => setOverrideType(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950"
-                    >
-                      <option value="LEAVE">Leave</option>
-                      <option value="EMERGENCY_BLOCK">Emergency Block</option>
-                      <option value="CUSTOM_HOURS">Custom Hours</option>
-                    </select>
-                  </div>
-
                   {/* Reason */}
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">Reason (shown to patients) *</label>
+                    <label className="block text-gray-700 font-medium mb-2">Reason for unavailability (shown to patients) *</label>
                     <textarea
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}

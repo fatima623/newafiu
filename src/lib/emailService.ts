@@ -263,7 +263,7 @@ export async function sendOTPEmail(data: OTPEmailData): Promise<boolean> {
     await transporter.sendMail({
       from: FROM_EMAIL,
       to: data.email,
-      subject: `AFIU - Your Verification Code: ${data.otp}`,
+      subject: 'AFIU - Your Verification Code',
       html,
     });
 

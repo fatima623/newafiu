@@ -11,14 +11,17 @@ export async function POST(request: NextRequest) {
     const prisma = getPrisma();
     const { username, password } = await request.json();
 
-    if (!username || !password) {
+    const normalizedUsername = String(username ?? '').trim();
+    const normalizedPassword = String(password ?? '');
+
+    if (!normalizedUsername || !normalizedPassword) {
       return NextResponse.json(
         { error: 'Username and password are required' },
         { status: 400 }
       );
     }
 
-    const rl = rateLimit(`login:${ip}:${String(username).toLowerCase()}`, {
+    const rl = rateLimit(`login:${ip}:${normalizedUsername.toLowerCase()}`, {
       windowMs: 60_000,
       max: 10,
     });
@@ -29,11 +32,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const admin = await prisma.user.findUnique({
-      where: { username },
+    const usernameCandidates = Array.from(
+      new Set([
+        normalizedUsername,
+        normalizedUsername.toLowerCase(),
+        normalizedUsername.toUpperCase(),
+      ])
+    );
+
+    const expectedUsername = process.env.ADMIN_USERNAME || 'admin';
+    const expectedPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const canBootstrap = process.env.NODE_ENV !== 'production' && process.env.DEV_MODE === 'true';
+
+    let admin = await prisma.user.findFirst({
+      where: { username: { in: usernameCandidates } },
     });
 
-    const isValid = admin ? await bcrypt.compare(password, admin.passwordHash) : false;
+    if (!admin && canBootstrap) {
+      const userCount = await prisma.user.count();
+      if (userCount === 0 && normalizedUsername === expectedUsername && normalizedPassword === expectedPassword) {
+        const passwordHash = await bcrypt.hash(expectedPassword, 12);
+        admin = await prisma.user.create({
+          data: { username: expectedUsername, passwordHash },
+        });
+      }
+    }
+
+    const isValid = admin ? await bcrypt.compare(normalizedPassword, admin.passwordHash) : false;
     if (!admin || !isValid) {
       return NextResponse.json(
         { error: 'Invalid credentials' },

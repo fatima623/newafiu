@@ -7,7 +7,7 @@ export const APPOINTMENT_CONFIG = {
   START_TIME: '15:00',
   END_TIME: '18:00',
   ALLOWED_DAYS: [1, 2, 3, 4, 5], // Monday to Friday (0 = Sunday)
-  BOOKING_CUTOFF_MINUTES: 15,
+  BOOKING_CUTOFF_MINUTES: 45,
   TOTAL_POSSIBLE_SLOTS: 12, // 3 hours / 15 minutes = 12 slots
   MAX_BOOKING_DAYS_AHEAD: 7,
 };
@@ -158,6 +158,10 @@ export async function getAvailableSlots(
       },
     },
   });
+
+  const availabilityNote = availabilityOverride && !availabilityOverride.isAvailable
+    ? availabilityOverride.reason || 'Doctor is not available on this date'
+    : null;
   
   // If doctor is marked as unavailable for full day
   if (availabilityOverride && !availabilityOverride.isAvailable) {
@@ -170,7 +174,7 @@ export async function getAvailableSlots(
         image: doctor.image,
         date: dateStr,
         isAvailable: false,
-        availabilityNote: availabilityOverride.reason || 'Doctor is not available on this date',
+        availabilityNote,
         slots: [],
         bookedCount: 0,
         remainingSlots: 0,
@@ -238,7 +242,7 @@ export async function getAvailableSlots(
     image: doctor.image,
     date: dateStr,
     isAvailable: true,
-    availabilityNote: null,
+    availabilityNote,
     slots,
     bookedCount: bookedSlotNumbers.size,
     remainingSlots: Math.max(0, APPOINTMENT_CONFIG.MAX_APPOINTMENTS_PER_DAY - bookedSlotNumbers.size),
@@ -279,7 +283,10 @@ export async function bookAppointment(data: {
   
   // Check if slot is expired
   if (isSlotDisabled(date, selectedSlot.startTime)) {
-    return { success: false, error: 'This slot is no longer available for booking' };
+    return {
+      success: false,
+      error: `Bookings close ${APPOINTMENT_CONFIG.BOOKING_CUTOFF_MINUTES} minutes before the appointment time`,
+    };
   }
   
   try {

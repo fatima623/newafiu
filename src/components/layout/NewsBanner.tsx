@@ -45,7 +45,7 @@ export default function NewsBanner() {
 
   return (
     <div
-      className={`bg-gradient-to-r from-orange-500 to-red-500 text-white py-2 overflow-hidden ${
+      className={`bg-gradient-to-r from-red-500 to-blue-600 text-white py-2 overflow-hidden ${
         isHomePage ? 'sticky top-0 z-50' : ''
       }`}
     >

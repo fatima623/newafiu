@@ -157,6 +157,15 @@ function titleFromFilename(filename) {
     .trim();
 }
 
+function normalizeFacultyName(raw) {
+  const base = String(raw || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\blt\.?\s*col\b/gi, 'Lt Col');
+
+  return base.replace(/\bUL\b/g, 'ul');
+}
+
 async function main() {
   const username = process.env.ADMIN_USERNAME || 'admin';
   const password = process.env.ADMIN_PASSWORD || 'admin123';
@@ -197,6 +206,20 @@ async function main() {
   await prisma.faculty.updateMany({
     data: { specialization: null },
   });
+
+  const allFaculty = await prisma.faculty.findMany({
+    select: { id: true, name: true },
+  });
+
+  for (const f of allFaculty) {
+    const normalizedName = normalizeFacultyName(f.name);
+    if (normalizedName && normalizedName !== f.name) {
+      await prisma.faculty.update({
+        where: { id: f.id },
+        data: { name: normalizedName },
+      });
+    }
+  }
 
   const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
   try {

@@ -138,6 +138,56 @@ export default function BookingPage() {
   const [verifiedEmail, setVerifiedEmail] = useState(''); // Track which email was verified
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
 
+  const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const DISPOSABLE_EMAIL_DOMAINS = new Set([
+    'mailinator.com',
+    'guerrillamail.com',
+    'guerrillamail.info',
+    '10minutemail.com',
+    'temp-mail.org',
+    'yopmail.com',
+    'getnada.com',
+    'trashmail.com',
+  ]);
+
+  const getEmailValidationError = (rawEmail: string) => {
+    const email = rawEmail.trim();
+    if (!email) return 'Email is required';
+
+    if (email.length < 6 || email.length > 254) return 'Email must be between 6 and 254 characters';
+    if (!EMAIL_REGEX.test(email)) return 'Enter a valid email address';
+    if (email.includes('..')) return 'Enter a valid email address';
+
+    const atIndex = email.indexOf('@');
+    if (atIndex === -1) return 'Enter a valid email address';
+    const local = email.slice(0, atIndex);
+    const domain = email.slice(atIndex + 1).toLowerCase();
+
+    if (!local || !domain) return 'Enter a valid email address';
+    if (local.length > 64) return 'Enter a valid email address';
+    if (local.startsWith('.') || local.endsWith('.')) return 'Enter a valid email address';
+    if (domain.includes('..')) return 'Enter a valid email address';
+    if (!domain.includes('.')) return 'Enter a valid email address';
+    if (domain.length > 253) return 'Enter a valid email address';
+    for (const d of DISPOSABLE_EMAIL_DOMAINS) {
+      if (domain === d || domain.endsWith(`.${d}`)) {
+        return 'Disposable email addresses are not allowed';
+      }
+    }
+
+    const labels = domain.split('.');
+    const tld = labels[labels.length - 1] || '';
+    if (!/^[a-zA-Z]{2,63}$/.test(tld)) return 'Enter a valid email address';
+
+    for (const label of labels) {
+      if (label.length < 1 || label.length > 63) return 'Enter a valid email address';
+      if (!/^[a-zA-Z0-9-]+$/.test(label)) return 'Enter a valid email address';
+      if (label.startsWith('-') || label.endsWith('-')) return 'Enter a valid email address';
+    }
+
+    return '';
+  };
+
   const MAX_BOOKING_DAYS_AHEAD = 7;
 
   // Fetch doctors on mount
@@ -196,8 +246,9 @@ export default function BookingPage() {
   // Send OTP function
   const handleSendOTP = async () => {
     const email = patientDetails.email.trim();
-    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-      setOtpError('Please enter a valid email address');
+    const error = getEmailValidationError(email);
+    if (error) {
+      setOtpError(error);
       return;
     }
 
@@ -216,12 +267,9 @@ export default function BookingPage() {
         setOtpSent(true);
         setOtpCountdown(60);
         setOtpValue('');
-        // In dev mode, auto-fill the OTP for easier testing
-        if (data.devMode && data.devOtp) {
-          setOtpValue(data.devOtp);
-        }
+        setVerifiedEmail(email);
       } else {
-        setOtpError(data.error || 'Failed to send verification code');
+        setOtpError(data.error || 'Failed to send OTP');
       }
     } catch {
       setOtpError('Network error. Please try again.');
@@ -390,43 +438,46 @@ export default function BookingPage() {
   };
 
   // Validate patient details
-  const validateDetails = () => {
+  const validateDetails = (details = patientDetails) => {
     const newErrors: Record<string, string> = {};
     
-    if (!patientDetails.fullName.trim()) {
+    if (!details.fullName.trim()) {
       newErrors.fullName = 'Full Name is required';
-    } else if (patientDetails.fullName.trim().length < 3) {
+    } else if (details.fullName.trim().length < 3) {
       newErrors.fullName = 'Full Name must be at least 3 characters';
-    } else if (patientDetails.fullName.trim().length > 60) {
+    } else if (details.fullName.trim().length > 60) {
       newErrors.fullName = 'Full Name must be 60 characters or less';
-    } else if (!/^[A-Za-z\s]+$/.test(patientDetails.fullName.trim())) {
+    } else if (!/^[A-Za-z\s]+$/.test(details.fullName.trim())) {
       newErrors.fullName = 'Full Name must contain letters only';
     }
     
-    if (!patientDetails.cnic.trim()) {
+    if (!details.cnic.trim()) {
       newErrors.cnic = 'CNIC is required';
-    } else if (!/^(\d{5}-\d{7}-\d|\d{13})$/.test(patientDetails.cnic.trim())) {
+    } else if (!/^(\d{5}-\d{7}-\d|\d{13})$/.test(details.cnic.trim())) {
       newErrors.cnic = 'Enter CNIC in 13 digits or XXXXX-XXXXXXX-X format';
     }
     
-    const countryConfig = COUNTRY_CODES.find(c => c.code === patientDetails.countryCode) || COUNTRY_CODES[0];
-    if (!patientDetails.phone.trim()) {
+    const countryConfig = COUNTRY_CODES.find(c => c.code === details.countryCode) || COUNTRY_CODES[0];
+    if (!details.phone.trim()) {
       newErrors.phone = 'Mobile number is required';
-    } else if (!/^\d+$/.test(patientDetails.phone.trim())) {
+    } else if (!/^\d+$/.test(details.phone.trim())) {
       newErrors.phone = 'Mobile number must contain only digits';
-    } else if (patientDetails.phone.trim().length < countryConfig.minLen || patientDetails.phone.trim().length > countryConfig.maxLen) {
+    } else if (details.phone.trim().length < countryConfig.minLen || details.phone.trim().length > countryConfig.maxLen) {
       newErrors.phone = `Enter ${countryConfig.format} for ${countryConfig.country}`;
     }
     
-    if (!patientDetails.email.trim()) {
+    if (!details.email.trim()) {
       newErrors.email = 'Email is required';
-    } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(patientDetails.email.trim())) {
-      newErrors.email = 'Enter a valid email address';
-    } else if (!otpVerified || patientDetails.email.trim().toLowerCase() !== verifiedEmail.toLowerCase()) {
-      newErrors.email = 'Please verify your email address';
+    } else {
+      const emailError = getEmailValidationError(details.email);
+      if (emailError) {
+        newErrors.email = emailError;
+      } else if (!otpVerified || details.email.trim().toLowerCase() !== verifiedEmail.toLowerCase()) {
+        newErrors.email = 'Please verify your email address';
+      }
     }
     
-    if (!patientDetails.consent) {
+    if (!details.consent) {
       newErrors.consent = 'You must agree to the terms';
     }
     
@@ -437,6 +488,11 @@ export default function BookingPage() {
   // Handle booking submission
   const handleSubmit = async () => {
     if (!selectedDoctor || !selectedDate || !selectedSlot) return;
+
+    if (!validateDetails()) {
+      setCurrentStep('details');
+      return;
+    }
     
     setIsSubmitting(true);
     setSubmitError('');
@@ -730,7 +786,7 @@ export default function BookingPage() {
                       
                       {/* Day Headers */}
                       <div className="grid grid-cols-7 gap-1 mb-2">
-                        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
+                        {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((day) => (
                           <div key={day} className="text-center text-xs font-medium text-gray-500 py-1">
                             {day}
                           </div>
@@ -744,11 +800,12 @@ export default function BookingPage() {
                           const year = today.getFullYear();
                           const month = today.getMonth();
                           const firstDay = new Date(year, month, 1).getDay();
+                          const firstDayIndexMondayStart = (firstDay + 6) % 7;
                           const daysInMonth = new Date(year, month + 1, 0).getDate();
                           const days = [];
                           
                           // Empty cells for days before first of month
-                          for (let i = 0; i < firstDay; i++) {
+                          for (let i = 0; i < firstDayIndexMondayStart; i++) {
                             days.push(<div key={`empty-${i}`} className="p-2"></div>);
                           }
                           
@@ -847,8 +904,14 @@ export default function BookingPage() {
                       </div>
                     ) : (
                       <>
+                        {availability.availabilityNote ? (
+                          <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-800 text-sm">
+                            <AlertCircle className="inline mr-2" size={16} />
+                            {availability.availabilityNote}
+                          </div>
+                        ) : null}
                         <div className="mb-4 text-sm text-gray-600">
-                          {availability.remainingSlots} of {availability.slots.length} slots available
+                          {availability.slots.filter((s) => s.isAvailable).length} of {availability.slots.length} slots available
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                           {availability.slots.map((slot) => (
@@ -865,10 +928,14 @@ export default function BookingPage() {
                               <div className="font-medium">{formatTime(slot.startTime)}</div>
                               <div className="text-xs">to {formatTime(slot.endTime)}</div>
                               {slot.status === 'booked' && <div className="text-xs mt-1">Booked</div>}
-                              {slot.status === 'disabled' && <div className="text-xs mt-1">Disabled</div>}
+                              {slot.status === 'disabled' && <div className="text-xs mt-1">Closed - Bookings closed 45 minutes prior</div>}
                             </button>
                           ))}
                         </div>
+                        
+                        <p className="text-xs text-gray-500 mt-3">
+                          Bookings close 45 minutes before the appointment time.
+                        </p>
                         
                         {selectedSlot && (
                           <div className="mt-6">
@@ -1011,7 +1078,15 @@ export default function BookingPage() {
                             type="email"
                             placeholder="example@email.com"
                             value={patientDetails.email}
-                            onChange={(e) => setPatientDetails(prev => ({ ...prev, email: e.target.value }))}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setPatientDetails((prev) => ({ ...prev, email: value }));
+                              setErrors((prev) => ({ ...prev, email: '' }));
+                            }}
+                            onBlur={() => {
+                              const emailError = getEmailValidationError(patientDetails.email);
+                              if (emailError) setErrors((prev) => ({ ...prev, email: emailError }));
+                            }}
                             disabled={otpVerified && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()}
                             className={`w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-950 ${
                               otpVerified && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()
@@ -1028,7 +1103,7 @@ export default function BookingPage() {
                               otpLoading ||
                               otpCountdown > 0 ||
                               !patientDetails.email.trim() ||
-                              !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(patientDetails.email.trim())
+                              !!getEmailValidationError(patientDetails.email)
                             }
                             className="px-4 py-3 bg-blue-950 text-white rounded-lg font-medium hover:bg-blue-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed whitespace-nowrap"
                           >
@@ -1079,6 +1154,8 @@ export default function BookingPage() {
                           </p>
                         </div>
                       )}
+
+                      {!otpSent && otpError ? <p className="mt-2 text-sm text-red-600">{otpError}</p> : null}
                       
                       {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                     </div>
@@ -1100,11 +1177,20 @@ export default function BookingPage() {
                       id="consent"
                       type="checkbox"
                       checked={patientDetails.consent}
-                      onChange={(e) => setPatientDetails(prev => ({ ...prev, consent: e.target.checked }))}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        const nextDetails = { ...patientDetails, consent: checked };
+                        setPatientDetails(nextDetails);
+                        if (checked && currentStep === 'details') {
+                          if (validateDetails(nextDetails)) {
+                            setCurrentStep('confirm');
+                          }
+                        }
+                      }}
                       className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-950 focus:ring-blue-950"
                     />
                     <label htmlFor="consent" className="text-sm text-gray-700">
-                      I confirm that the above information is accurate and consent to be contacted by AFIU for appointment confirmation.
+                      I hereby confirm that the above information is accurate and I give my consent to be contacted by AFIU for appointment confirmation.
                     </label>
                   </div>
                   {errors.consent && <p className="text-sm text-red-600">{errors.consent}</p>}
@@ -1166,7 +1252,7 @@ export default function BookingPage() {
 
                 <div className="bg-gray-50 rounded-lg p-6 mb-6">
                   <h3 className="font-semibold text-gray-800 mb-4">Patient Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
                       <span className="text-gray-500">Name:</span>
                       <p className="font-medium">{patientDetails.fullName}</p>
@@ -1174,6 +1260,10 @@ export default function BookingPage() {
                     <div>
                       <span className="text-gray-500">Email:</span>
                       <p className="font-medium">{patientDetails.email}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Mobile Number:</span>
+                      <p className="font-medium">{`${patientDetails.countryCode}${patientDetails.phone}`}</p>
                     </div>
                   </div>
                 </div>
@@ -1268,7 +1358,7 @@ export default function BookingPage() {
       {/* Info Section */}
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <div className="bg-white p-6 rounded-lg text-center shadow-sm">
               <Phone size={32} className="text-blue-950 mx-auto mb-3" />
               <h3 className="font-bold text-gray-800 mb-1">Call Us</h3>
@@ -1278,11 +1368,6 @@ export default function BookingPage() {
               <Clock size={32} className="text-blue-950 mx-auto mb-3" />
               <h3 className="font-bold text-gray-800 mb-1">Private Hours</h3>
               <p className="text-gray-600 text-sm">Mon-Fri: 3:00 PM - 6:00 PM</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg text-center shadow-sm">
-              <Calendar size={32} className="text-blue-950 mx-auto mb-3" />
-              <h3 className="font-bold text-gray-800 mb-1">Max Appointments</h3>
-              <p className="text-gray-600 text-sm">10 per doctor per day</p>
             </div>
           </div>
         </div>

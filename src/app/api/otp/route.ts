@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPrisma } from '@/lib/prisma';
 import { sendOTPEmail, generateOTP } from '@/lib/emailService';
 
-// Check if we're in development mode (skips actual email sending)
-const isDevMode = process.env.DEV_MODE === 'true';
-
 // Store OTPs temporarily in database
 // In production, you might want to use Redis for better performance
 
@@ -12,6 +9,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { action, email, otp, purpose } = body;
+
+    const isDevMode = process.env.DEV_MODE === 'true';
 
     if (!email || !email.trim()) {
       return NextResponse.json(
@@ -21,6 +20,58 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+
+    const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const DISPOSABLE_EMAIL_DOMAINS = new Set([
+      'mailinator.com',
+      'guerrillamail.com',
+      'guerrillamail.info',
+      '10minutemail.com',
+      'temp-mail.org',
+      'yopmail.com',
+      'getnada.com',
+      'trashmail.com',
+    ]);
+
+    const getEmailValidationError = (rawEmail: string) => {
+      const e = rawEmail.trim().toLowerCase();
+      if (!e) return 'Email is required';
+      if (e.length < 6 || e.length > 254) return 'Please enter a valid email address';
+      if (!EMAIL_REGEX.test(e)) return 'Please enter a valid email address';
+      if (e.includes('..')) return 'Please enter a valid email address';
+
+      const atIndex = e.indexOf('@');
+      if (atIndex === -1) return 'Please enter a valid email address';
+      const local = e.slice(0, atIndex);
+      const domain = e.slice(atIndex + 1);
+
+      if (!local || !domain) return 'Please enter a valid email address';
+      if (local.length > 64) return 'Please enter a valid email address';
+      if (local.startsWith('.') || local.endsWith('.')) return 'Please enter a valid email address';
+      if (domain.includes('..')) return 'Please enter a valid email address';
+      if (!domain.includes('.')) return 'Please enter a valid email address';
+      if (domain.length > 253) return 'Please enter a valid email address';
+
+      for (const d of DISPOSABLE_EMAIL_DOMAINS) {
+        if (domain === d || domain.endsWith(`.${d}`)) return 'Disposable email addresses are not allowed';
+      }
+
+      const labels = domain.split('.');
+      const tld = labels[labels.length - 1] || '';
+      if (!/^[a-zA-Z]{2,63}$/.test(tld)) return 'Please enter a valid email address';
+      for (const label of labels) {
+        if (label.length < 1 || label.length > 63) return 'Please enter a valid email address';
+        if (!/^[a-zA-Z0-9-]+$/.test(label)) return 'Please enter a valid email address';
+        if (label.startsWith('-') || label.endsWith('-')) return 'Please enter a valid email address';
+      }
+
+      return '';
+    };
+
+    const emailError = getEmailValidationError(normalizedEmail);
+    if (emailError) {
+      return NextResponse.json({ error: emailError }, { status: 400 });
+    }
     const validPurposes = ['booking', 'contact'];
     const selectedPurpose = validPurposes.includes(purpose) ? purpose : 'booking';
 
@@ -70,27 +121,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Development mode: Log OTP to console and skip email sending
-      if (isDevMode) {
-        console.log('\n========================================');
-        console.log('📧 DEV MODE - OTP CODE');
-        console.log('========================================');
-        console.log(`Email: ${normalizedEmail}`);
-        console.log(`OTP Code: ${newOTP}`);
-        console.log(`Purpose: ${selectedPurpose}`);
-        console.log(`Expires: ${expiresAt.toLocaleTimeString()}`);
-        console.log('========================================\n');
-
-        return NextResponse.json({
-          success: true,
-          message: 'Verification code sent to your email',
-          // In dev mode, also return the OTP for easier testing
-          devMode: true,
-          devOtp: newOTP,
-        });
-      }
-
-      // Production mode: Send actual email
+      // Send OTP email
       const sent = await sendOTPEmail({
         email: normalizedEmail,
         otp: newOTP,
@@ -98,6 +129,22 @@ export async function POST(request: NextRequest) {
       });
 
       if (!sent) {
+        if (isDevMode) {
+          console.log('\n========================================');
+          console.log('DEV MODE - OTP CODE (not sent via email)');
+          console.log('========================================');
+          console.log(`Email: ${normalizedEmail}`);
+          console.log(`OTP Code: ${newOTP}`);
+          console.log(`Purpose: ${selectedPurpose}`);
+          console.log(`Expires: ${expiresAt.toISOString()}`);
+          console.log('========================================\n');
+
+          return NextResponse.json({
+            success: true,
+            message: 'Verification code generated. Check your email (or server console in DEV mode).',
+          });
+        }
+
         return NextResponse.json(
           { error: 'Failed to send verification code. Please try again.' },
           { status: 500 }

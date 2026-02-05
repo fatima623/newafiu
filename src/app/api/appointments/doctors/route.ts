@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getDoctorsForBooking } from '@/lib/appointmentService';
 
+function normalizeDoctorName(raw: string): string {
+  const base = String(raw || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\blt\.?\s*col\b/gi, 'Lt Col');
+
+  return base.replace(/\bUL\b/g, 'ul');
+}
+
 export async function GET() {
   try {
     const doctors = await getDoctorsForBooking();
@@ -8,7 +17,7 @@ export async function GET() {
     return NextResponse.json({
       doctors: doctors.map(doc => ({
         id: doc.id,
-        name: doc.name,
+        name: normalizeDoctorName(doc.name),
         designation: doc.designation,
         specializationCategory: doc.specializationCategory,
         image: doc.image,

@@ -22,6 +22,7 @@ interface CareersJob {
   requirements: string | null;
   responsibilities: string | null;
   applyBy: string | null;
+  expiresAt: string | null;
   hiringStartsAt: string | null;
   applyLink: string | null;
   isPublished: boolean;
@@ -60,10 +61,24 @@ export default function CareersPage() {
         const res = await fetch('/api/careers-jobs');
         const data = await res.json();
         const list = Array.isArray(data) ? (data as CareersJob[]) : [];
-        setJobs(list);
+
+        const now = Date.now();
+        const nonExpired = list.filter((j) => {
+          if (!j.expiresAt) return true;
+          const t = Date.parse(j.expiresAt);
+          return Number.isFinite(t) ? t > now : true;
+        });
+        const sortedNonExpired = [...nonExpired].sort((a, b) => {
+          const aTime = Date.parse(a.createdAt);
+          const bTime = Date.parse(b.createdAt);
+          const safeATime = Number.isFinite(aTime) ? aTime : 0;
+          const safeBTime = Number.isFinite(bTime) ? bTime : 0;
+          return safeBTime - safeATime;
+        });
+        setJobs(sortedNonExpired);
         
         // Show popup automatically if there are job openings
-        if (list.length > 0) {
+        if (sortedNonExpired.length > 0) {
           setShowOpeningsPopup(true);
         }
       } catch {

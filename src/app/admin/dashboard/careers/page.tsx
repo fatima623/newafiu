@@ -25,6 +25,7 @@ interface CareersJob {
   location: string | null;
   description: string | null;
   applyBy: string | null;
+  expiresAt: string | null;
   requirements: string | null;
   responsibilities: string | null;
   hiringStartsAt: string | null;
@@ -71,6 +72,7 @@ export default function CareersAdminPage() {
   const [newJobType, setNewJobType] = useState('');
   const [newJobLocation, setNewJobLocation] = useState('');
   const [newJobApplyBy, setNewJobApplyBy] = useState('');
+  const [newJobExpiresAt, setNewJobExpiresAt] = useState('');
   const [newJobHiringStartsAt, setNewJobHiringStartsAt] = useState('');
   const [newJobApplyLink, setNewJobApplyLink] = useState('');
   const [newJobIsPublished, setNewJobIsPublished] = useState(true);
@@ -85,6 +87,7 @@ export default function CareersAdminPage() {
   const [editJobType, setEditJobType] = useState('');
   const [editJobLocation, setEditJobLocation] = useState('');
   const [editJobApplyBy, setEditJobApplyBy] = useState('');
+  const [editJobExpiresAt, setEditJobExpiresAt] = useState('');
   const [editJobHiringStartsAt, setEditJobHiringStartsAt] = useState('');
   const [editJobApplyLink, setEditJobApplyLink] = useState('');
   const [editJobIsPublished, setEditJobIsPublished] = useState(true);
@@ -279,6 +282,7 @@ export default function CareersAdminPage() {
           type: newJobType.trim(),
           location: newJobLocation.trim() || null,
           applyBy: newJobApplyBy.trim() || null,
+          expiresAt: newJobExpiresAt.trim() || null,
           hiringStartsAt: newJobHiringStartsAt.trim() || null,
           applyLink: newJobApplyLink.trim() || null,
           isPublished: newJobIsPublished,
@@ -295,6 +299,7 @@ export default function CareersAdminPage() {
       setNewJobType('');
       setNewJobLocation('');
       setNewJobApplyBy('');
+      setNewJobExpiresAt('');
       setNewJobHiringStartsAt('');
       setNewJobApplyLink('');
       setNewJobIsPublished(true);
@@ -317,6 +322,7 @@ export default function CareersAdminPage() {
     setEditJobType(job.type);
     setEditJobLocation(job.location || '');
     setEditJobApplyBy(job.applyBy ? new Date(job.applyBy).toISOString().slice(0, 10) : '');
+    setEditJobExpiresAt(job.expiresAt ? new Date(job.expiresAt).toISOString().slice(0, 10) : '');
     setEditJobHiringStartsAt(
       job.hiringStartsAt ? new Date(job.hiringStartsAt).toISOString().slice(0, 10) : ''
     );
@@ -337,6 +343,7 @@ export default function CareersAdminPage() {
     setEditJobType('');
     setEditJobLocation('');
     setEditJobApplyBy('');
+    setEditJobExpiresAt('');
     setEditJobHiringStartsAt('');
     setEditJobApplyLink('');
     setEditJobIsPublished(true);
@@ -370,6 +377,7 @@ export default function CareersAdminPage() {
           type: editJobType.trim(),
           location: editJobLocation.trim() || null,
           applyBy: editJobApplyBy.trim() || null,
+          expiresAt: editJobExpiresAt.trim() || null,
           hiringStartsAt: editJobHiringStartsAt.trim() || null,
           applyLink: editJobApplyLink.trim() || null,
           isPublished: editJobIsPublished,
@@ -388,6 +396,7 @@ export default function CareersAdminPage() {
       setEditJobType('');
       setEditJobLocation('');
       setEditJobApplyBy('');
+      setEditJobExpiresAt('');
       setEditJobHiringStartsAt('');
       setEditJobApplyLink('');
       setEditJobIsPublished(true);
@@ -472,6 +481,7 @@ export default function CareersAdminPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Published</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
@@ -483,6 +493,9 @@ export default function CareersAdminPage() {
                   <td className="px-6 py-4 text-gray-900">{job.title}</td>
                   <td className="px-6 py-4 text-gray-700">{job.department}</td>
                   <td className="px-6 py-4 text-gray-700">{job.type}</td>
+                  <td className="px-6 py-4 text-gray-700">
+                    {job.expiresAt ? new Date(job.expiresAt).toLocaleDateString('en-US') : '-'}
+                  </td>
                   <td className="px-6 py-4 text-gray-700">{job.isPublished ? 'Yes' : 'No'}</td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
@@ -576,6 +589,16 @@ export default function CareersAdminPage() {
                 type="date"
                 value={newJobApplyBy}
                 onChange={(e) => setNewJobApplyBy(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date (hide after)</label>
+              <input
+                type="date"
+                value={newJobExpiresAt}
+                onChange={(e) => setNewJobExpiresAt(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
               />
             </div>
@@ -718,6 +741,16 @@ export default function CareersAdminPage() {
                   type="date"
                   value={editJobApplyBy}
                   onChange={(e) => setEditJobApplyBy(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date (hide after)</label>
+                <input
+                  type="date"
+                  value={editJobExpiresAt}
+                  onChange={(e) => setEditJobExpiresAt(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
                 />
               </div>

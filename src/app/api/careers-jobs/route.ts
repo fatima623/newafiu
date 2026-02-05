@@ -13,6 +13,7 @@ interface CareersJobRow {
   requirements: string | null;
   responsibilities: string | null;
   applyBy: string | null;
+  expiresAt: string | null;
   hiringStartsAt: string | null;
   applyLink: string | null;
   isPublished: boolean;
@@ -37,6 +38,21 @@ function parseOptionalDate(value: unknown): Date | null {
   return d;
 }
 
+function parseOptionalDateEndOfDay(value: unknown): Date | null {
+  const s = typeof value === 'string' ? value.trim() : '';
+  if (!s) return null;
+  const m = /^\d{4}-\d{2}-\d{2}$/.exec(s);
+  if (!m) {
+    const d = new Date(s);
+    if (Number.isNaN(d.getTime())) return null;
+    return d;
+  }
+
+  const [y, mo, da] = s.split('-').map(Number);
+  if (!y || !mo || !da) return null;
+  return new Date(Date.UTC(y, mo - 1, da, 23, 59, 59, 999));
+}
+
 export async function GET(request: NextRequest) {
   try {
     const prisma = getPrisma();
@@ -54,7 +70,12 @@ export async function GET(request: NextRequest) {
     }
 
     const items = (await careersJob.findMany({
-      where: all ? {} : { isPublished: true },
+      where: all
+        ? {}
+        : {
+            isPublished: true,
+            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+          },
       orderBy: [{ createdAt: 'desc' }],
       ...(latest ? { take: 1 } : {}),
     })) as CareersJobRow[];
@@ -88,6 +109,7 @@ export async function POST(request: NextRequest) {
     const requirements = String(body.requirements || '').trim();
     const responsibilities = String(body.responsibilities || '').trim();
     const applyBy = parseOptionalDate(body.applyBy);
+    const expiresAt = parseOptionalDateEndOfDay(body.expiresAt);
     const hiringStartsAt = parseOptionalDate(body.hiringStartsAt);
     const applyLink = String(body.applyLink || '').trim();
     const isPublished = body.isPublished === undefined ? true : Boolean(body.isPublished);
@@ -110,6 +132,7 @@ export async function POST(request: NextRequest) {
         requirements: requirements || null,
         responsibilities: responsibilities || null,
         applyBy,
+        expiresAt,
         hiringStartsAt,
         applyLink: applyLink || null,
         isPublished,

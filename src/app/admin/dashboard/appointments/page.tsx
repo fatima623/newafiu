@@ -538,8 +538,20 @@ export default function AppointmentsAdminPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-6">
         {['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW', 'EXPIRED'].map((status) => {
           const count = appointments.filter(a => a.status === status).length;
+          const isActive = selectedStatus === status;
+          const label = status.replace(/_/g, ' ');
           return (
-            <div key={status} className="bg-white rounded-lg shadow-sm p-4 text-center">
+            <button
+              key={status}
+              type="button"
+              onClick={() => setSelectedStatus((prev) => (prev === status ? 'all' : status))}
+              aria-pressed={isActive}
+              aria-label={`Filter appointments by ${label}`}
+              title={`Click to filter by ${label}`}
+              className={`bg-white rounded-lg shadow-sm p-4 text-center transition-all focus:outline-none focus:ring-2 focus:ring-blue-950 cursor-pointer hover:shadow-md ${
+                isActive ? 'ring-2 ring-blue-950' : ''
+              }`}
+            >
               <div className={`text-2xl font-bold ${
                 status === 'PENDING' ? 'text-yellow-600' :
                 status === 'CONFIRMED' ? 'text-blue-600' :
@@ -549,8 +561,11 @@ export default function AppointmentsAdminPage() {
               }`}>
                 {count}
               </div>
-              <div className="text-xs text-gray-500 mt-1">{status}</div>
-            </div>
+              <div className="text-xs text-gray-500 mt-1">{label}</div>
+              <div className="text-[11px] text-gray-400 mt-1">
+                {isActive ? 'Click to clear filter' : 'Click to filter'}
+              </div>
+            </button>
           );
         })}
       </div>

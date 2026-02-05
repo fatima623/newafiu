@@ -66,10 +66,57 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate email format
-    const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-    if (!emailRegex.test(patientEmail.trim())) {
+    const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const DISPOSABLE_EMAIL_DOMAINS = new Set([
+      'mailinator.com',
+      'guerrillamail.com',
+      'guerrillamail.info',
+      '10minutemail.com',
+      'temp-mail.org',
+      'yopmail.com',
+      'getnada.com',
+      'trashmail.com',
+    ]);
+
+    const getEmailValidationError = (rawEmail: string) => {
+      const email = rawEmail.trim();
+      if (!email) return 'Email is required';
+      if (email.length < 6 || email.length > 254) return 'Invalid email format';
+      if (!EMAIL_REGEX.test(email)) return 'Invalid email format';
+      if (email.includes('..')) return 'Invalid email format';
+
+      const atIndex = email.indexOf('@');
+      if (atIndex === -1) return 'Invalid email format';
+      const local = email.slice(0, atIndex);
+      const domain = email.slice(atIndex + 1).toLowerCase();
+
+      if (!local || !domain) return 'Invalid email format';
+      if (local.length > 64) return 'Invalid email format';
+      if (local.startsWith('.') || local.endsWith('.')) return 'Invalid email format';
+      if (domain.includes('..')) return 'Invalid email format';
+      if (!domain.includes('.')) return 'Invalid email format';
+      if (domain.length > 253) return 'Invalid email format';
+
+      for (const d of DISPOSABLE_EMAIL_DOMAINS) {
+        if (domain === d || domain.endsWith(`.${d}`)) return 'Disposable email addresses are not allowed';
+      }
+
+      const labels = domain.split('.');
+      const tld = labels[labels.length - 1] || '';
+      if (!/^[a-zA-Z]{2,63}$/.test(tld)) return 'Invalid email format';
+      for (const label of labels) {
+        if (label.length < 1 || label.length > 63) return 'Invalid email format';
+        if (!/^[a-zA-Z0-9-]+$/.test(label)) return 'Invalid email format';
+        if (label.startsWith('-') || label.endsWith('-')) return 'Invalid email format';
+      }
+
+      return '';
+    };
+
+    const emailError = getEmailValidationError(String(patientEmail));
+    if (emailError) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { error: emailError },
         { status: 400 }
       );
     }

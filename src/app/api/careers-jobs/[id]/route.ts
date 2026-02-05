@@ -13,6 +13,7 @@ interface CareersJobRow {
   requirements: string | null;
   responsibilities: string | null;
   applyBy: string | null;
+  expiresAt: string | null;
   hiringStartsAt: string | null;
   applyLink: string | null;
   isPublished: boolean;
@@ -36,6 +37,21 @@ function parseOptionalDate(value: unknown): Date | null {
   const d = new Date(s);
   if (Number.isNaN(d.getTime())) return null;
   return d;
+}
+
+function parseOptionalDateEndOfDay(value: unknown): Date | null {
+  const s = typeof value === 'string' ? value.trim() : '';
+  if (!s) return null;
+  const m = /^\d{4}-\d{2}-\d{2}$/.exec(s);
+  if (!m) {
+    const d = new Date(s);
+    if (Number.isNaN(d.getTime())) return null;
+    return d;
+  }
+
+  const [y, mo, da] = s.split('-').map(Number);
+  if (!y || !mo || !da) return null;
+  return new Date(Date.UTC(y, mo - 1, da, 23, 59, 59, 999));
 }
 
 export async function GET(
@@ -108,6 +124,10 @@ export async function PUT(
       body.applyBy === undefined
         ? ((existing as unknown as { applyBy?: Date | null }).applyBy ?? null)
         : parseOptionalDate(body.applyBy);
+    const expiresAt =
+      body.expiresAt === undefined
+        ? ((existing as unknown as { expiresAt?: Date | null }).expiresAt ?? null)
+        : parseOptionalDateEndOfDay(body.expiresAt);
     const hiringStartsAt =
       body.hiringStartsAt === undefined
         ? ((existing as unknown as { hiringStartsAt?: Date | null }).hiringStartsAt ?? null)
@@ -135,6 +155,7 @@ export async function PUT(
         requirements: requirementsRaw || null,
         responsibilities: responsibilitiesRaw || null,
         applyBy,
+        expiresAt,
         hiringStartsAt,
         applyLink: applyLinkRaw || null,
         isPublished,
