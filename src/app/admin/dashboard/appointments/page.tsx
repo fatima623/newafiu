@@ -52,6 +52,14 @@ export default function AppointmentsAdminPage() {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusCounts, setStatusCounts] = useState<Record<string, number>>({
+    PENDING: 0,
+    CONFIRMED: 0,
+    COMPLETED: 0,
+    CANCELLED: 0,
+    NO_SHOW: 0,
+    EXPIRED: 0,
+  });
   
   // Edit modal state
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
@@ -104,6 +112,10 @@ export default function AppointmentsAdminPage() {
       const data = await res.json();
       if (data.appointments) {
         setAppointments(data.appointments);
+      }
+      // Store counts from API (these are always total counts, unaffected by filters)
+      if (data.counts) {
+        setStatusCounts(data.counts);
       }
     } catch (error) {
       console.error('Failed to fetch appointments:', error);
@@ -537,7 +549,7 @@ export default function AppointmentsAdminPage() {
       {/* Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-6">
         {['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW', 'EXPIRED'].map((status) => {
-          const count = appointments.filter(a => a.status === status).length;
+          const count = statusCounts[status] || 0;
           const isActive = selectedStatus === status;
           const label = status.replace(/_/g, ' ');
           return (

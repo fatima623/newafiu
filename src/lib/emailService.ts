@@ -58,6 +58,16 @@ interface OTPEmailData {
   purpose: 'booking' | 'contact';
 }
 
+// Interface for admin-confirmed appointment email
+interface AdminConfirmedEmailData {
+  patientName: string;
+  patientEmail: string;
+  patientPhone: string;
+  doctorName: string;
+  appointmentDate: Date;
+  slotStartTime: string;
+  slotEndTime: string;
+}
 // Format time for display
 const formatTime = (time: string) => {
   const [hours, minutes] = time.split(':');
@@ -355,4 +365,73 @@ export async function sendOTPEmail(data: OTPEmailData): Promise<boolean> {
 // Generate a 6-digit OTP
 export function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Send email when admin confirms an appointment
+export async function sendAdminConfirmedEmail(data: AdminConfirmedEmailData): Promise<boolean> {
+  try {
+    const transporter = getTransporter();
+    
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #051238, #2A7B9B); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+    .content { background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; }
+    .footer { background: #051238; color: white; padding: 15px; text-align: center; border-radius: 0 0 8px 8px; font-size: 12px; }
+    .info-box { background: white; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #16a34a; }
+    .success-badge { display: inline-block; background: #16a34a; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; margin: 10px 0; }
+    h1 { margin: 0; font-size: 24px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>✅ Appointment Confirmed</h1>
+      <p>Armed Forces Institute of Urology</p>
+    </div>
+    <div class="content">
+      <p>Dear <strong>${data.patientName}</strong>,</p>
+      <p>Great news! Your appointment has been <span class="success-badge">CONFIRMED</span> by our administration team.</p>
+      
+      <div class="info-box">
+        <strong>Your Confirmed Appointment:</strong>
+        <p><strong>Doctor:</strong> ${data.doctorName}</p>
+        <p><strong>Date:</strong> ${formatDate(data.appointmentDate)}</p>
+        <p><strong>Time:</strong> ${formatTime(data.slotStartTime)} - ${formatTime(data.slotEndTime)}</p>
+      </div>
+      
+      <p><strong>Important:</strong></p>
+      <ul>
+        <li>Please arrive 15-20 minutes before your scheduled time</li>
+        <li>Bring your CNIC and any relevant medical documents</li>
+        <li>Contact us at +92 51 5562331 if you need to reschedule</li>
+      </ul>
+      
+      <p>We look forward to seeing you!</p>
+    </div>
+    <div class="footer">
+      <p>Armed Forces Institute of Urology (AFIU)</p>
+      <p>This is an automated message. Please do not reply.</p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    await transporter.sendMail({
+      from: FROM_EMAIL,
+      to: data.patientEmail,
+      subject: 'AFIU - Your Appointment is Confirmed!',
+      html,
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Failed to send admin-confirmed email:', error);
+    return false;
+  }
 }

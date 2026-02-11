@@ -47,7 +47,26 @@ export async function GET(request: NextRequest) {
       take: 100,
     });
 
-    return NextResponse.json({ appointments });
+    // Fetch status counts independently (not affected by filters)
+    const statusCounts = await prisma.appointment.groupBy({
+      by: ['status'],
+      _count: { status: true },
+    });
+
+    const counts: Record<string, number> = {
+      PENDING: 0,
+      CONFIRMED: 0,
+      COMPLETED: 0,
+      CANCELLED: 0,
+      NO_SHOW: 0,
+      EXPIRED: 0,
+    };
+
+    for (const item of statusCounts) {
+      counts[item.status] = item._count.status;
+    }
+
+    return NextResponse.json({ appointments, counts });
   } catch (error) {
     console.error('Error fetching appointments:', error);
     return NextResponse.json(
