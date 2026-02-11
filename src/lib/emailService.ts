@@ -15,6 +15,16 @@ const getTransporter = () => {
 
 const FROM_EMAIL = process.env.SMTP_FROM || 'AFIU Appointments <noreply@afiu.org.pk>';
 
+interface AppointmentConfirmationEmailData {
+  patientName: string;
+  patientEmail: string;
+  patientPhone: string;
+  doctorName: string;
+  appointmentDate: Date;
+  slotStartTime: string;
+  slotEndTime: string;
+}
+
 interface AppointmentUpdateEmailData {
   patientName: string;
   patientEmail: string;
@@ -66,6 +76,74 @@ const formatDate = (date: Date) => {
     day: 'numeric',
   });
 };
+
+export async function sendAppointmentConfirmationEmail(data: AppointmentConfirmationEmailData): Promise<boolean> {
+  try {
+    const transporter = getTransporter();
+    
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #051238, #2A7B9B); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+    .content { background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; }
+    .footer { background: #051238; color: white; padding: 15px; text-align: center; border-radius: 0 0 8px 8px; font-size: 12px; }
+    .info-box { background: white; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #2A7B9B; }
+    .success-box { background: #d1fae5; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #10b981; }
+    h1 { margin: 0; font-size: 24px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Appointment Confirmed</h1>
+      <p>Armed Forces Institute of Urology</p>
+    </div>
+    <div class="content">
+      <p>Dear <strong>${data.patientName}</strong>,</p>
+      
+      <div class="success-box">
+        <strong>Your appointment has been successfully booked!</strong>
+        <p>We look forward to seeing you at your scheduled time.</p>
+      </div>
+      
+      <div class="info-box">
+        <strong>Appointment Details:</strong>
+        <p><strong>Doctor:</strong> ${data.doctorName}</p>
+        <p><strong>Date:</strong> ${formatDate(data.appointmentDate)}</p>
+        <p><strong>Time:</strong> ${formatTime(data.slotStartTime)} - ${formatTime(data.slotEndTime)}</p>
+        <p><strong>Contact:</strong> ${data.patientPhone}</p>
+      </div>
+      
+      <p>Please arrive at least 15 minutes before your scheduled time and bring your CNIC and any relevant medical records.</p>
+      <p>If you need to cancel or reschedule, please contact us at least 2 hours before your appointment.</p>
+      <p>For any questions, please contact us at +92 51 5562331.</p>
+    </div>
+    <div class="footer">
+      <p>Armed Forces Institute of Urology (AFIU)</p>
+      <p>This is an automated message. Please do not reply.</p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    await transporter.sendMail({
+      from: FROM_EMAIL,
+      to: data.patientEmail,
+      subject: 'AFIU - Appointment Confirmed',
+      html,
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Failed to send appointment confirmation email:', error);
+    return false;
+  }
+}
 
 export async function sendAppointmentUpdateEmail(data: AppointmentUpdateEmailData): Promise<boolean> {
   try {

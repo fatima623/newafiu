@@ -5,7 +5,7 @@ export default function TransplantPage() {
     <ServiceDetailTemplate
       title="Renal Transplant Service"
       description="Multidisciplinary care for patients undergoing kidney transplantation"
-      image="https://images.unsplash.com/photo-1551076805-e1869033e561?w=1200&h=600&fit=crop"
+      image="/conference1.jpg"
       details="The Renal Transplant Service offers comprehensive care for patients with end-stage renal disease who are candidates for kidney transplantation. A multidisciplinary team of nephrologists, urologists, anaesthetists and specialised nurses works together to provide safe surgery and long-term follow-up."
       procedures={[
         'Pre-transplant evaluation and work-up of recipients',

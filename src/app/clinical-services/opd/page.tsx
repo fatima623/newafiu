@@ -5,7 +5,7 @@ export default function OPDPage() {
     <ServiceDetailTemplate
       title="OPD (Outpatient Department)"
       description="Comprehensive outpatient diagnostic and consultation services"
-      image="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=1200&h=600&fit=crop"
+      image="/UROLOGY OPD.jpg"
       details="Our Outpatient Department (OPD) provides comprehensive urological consultations and diagnostic services. Our experienced urologists conduct thorough examinations and provide expert advice for various urological conditions. The OPD is equipped with modern diagnostic facilities to ensure accurate diagnosis and appropriate treatment planning."
       procedures={[
         'Initial consultation and examination',

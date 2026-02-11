@@ -384,7 +384,7 @@ export default function AvailabilityAdminPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Availability Management</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Availability Management</h1>
         <div className="flex gap-2">
           <button
             onClick={() => {
@@ -455,7 +455,7 @@ export default function AvailabilityAdminPage() {
           {/* Unavailable Doctors List */}
           <div className="xl:col-span-3 bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-800">Upcoming Doctor Unavailability</h2>
+              <h2 className="text-xl font-semibold text-gray-800">Upcoming Doctor Unavailability</h2>
               <button
                 onClick={fetchUnavailableRecords}
                 className="flex items-center gap-2 text-sm text-blue-950 hover:text-blue-700"
@@ -478,11 +478,11 @@ export default function AvailabilityAdminPage() {
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doctor</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Blocked Slots</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Doctor</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Date</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Blocked Slots</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Reason</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -542,7 +542,7 @@ export default function AvailabilityAdminPage() {
           {/* Info Panel */}
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">Appointment Rules</h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Appointment Rules</h2>
               <ul className="space-y-3 text-sm text-gray-600">
                 <li className="flex items-start gap-2">
                   <span className="w-2 h-2 bg-blue-950 rounded-full mt-1.5 flex-shrink-0"></span>
@@ -571,7 +571,7 @@ export default function AvailabilityAdminPage() {
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-800">Official Holidays</h2>
+              <h2 className="text-xl font-semibold text-gray-800">Official Holidays</h2>
               <button
                 onClick={fetchHolidays}
                 className="flex items-center gap-2 text-sm text-blue-950 hover:text-blue-700"
@@ -594,11 +594,11 @@ export default function AvailabilityAdminPage() {
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Holiday Name</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason / Description</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Date</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Holiday Name</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Reason / Description</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Status</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -651,7 +651,7 @@ export default function AvailabilityAdminPage() {
           {/* Info Panel for Holidays */}
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">About Official Holidays</h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">About Official Holidays</h2>
               <ul className="space-y-3 text-sm text-gray-600">
                 <li className="flex items-start gap-2">
                   <span className="w-2 h-2 bg-green-600 rounded-full mt-1.5 flex-shrink-0"></span>
@@ -684,7 +684,7 @@ export default function AvailabilityAdminPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-xl font-semibold text-gray-800">
+              <h2 className="text-2xl font-semibold text-gray-800">
                 {editingRecord ? 'Edit Doctor Unavailability' : 'Add Doctor Unavailability'}
               </h2>
               <button onClick={resetForm} className="text-gray-500 hover:text-gray-700">
@@ -906,7 +906,7 @@ export default function AvailabilityAdminPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-lg w-full">
             <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-xl font-semibold text-gray-800">
+              <h2 className="text-2xl font-semibold text-gray-800">
                 {editingHoliday ? 'Edit Official Holiday' : 'Add Official Holiday'}
               </h2>
               <button onClick={resetHolidayForm} className="text-gray-500 hover:text-gray-700">

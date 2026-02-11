@@ -78,7 +78,7 @@ export default function NewNewsEventPage() {
         >
           <ArrowLeft size={24} />
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">New News/Event</h1>
+        <h1 className="text-5xl font-bold text-gray-900">New News/Event</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 w-full">
@@ -186,7 +186,7 @@ export default function NewNewsEventPage() {
           </div>
 
           <div className="border-t pt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Banner Settings</h3>
+            <h3 className="text-xl font-medium text-gray-900 mb-4">Banner Settings</h3>
             
             <div className="flex items-center gap-3 mb-4">
               <input
