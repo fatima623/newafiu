@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getPrisma } from '@/lib/prisma';
+import { sendAdminConfirmedEmail } from '@/lib/emailService';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,8 +29,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Fetch appointment with faculty info (needed for email)
     const appointment = await prisma.appointment.findUnique({
       where: { id: parseInt(appointmentId, 10) },
+      include: {
+        faculty: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
 
     if (!appointment) {
@@ -67,6 +76,24 @@ export async function POST(request: NextRequest) {
         details: JSON.stringify({ changedBy: 'admin' }),
       },
     });
+
+    // Send confirmation email when admin confirms the appointment
+    if (status === 'CONFIRMED' && previousStatus !== 'CONFIRMED') {
+      try {
+        await sendAdminConfirmedEmail({
+          patientName: appointment.patientName,
+          patientEmail: appointment.patientEmail,
+          patientPhone: appointment.patientPhone,
+          doctorName: appointment.faculty.name,
+          appointmentDate: appointment.appointmentDate,
+          slotStartTime: appointment.slotStartTime,
+          slotEndTime: appointment.slotEndTime,
+        });
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError);
+        // Don't fail the request if email fails
+      }
+    }
 
     return NextResponse.json({
       success: true,

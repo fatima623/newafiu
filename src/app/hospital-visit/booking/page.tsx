@@ -125,6 +125,9 @@ export default function BookingPage() {
   // Specialization filter
   const [selectedSpecialization, setSelectedSpecialization] = useState<string>('');
   
+  // Doctor search
+  const [doctorSearchQuery, setDoctorSearchQuery] = useState('');
+  
   // Holidays
   const [holidays, setHolidays] = useState<OfficialHoliday[]>([]);
 
@@ -517,10 +520,14 @@ export default function BookingPage() {
     return null;
   };
 
-  // Filter doctors by specialization
-  const filteredDoctors = selectedSpecialization
-    ? doctors.filter(doc => doc.specializationCategory === selectedSpecialization)
-    : doctors;
+  // Filter doctors by specialization and search query
+  const filteredDoctors = doctors.filter(doc => {
+    const matchesSpecialization = !selectedSpecialization || doc.specializationCategory === selectedSpecialization;
+    const matchesSearch = !doctorSearchQuery || 
+      doc.name.toLowerCase().includes(doctorSearchQuery.toLowerCase()) ||
+      (doc.designation && doc.designation.toLowerCase().includes(doctorSearchQuery.toLowerCase()));
+    return matchesSpecialization && matchesSearch;
+  });
 
   // Group doctors by specialization for display
   const doctorsBySpecialization = SPECIALIZATION_CATEGORIES.reduce((acc, cat) => {
@@ -766,20 +773,42 @@ export default function BookingPage() {
             {/* Step 1: Select Doctor */}
             {currentStep === 'doctor' && (
               <div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800">Select a Doctor</h2>
-                  <select
-                    value={selectedSpecialization}
-                    onChange={(e) => setSelectedSpecialization(e.target.value)}
-                    className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
-                  >
-                    <option value="">All Doctors</option>
-                    {SPECIALIZATION_CATEGORIES.map((cat) => (
-                      <option key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </option>
-                    ))}
-                  </select>
+                <div className="flex flex-col gap-4 mb-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h2 className="text-2xl font-bold text-gray-800">Select a Doctor</h2>
+                    <select
+                      value={selectedSpecialization}
+                      onChange={(e) => setSelectedSpecialization(e.target.value)}
+                      className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                    >
+                      <option value="">All Doctors</option>
+                      {SPECIALIZATION_CATEGORIES.map((cat) => (
+                        <option key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {/* Search bar */}
+                  <div className="relative">
+                    <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search by doctor name or designation..."
+                      value={doctorSearchQuery}
+                      onChange={(e) => setDoctorSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                    />
+                    {doctorSearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setDoctorSearchQuery('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        <X size={16} />
+                      </button>
+                    )}
+                  </div>
                 </div>
                 
                 {loadingDoctors ? (
@@ -792,10 +821,10 @@ export default function BookingPage() {
                   </div>
                 ) : filteredDoctors.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
-                    No doctors found for this specialization.
+                    No doctors found matching your search.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {filteredDoctors.map((doctor) => (
                       <button
                         key={doctor.id}
@@ -1072,6 +1101,122 @@ export default function BookingPage() {
                 </div>
 
                 <div className="space-y-6">
+                  {/* Email Address - First field for returning user lookup */}
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Email Address *
+                      {lookingUpUser && (
+                        <span className="ml-2 inline-flex items-center text-blue-600 text-sm font-normal">
+                          <Loader2 size={14} className="mr-1 animate-spin" /> Checking...
+                        </span>
+                      )}
+                      {!lookingUpUser && isReturningUser && !hasInfoChanged() && (
+                        <span className="ml-2 inline-flex items-center text-green-600 text-sm font-normal">
+                          <CheckCircle2 size={14} className="mr-1" /> Welcome back!
+                        </span>
+                      )}
+                      {!lookingUpUser && isReturningUser && hasInfoChanged() && (
+                        <span className="ml-2 inline-flex items-center text-orange-600 text-sm font-normal">
+                          <AlertCircle size={14} className="mr-1" /> Info changed - verify email
+                        </span>
+                      )}
+                      {!lookingUpUser && !isReturningUser && otpVerified && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase() && (
+                        <span className="ml-2 inline-flex items-center text-green-600 text-sm font-normal">
+                          <CheckCircle2 size={14} className="mr-1" /> Verified
+                        </span>
+                      )}
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="email"
+                          placeholder="example@email.com"
+                          value={patientDetails.email}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setPatientDetails((prev) => ({ ...prev, email: value }));
+                            setErrors((prev) => ({ ...prev, email: '' }));
+                          }}
+                          onBlur={() => {
+                            const emailError = getEmailValidationError(patientDetails.email);
+                            if (emailError) setErrors((prev) => ({ ...prev, email: emailError }));
+                          }}
+                          disabled={otpVerified && !hasInfoChanged() && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()}
+                          className={`w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-950 ${
+                            otpVerified && !hasInfoChanged() && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()
+                              ? 'bg-green-50 border-green-300'
+                              : ''
+                          }`}
+                        />
+                      </div>
+                      {/* Show verify button only if: not verified, or info changed for returning user */}
+                      {(!otpVerified || (isReturningUser && hasInfoChanged())) && patientDetails.email.trim().toLowerCase() !== verifiedEmail.toLowerCase() || (isReturningUser && hasInfoChanged() && !otpVerified) ? (
+                        <button
+                          type="button"
+                          onClick={handleSendOTP}
+                          disabled={
+                            otpLoading ||
+                            otpCountdown > 0 ||
+                            !patientDetails.email.trim() ||
+                            !!getEmailValidationError(patientDetails.email)
+                          }
+                          className="px-4 py-3 bg-blue-950 text-white rounded-lg font-medium hover:bg-blue-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed whitespace-nowrap"
+                        >
+                          {otpLoading ? (
+                            <Loader2 size={18} className="animate-spin" />
+                          ) : otpCountdown > 0 ? (
+                            `Resend (${otpCountdown}s)`
+                          ) : otpSent ? (
+                            'Resend Code'
+                          ) : (
+                            'Verify Email'
+                          )}
+                        </button>
+                      ) : null}
+                    </div>
+                    
+                    {/* OTP Input Section */}
+                    {otpSent && !otpVerified && (
+                      <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-sm text-blue-800 mb-3">
+                          We&apos;ve sent a 6-digit verification code to <strong>{patientDetails.email}</strong>
+                        </p>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={otpValue}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                              setOtpValue(value);
+                              setOtpError('');
+                            }}
+                            placeholder="Enter 6-digit code"
+                            maxLength={6}
+                            className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-center text-lg tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-blue-950"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleVerifyOTP}
+                            disabled={otpLoading || otpValue.length !== 6}
+                            className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                          >
+                            {otpLoading ? <Loader2 size={18} className="animate-spin" /> : 'Verify'}
+                          </button>
+                        </div>
+                        {otpError && <p className="mt-2 text-sm text-red-600">{otpError}</p>}
+                        <p className="mt-2 text-xs text-gray-500">
+                          The code will expire in 10 minutes. Check your spam folder if you don&apos;t see the email.
+                        </p>
+                      </div>
+                    )}
+
+                    {!otpSent && otpError ? <p className="mt-2 text-sm text-red-600">{otpError}</p> : null}
+                    
+                    {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                  </div>
+
+                  {/* Full Name and CNIC */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-gray-700 font-medium mb-2">Full Name *</label>
@@ -1116,169 +1261,54 @@ export default function BookingPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-gray-700 font-medium mb-2">
-                        Mobile Number *
-                        <span className="ml-2 text-xs text-gray-500 font-normal">
-                          ({getCurrentCountryConfig().format})
-                        </span>
-                      </label>
-                      <div className="flex gap-2">
-                        <div className="relative">
-                          <select
-                            value={patientDetails.countryCode}
-                            onChange={(e) => {
-                              setPatientDetails((prev) => ({
-                                ...prev,
-                                countryCode: e.target.value,
-                                phone: '', // Clear phone when country changes
-                              }));
-                              setErrors((prev) => ({ ...prev, phone: '' }));
-                            }}
-                            className="h-full rounded-lg border border-gray-300 px-3 py-3 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-950 appearance-none bg-white text-sm"
-                          >
-                            {COUNTRY_CODES.map((c) => (
-                              <option key={c.code} value={c.code}>
-                                {c.flag} {c.code}
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                        </div>
-                        <div className="relative flex-1">
-                          <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                          <input
-                            type="tel"
-                            placeholder={getCurrentCountryConfig().placeholder}
-                            value={patientDetails.phone}
-                            maxLength={getCurrentCountryConfig().maxLen}
-                            onChange={(e) =>
-                              setPatientDetails((prev) => ({
-                                ...prev,
-                                phone: e.target.value.replace(/\D/g, '').slice(0, getCurrentCountryConfig().maxLen),
-                              }))
-                            }
-                            className="w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-950"
-                          />
-                        </div>
+                  {/* Mobile Number */}
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Mobile Number *
+                      <span className="ml-2 text-xs text-gray-500 font-normal">
+                        ({getCurrentCountryConfig().format})
+                      </span>
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="relative">
+                        <select
+                          value={patientDetails.countryCode}
+                          onChange={(e) => {
+                            setPatientDetails((prev) => ({
+                              ...prev,
+                              countryCode: e.target.value,
+                              phone: '', // Clear phone when country changes
+                            }));
+                            setErrors((prev) => ({ ...prev, phone: '' }));
+                          }}
+                          className="h-full rounded-lg border border-gray-300 px-3 py-3 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-950 appearance-none bg-white text-sm"
+                        >
+                          {COUNTRY_CODES.map((c) => (
+                            <option key={c.code} value={c.code}>
+                              {c.flag} {c.code}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                       </div>
-                      {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-700 font-medium mb-2">
-                        Email Address *
-                        {lookingUpUser && (
-                          <span className="ml-2 inline-flex items-center text-blue-600 text-sm font-normal">
-                            <Loader2 size={14} className="mr-1 animate-spin" /> Checking...
-                          </span>
-                        )}
-                        {!lookingUpUser && isReturningUser && !hasInfoChanged() && (
-                          <span className="ml-2 inline-flex items-center text-green-600 text-sm font-normal">
-                            <CheckCircle2 size={14} className="mr-1" /> Welcome back!
-                          </span>
-                        )}
-                        {!lookingUpUser && isReturningUser && hasInfoChanged() && (
-                          <span className="ml-2 inline-flex items-center text-orange-600 text-sm font-normal">
-                            <AlertCircle size={14} className="mr-1" /> Info changed - verify email
-                          </span>
-                        )}
-                        {!lookingUpUser && !isReturningUser && otpVerified && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase() && (
-                          <span className="ml-2 inline-flex items-center text-green-600 text-sm font-normal">
-                            <CheckCircle2 size={14} className="mr-1" /> Verified
-                          </span>
-                        )}
-                      </label>
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                          <input
-                            type="email"
-                            placeholder="example@email.com"
-                            value={patientDetails.email}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setPatientDetails((prev) => ({ ...prev, email: value }));
-                              setErrors((prev) => ({ ...prev, email: '' }));
-                            }}
-                            onBlur={() => {
-                              const emailError = getEmailValidationError(patientDetails.email);
-                              if (emailError) setErrors((prev) => ({ ...prev, email: emailError }));
-                            }}
-                            disabled={otpVerified && !hasInfoChanged() && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()}
-                            className={`w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-950 ${
-                              otpVerified && !hasInfoChanged() && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()
-                                ? 'bg-green-50 border-green-300'
-                                : ''
-                            }`}
-                          />
-                        </div>
-                        {/* Show verify button only if: not verified, or info changed for returning user */}
-                        {(!otpVerified || (isReturningUser && hasInfoChanged())) && patientDetails.email.trim().toLowerCase() !== verifiedEmail.toLowerCase() || (isReturningUser && hasInfoChanged() && !otpVerified) ? (
-                          <button
-                            type="button"
-                            onClick={handleSendOTP}
-                            disabled={
-                              otpLoading ||
-                              otpCountdown > 0 ||
-                              !patientDetails.email.trim() ||
-                              !!getEmailValidationError(patientDetails.email)
-                            }
-                            className="px-4 py-3 bg-blue-950 text-white rounded-lg font-medium hover:bg-blue-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed whitespace-nowrap"
-                          >
-                            {otpLoading ? (
-                              <Loader2 size={18} className="animate-spin" />
-                            ) : otpCountdown > 0 ? (
-                              `Resend (${otpCountdown}s)`
-                            ) : otpSent ? (
-                              'Resend Code'
-                            ) : (
-                              'Verify Email'
-                            )}
-                          </button>
-                        ) : null}
+                      <div className="relative flex-1">
+                        <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="tel"
+                          placeholder={getCurrentCountryConfig().placeholder}
+                          value={patientDetails.phone}
+                          maxLength={getCurrentCountryConfig().maxLen}
+                          onChange={(e) =>
+                            setPatientDetails((prev) => ({
+                              ...prev,
+                              phone: e.target.value.replace(/\D/g, '').slice(0, getCurrentCountryConfig().maxLen),
+                            }))
+                          }
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-950"
+                        />
                       </div>
-                      
-                      {/* OTP Input Section */}
-                      {otpSent && !otpVerified && (
-                        <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <p className="text-sm text-blue-800 mb-3">
-                            We&apos;ve sent a 6-digit verification code to <strong>{patientDetails.email}</strong>
-                          </p>
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={otpValue}
-                              onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                                setOtpValue(value);
-                                setOtpError('');
-                              }}
-                              placeholder="Enter 6-digit code"
-                              maxLength={6}
-                              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-center text-lg tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-blue-950"
-                            />
-                            <button
-                              type="button"
-                              onClick={handleVerifyOTP}
-                              disabled={otpLoading || otpValue.length !== 6}
-                              className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                            >
-                              {otpLoading ? <Loader2 size={18} className="animate-spin" /> : 'Verify'}
-                            </button>
-                          </div>
-                          {otpError && <p className="mt-2 text-sm text-red-600">{otpError}</p>}
-                          <p className="mt-2 text-xs text-gray-500">
-                            The code will expire in 10 minutes. Check your spam folder if you don&apos;t see the email.
-                          </p>
-                        </div>
-                      )}
-
-                      {!otpSent && otpError ? <p className="mt-2 text-sm text-red-600">{otpError}</p> : null}
-                      
-                      {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                     </div>
+                    {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
                   </div>
 
                   <div>
