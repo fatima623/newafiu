@@ -321,6 +321,13 @@ export async function bookAppointment(data: {
         throw new Error('This slot has already been booked');
       }
       
+      // If there's a cancelled/expired booking for this slot, delete it to allow rebooking
+      if (existingBooking && ['CANCELLED', 'EXPIRED', 'COMPLETED'].includes(existingBooking.status)) {
+        await tx.appointment.delete({
+          where: { id: existingBooking.id },
+        });
+      }
+      
       // Check daily limit
       const dailyCount = await tx.appointment.count({
         where: {

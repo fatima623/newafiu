@@ -138,6 +138,15 @@ export default function BookingPage() {
   const [verifiedEmail, setVerifiedEmail] = useState(''); // Track which email was verified
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
 
+  // Returning user state
+  const [isReturningUser, setIsReturningUser] = useState(false);
+  const [savedUserDetails, setSavedUserDetails] = useState<{
+    fullName: string;
+    cnic: string;
+    phone: string;
+  } | null>(null);
+  const [lookingUpUser, setLookingUpUser] = useState(false);
+
   const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const DISPOSABLE_EMAIL_DOMAINS = new Set([
     'mailinator.com',
@@ -242,6 +251,98 @@ export default function BookingPage() {
       setOtpError('');
     }
   }, [patientDetails.email, verifiedEmail]);
+
+  // Lookup returning user when email is entered (debounced)
+  useEffect(() => {
+    const email = patientDetails.email.trim().toLowerCase();
+    const emailError = getEmailValidationError(email);
+    
+    // Only lookup if email is valid
+    if (emailError || !email) {
+      setIsReturningUser(false);
+      setSavedUserDetails(null);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setLookingUpUser(true);
+      try {
+        const res = await fetch(`/api/appointments/user-lookup?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+        
+        if (data.found && data.user) {
+          setIsReturningUser(true);
+          // Extract phone number without country code for proper field handling
+          let phoneNumber = data.user.phone || '';
+          let countryCode = '+92';
+          
+          // Try to match country code
+          for (const cc of COUNTRY_CODES) {
+            if (phoneNumber.startsWith(cc.code)) {
+              countryCode = cc.code;
+              phoneNumber = phoneNumber.slice(cc.code.length);
+              break;
+            }
+          }
+          
+          setSavedUserDetails({
+            fullName: data.user.fullName || '',
+            cnic: data.user.cnic || '',
+            phone: phoneNumber,
+          });
+          
+          // Auto-fill the details for returning user
+          setPatientDetails(prev => ({
+            ...prev,
+            fullName: data.user.fullName || prev.fullName,
+            cnic: data.user.cnic || prev.cnic,
+            phone: phoneNumber || prev.phone,
+            countryCode: countryCode,
+          }));
+          
+          // For returning users with unchanged info, mark as verified
+          setOtpVerified(true);
+          setVerifiedEmail(email);
+        } else {
+          setIsReturningUser(false);
+          setSavedUserDetails(null);
+        }
+      } catch (error) {
+        console.error('Failed to lookup user:', error);
+        setIsReturningUser(false);
+        setSavedUserDetails(null);
+      } finally {
+        setLookingUpUser(false);
+      }
+    }, 500); // Debounce 500ms
+
+    return () => clearTimeout(timeoutId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patientDetails.email]);
+
+  // Check if returning user changed their info (requires re-verification)
+  const hasInfoChanged = useCallback(() => {
+    if (!isReturningUser || !savedUserDetails) return false;
+    
+    const currentName = patientDetails.fullName.trim();
+    const currentCnic = patientDetails.cnic.trim();
+    const currentPhone = patientDetails.phone.trim();
+    
+    return (
+      currentName !== savedUserDetails.fullName ||
+      currentCnic !== savedUserDetails.cnic ||
+      currentPhone !== savedUserDetails.phone
+    );
+  }, [isReturningUser, savedUserDetails, patientDetails.fullName, patientDetails.cnic, patientDetails.phone]);
+
+  // If returning user changes info, require re-verification
+  useEffect(() => {
+    if (isReturningUser && hasInfoChanged()) {
+      setOtpVerified(false);
+    } else if (isReturningUser && !hasInfoChanged() && verifiedEmail === patientDetails.email.trim().toLowerCase()) {
+      setOtpVerified(true);
+    }
+  }, [isReturningUser, hasInfoChanged, verifiedEmail, patientDetails.email]);
 
   // Send OTP function
   const handleSendOTP = async () => {
@@ -472,6 +573,9 @@ export default function BookingPage() {
       const emailError = getEmailValidationError(details.email);
       if (emailError) {
         newErrors.email = emailError;
+      } else if (isReturningUser && !hasInfoChanged()) {
+        // Returning user with unchanged info - no OTP required
+        // Don't add error
       } else if (!otpVerified || details.email.trim().toLowerCase() !== verifiedEmail.toLowerCase()) {
         newErrors.email = 'Please verify your email address';
       }
@@ -1065,7 +1169,22 @@ export default function BookingPage() {
                     <div>
                       <label className="block text-gray-700 font-medium mb-2">
                         Email Address *
-                        {otpVerified && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase() && (
+                        {lookingUpUser && (
+                          <span className="ml-2 inline-flex items-center text-blue-600 text-sm font-normal">
+                            <Loader2 size={14} className="mr-1 animate-spin" /> Checking...
+                          </span>
+                        )}
+                        {!lookingUpUser && isReturningUser && !hasInfoChanged() && (
+                          <span className="ml-2 inline-flex items-center text-green-600 text-sm font-normal">
+                            <CheckCircle2 size={14} className="mr-1" /> Welcome back!
+                          </span>
+                        )}
+                        {!lookingUpUser && isReturningUser && hasInfoChanged() && (
+                          <span className="ml-2 inline-flex items-center text-orange-600 text-sm font-normal">
+                            <AlertCircle size={14} className="mr-1" /> Info changed - verify email
+                          </span>
+                        )}
+                        {!lookingUpUser && !isReturningUser && otpVerified && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase() && (
                           <span className="ml-2 inline-flex items-center text-green-600 text-sm font-normal">
                             <CheckCircle2 size={14} className="mr-1" /> Verified
                           </span>
@@ -1087,15 +1206,16 @@ export default function BookingPage() {
                               const emailError = getEmailValidationError(patientDetails.email);
                               if (emailError) setErrors((prev) => ({ ...prev, email: emailError }));
                             }}
-                            disabled={otpVerified && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()}
+                            disabled={otpVerified && !hasInfoChanged() && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()}
                             className={`w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-950 ${
-                              otpVerified && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()
+                              otpVerified && !hasInfoChanged() && patientDetails.email.trim().toLowerCase() === verifiedEmail.toLowerCase()
                                 ? 'bg-green-50 border-green-300'
                                 : ''
                             }`}
                           />
                         </div>
-                        {!otpVerified || patientDetails.email.trim().toLowerCase() !== verifiedEmail.toLowerCase() ? (
+                        {/* Show verify button only if: not verified, or info changed for returning user */}
+                        {(!otpVerified || (isReturningUser && hasInfoChanged())) && patientDetails.email.trim().toLowerCase() !== verifiedEmail.toLowerCase() || (isReturningUser && hasInfoChanged() && !otpVerified) ? (
                           <button
                             type="button"
                             onClick={handleSendOTP}
