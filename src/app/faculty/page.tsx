@@ -79,18 +79,18 @@ export default function FacultyPage() {
             </div>
 
             {/* Search and Category Filter */}
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row justify-center items-stretch gap-3 sm:gap-4 mb-8">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name..."
-                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 w-full sm:w-[300px]"
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 w-full sm:w-[280px] text-sm sm:text-base"
               />
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 min-w-[200px]"
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 w-full sm:w-auto sm:min-w-[180px] text-sm sm:text-base"
               >
                 {SPECIALIZATION_CATEGORIES.map((cat) => (
                   <option key={cat.value} value={cat.value}>
@@ -111,7 +111,7 @@ export default function FacultyPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 auto-rows-fr">
                 {filteredFaculty.map((member) => (
                   <FacultyCard
                     key={member.id}

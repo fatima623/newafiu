@@ -774,12 +774,34 @@ export default function BookingPage() {
             {currentStep === 'doctor' && (
               <div>
                 <div className="flex flex-col gap-4 mb-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <h2 className="text-2xl font-bold text-gray-800">Select a Doctor</h2>
+                  <h2 className="text-2xl font-bold text-gray-800">Select a Doctor</h2>
+                  {/* Search bar and category filter in same row */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Search bar - on left */}
+                    <div className="relative flex-1">
+                      <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Search by doctor name or designation..."
+                        value={doctorSearchQuery}
+                        onChange={(e) => setDoctorSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                      />
+                      {doctorSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setDoctorSearchQuery('')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
+                    </div>
+                    {/* Category filter - on right */}
                     <select
                       value={selectedSpecialization}
                       onChange={(e) => setSelectedSpecialization(e.target.value)}
-                      className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                      className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                     >
                       <option value="">All Doctors</option>
                       {SPECIALIZATION_CATEGORIES.map((cat) => (
@@ -788,26 +810,6 @@ export default function BookingPage() {
                         </option>
                       ))}
                     </select>
-                  </div>
-                  {/* Search bar */}
-                  <div className="relative">
-                    <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Search by doctor name or designation..."
-                      value={doctorSearchQuery}
-                      onChange={(e) => setDoctorSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
-                    />
-                    {doctorSearchQuery && (
-                      <button
-                        type="button"
-                        onClick={() => setDoctorSearchQuery('')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        <X size={16} />
-                      </button>
-                    )}
                   </div>
                 </div>
                 
@@ -824,7 +826,7 @@ export default function BookingPage() {
                     No doctors found matching your search.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {filteredDoctors.map((doctor) => (
                       <button
                         key={doctor.id}
@@ -832,18 +834,18 @@ export default function BookingPage() {
                           setSelectedDoctor(doctor);
                           setCurrentStep('datetime');
                         }}
-                        className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+                        className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-center min-h-[160px]"
                       >
-                        <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 mb-3">
                           {doctor.image ? (
                             <img src={doctor.image} alt={doctor.name} className="w-full h-full object-cover" />
                           ) : (
                             <UserCircle size={40} className="text-gray-400" />
                           )}
                         </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-800">{doctor.name}</h3>
-                          <p className="text-sm text-gray-600">{doctor.designation}</p>
+                        <div className="flex-1 flex flex-col justify-center">
+                          <h3 className="font-semibold text-gray-800 text-sm leading-tight mb-1">{doctor.name}</h3>
+                          <p className="text-xs text-gray-600 line-clamp-3">{doctor.designation}</p>
                         </div>
                       </button>
                     ))}

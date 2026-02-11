@@ -1,5 +1,5 @@
 import { getPrisma } from './prisma';
-import { sendAppointmentConfirmationEmail, sendAppointmentCancellationEmail } from './emailService';
+import { sendAppointmentCancellationEmail } from './emailService';
 
 // Business Rules Constants
 export const APPOINTMENT_CONFIG = {
@@ -399,21 +399,8 @@ export async function bookAppointment(data: {
       return appointment;
     });
     
-    // Send confirmation email
-    try {
-      await sendAppointmentConfirmationEmail({
-        patientName: result.patientName,
-        patientEmail: result.patientEmail,
-        patientPhone: result.patientPhone,
-        doctorName: result.faculty.name,
-        appointmentDate: result.appointmentDate,
-        slotStartTime: result.slotStartTime,
-        slotEndTime: result.slotEndTime,
-      });
-    } catch (emailError) {
-      console.error('Failed to send confirmation email:', emailError);
-      // Don't fail the booking if email fails
-    }
+    // Note: Confirmation email is NOT sent here on booking creation.
+    // The email is sent when the admin confirms the appointment from the dashboard.
     
     return { success: true, appointment: result };
   } catch (error) {

@@ -107,7 +107,7 @@ export default function Navbar() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="ml-2 p-2 text-blue-950 hover:bg-gray-100 rounded lg:hidden"
+                className="ml-2 p-2 text-blue-950 hover:bg-gray-100 rounded xl:hidden"
                 aria-label="Toggle menu"
               >
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -122,7 +122,7 @@ export default function Navbar() {
         <div className="w-full max-w-[1920px] mx-auto px-2 sm:px-2 lg:px-2">
           <div className="flex justify-between items-center py-2 border-t border-blue-800">
             {/* Navigation Links */}
-            <div className="hidden lg:block w-full">
+            <div className="hidden xl:block w-full">
               <div className="flex flex-wrap items-center">
                 {navItems.map((item) => {
                   const baseLinkClasses = `py-2 text-sm font-medium hover:bg-blue-800 rounded transition-colors ${
@@ -249,7 +249,7 @@ export default function Navbar() {
       
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="lg:hidden bg-blue-950 text-white">
+        <div className="xl:hidden bg-blue-950 text-white">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => (
               <div key={item.label} className="relative">

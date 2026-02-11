@@ -38,21 +38,28 @@ export default function HistoryPage() {
             {/* Timeline */}
             <div className="mb-12">
               <h3 className="text-2xl font-bold text-gray-800 mb-8">Key Milestones</h3>
-              <div className="space-y-8">
-                {milestones.map((milestone, index) => (
-                  <div key={index} className="flex items-center gap-6">
-                    <div className="flex-shrink-0">
-                      <div className="w-20 h-20 bg-blue-950 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                        {milestone.year}
+              <div className="relative">
+                {/* Vertical connecting line */}
+                <div className="absolute left-10 top-10 bottom-10 w-1 bg-gradient-to-b from-blue-950 via-blue-700 to-blue-950 hidden md:block" style={{ transform: 'translateX(-50%)' }}></div>
+                
+                <div className="space-y-8">
+                  {milestones.map((milestone, index) => (
+                    <div key={index} className="flex items-center gap-6 relative">
+                      <div className="flex-shrink-0 z-10">
+                        <div className="w-20 h-20 bg-blue-950 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg border-4 border-white">
+                          {milestone.year}
+                        </div>
+                      </div>
+                      <div className="flex-grow flex items-center">
+                        <div className="bg-gray-50 p-4 rounded-lg shadow-sm border-l-4 border-blue-950 flex-1">
+                          <p className="text-gray-600 leading-relaxed">
+                            {milestone.description}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex-grow flex items-center">
-                      <p className="text-gray-600 leading-relaxed">
-                        {milestone.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </div>
