@@ -23,6 +23,10 @@ export default function NewsBanner() {
   useEffect(() => {
     if (!hideOnDashboard && !hideOnLogin) {
       fetchBannerItems();
+
+      // Auto-refresh every 30 seconds so admin changes reflect without page reload
+      const interval = setInterval(fetchBannerItems, 30_000);
+      return () => clearInterval(interval);
     }
   }, [hideOnDashboard, hideOnLogin]);
 

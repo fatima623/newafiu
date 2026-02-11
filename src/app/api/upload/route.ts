@@ -5,11 +5,24 @@ import { getSession } from '@/lib/auth';
 import { getClientIpFromHeaders, rateLimit } from '@/lib/rateLimit';
 
 const MAX_SIZE_BYTES = 20 * 1024 * 1024;
-const ALLOWED_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.pdf', '.docx']);
+const ALLOWED_EXTENSIONS = new Set([
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.jfif',
+  '.webp',
+  '.gif',
+  '.pdf',
+  '.docx',
+]);
 const ALLOWED_MIME_TYPES = new Set([
   'image/png',
   'image/jpeg',
+  'image/jpg',
+  'image/pjpeg',
+  'image/jfif',
   'image/webp',
+  'image/gif',
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ]);

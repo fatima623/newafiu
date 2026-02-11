@@ -267,3 +267,40 @@ model EmailOTP {
   @@index([email, purpose])
   @@index([expiresAt])
 }
+
+// ============================================
+// SUCCESS STORIES (Admin-managed)
+// ============================================
+
+model SuccessStory {
+  id          Int      @id @default(autoincrement())
+  title       String
+  patientName String
+  story       String   @db.Text
+  imageUrl    String?
+  date        DateTime
+  sortOrder   Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished])
+  @@index([sortOrder])
+  @@index([date])
+}
+
+// ============================================
+// SITE STATISTICS (Admin-managed counters)
+// ============================================
+
+model SiteStat {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique          // e.g. 'years_of_excellence'
+  label     String                     // e.g. 'Years of Excellence'
+  value     String                     // e.g. '37+'
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+}

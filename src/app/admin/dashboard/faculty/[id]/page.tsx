@@ -76,8 +76,8 @@ export default function EditFacultyPage() {
         body: formData,
       });
       setImage(data.url);
-    } catch {
-      setError('Failed to upload image');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload image');
     } finally {
       setUploading(false);
     }

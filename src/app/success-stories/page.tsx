@@ -1,7 +1,29 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
-import { successStories } from '@/data/siteData';
+
+interface SuccessStory {
+  id: number;
+  title: string;
+  patientName: string;
+  story: string;
+  imageUrl: string | null;
+  date: string;
+}
 
 export default function SuccessStoriesPage() {
+  const [stories, setStories] = useState<SuccessStory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/success-stories')
+      .then((res) => res.json())
+      .then((data) => setStories(Array.isArray(data) ? data : []))
+      .catch((err) => console.error('Error fetching success stories:', err))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div>
       <section className="bg-gradient-to-b from-[#051238] to-[#2A7B9B] text-white py-10">
@@ -21,33 +43,43 @@ export default function SuccessStoriesPage() {
               </p>
             </div>
 
-            <div className="space-y-8">
-              {successStories.map((story) => (
-                <div key={story.id} className="bg-gray-50 rounded-lg overflow-hidden shadow-lg">
-                  <div className="md:flex">
-                    {story.image && (
-                      <div className="md:w-1/3">
-                        <img
-                          src={story.image}
-                          alt={story.title}
-                          className="w-full h-64 md:h-full object-cover"
-                        />
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-950"></div>
+              </div>
+            ) : stories.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                No success stories available at the moment.
+              </div>
+            ) : (
+              <div className="space-y-8">
+                {stories.map((story) => (
+                  <div key={story.id} className="bg-gray-50 rounded-lg overflow-hidden shadow-lg">
+                    <div className="md:flex">
+                      {story.imageUrl && (
+                        <div className="md:w-1/3">
+                          <img
+                            src={story.imageUrl}
+                            alt={story.title}
+                            className="w-full h-64 md:h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className={`p-8 ${story.imageUrl ? 'md:w-2/3' : 'w-full'}`}>
+                        <h3 className="text-2xl font-bold text-gray-800 mb-2">{story.title}</h3>
+                        <p className="text-sm text-gray-500 mb-4">{story.patientName} - {new Date(story.date).toLocaleDateString()}</p>
+                        <p className="text-gray-600 italic">&quot;{story.story}&quot;</p>
                       </div>
-                    )}
-                    <div className="p-8 md:w-2/3">
-                      <h3 className="text-2xl font-bold text-gray-800 mb-2">{story.title}</h3>
-                      <p className="text-sm text-gray-500 mb-4">{story.patientName} - {new Date(story.date).toLocaleDateString()}</p>
-                      <p className="text-gray-600 italic">"{story.story}"</p>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             <div className="mt-12 bg-[#ADD8E6] p-8 rounded-lg text-center">
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Share Your Story</h3>
               <p className="text-gray-600 mb-6">
-                Have you been treated at AFIU? We'd love to hear about your experience.
+                Have you been treated at AFIU? We&apos;d love to hear about your experience.
               </p>
               <a href="/contact" className="inline-block bg-blue-950 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
                 Contact Us

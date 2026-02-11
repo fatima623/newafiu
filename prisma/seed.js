@@ -648,6 +648,58 @@ async function main() {
     // eslint-disable-next-line no-console
     console.log('Appointment settings already exist');
   }
+
+  // Seed default site statistics
+  const defaultSiteStats = [
+    { key: 'years_of_excellence', label: 'Years of Excellence', value: '37+', sortOrder: 1 },
+    { key: 'successful_surgeries', label: 'Successful Surgeries', value: '140,249+', sortOrder: 2 },
+    { key: 'expert_doctors', label: 'Expert Doctors', value: '37+', sortOrder: 3 },
+    { key: 'satisfied_patients', label: 'Satisfied Patients', value: '1,190,419+', sortOrder: 4 },
+  ];
+
+  const existingStatsCount = await prisma.siteStat.count();
+  if (existingStatsCount === 0) {
+    for (const stat of defaultSiteStats) {
+      await prisma.siteStat.create({ data: stat });
+    }
+    // eslint-disable-next-line no-console
+    console.log('Seeded default site statistics');
+  } else {
+    // eslint-disable-next-line no-console
+    console.log('Site statistics already exist, skipping seed');
+  }
+
+  // Seed default success stories
+  const existingStoriesCount = await prisma.successStory.count();
+  if (existingStoriesCount === 0) {
+    const defaultStories = [
+      {
+        title: 'Successful Kidney Transplant',
+        patientName: 'Muhammad Ahmed',
+        story: 'After years of dialysis, I received a successful kidney transplant at AFIU. The doctors and staff provided exceptional care throughout my journey. Today, I am living a normal, healthy life thanks to the expert medical team at AFIU.',
+        date: new Date('2024-01-15'),
+        sortOrder: 1,
+        isPublished: true,
+      },
+      {
+        title: 'Recovery from Complex Urological Surgery',
+        patientName: 'Fatima Khan',
+        story: 'I was diagnosed with a complex urological condition that required specialized surgery. The team at AFIU not only performed the surgery successfully but also provided excellent post-operative care. I am grateful for the compassionate treatment I received.',
+        date: new Date('2024-03-20'),
+        sortOrder: 2,
+        isPublished: true,
+      },
+    ];
+
+    for (const s of defaultStories) {
+      await prisma.successStory.create({ data: s });
+    }
+    // eslint-disable-next-line no-console
+    console.log('Seeded default success stories');
+  } else {
+    // eslint-disable-next-line no-console
+    console.log('Success stories already exist, skipping seed');
+  }
 }
 
 main()

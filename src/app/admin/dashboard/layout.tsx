@@ -14,7 +14,9 @@ import {
   Users,
   Briefcase,
   Calendar,
-  Clock
+  Clock,
+  BarChart3,
+  Heart
 } from 'lucide-react';
 import { fetchJson } from '@/lib/fetchJson';
 
@@ -27,6 +29,8 @@ const navItems = [
   { href: '/admin/dashboard/news-events', label: 'News & Events', icon: Newspaper },
   { href: '/admin/dashboard/faculty', label: 'Faculty', icon: Users },
   { href: '/admin/dashboard/careers', label: 'Careers', icon: Briefcase },
+  { href: '/admin/dashboard/success-stories', label: 'Success Stories', icon: Heart },
+  { href: '/admin/dashboard/website-stats', label: 'Website Stats', icon: BarChart3 },
 ];
 
 export default function DashboardLayout({
