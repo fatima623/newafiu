@@ -5,7 +5,7 @@ export default function UroOncologyPage() {
     <ServiceDetailTemplate
       title="Dialysis"
       description="Hemodialysis services for patients with acute and chronic kidney disease"
-      image="https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&h=600&fit=crop"
+      image="/dialysis.jpg"
       details="Our Dialysis unit provides safe, effective hemodialysis for patients with acute and chronic kidney disease. Under the supervision of experienced nephrologists and trained dialysis nurses, we focus on patient comfort, infection control and meticulous monitoring during every session."
       procedures={[
         'Regular maintenance hemodialysis sessions',

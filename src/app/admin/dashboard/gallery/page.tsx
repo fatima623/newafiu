@@ -226,7 +226,7 @@ export default function GalleryListPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Gallery</h1>
+        <h1 className="text-4xl font-bold text-gray-900">Gallery</h1>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <label className="sr-only" htmlFor="jump-to-category">
@@ -290,7 +290,7 @@ export default function GalleryListPage() {
       {showForm ? (
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 mb-8">
           <div className="flex items-center justify-between mb-1">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-gray-900">
               {editingItem ? 'Edit Photo' : 'Add Photo'}
             </h2>
             <button
@@ -435,7 +435,7 @@ export default function GalleryListPage() {
                 className="bg-white rounded-lg shadow p-6"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900">{cat.label}</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{cat.label}</h2>
                   <div className="text-sm text-gray-500">{list.length} photo(s)</div>
                 </div>
 

@@ -453,7 +453,7 @@ export default function CareersAdminPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Careers</h1>
+        <h1 className="text-4xl font-bold text-gray-900">Careers</h1>
         <button
           type="button"
           onClick={() => setShowAddJobForm(true)}
@@ -477,13 +477,13 @@ export default function CareersAdminPage() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Published</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Code</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Department</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Type</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Expires</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Published</th>
+                <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -523,7 +523,7 @@ export default function CareersAdminPage() {
       {showAddJobForm ? (
         <div ref={addJobFormRef} className="bg-white rounded-lg shadow p-6 mt-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Add Career Opportunity</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Add Career Opportunity</h2>
             <button
               type="button"
               onClick={() => setShowAddJobForm(false)}
@@ -683,7 +683,7 @@ export default function CareersAdminPage() {
       {editingJobId ? (
         <div ref={editJobFormRef} className="bg-white rounded-lg shadow p-6 mt-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Edit Job</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Edit Job</h2>
             <button onClick={cancelEditJob} className="p-2 text-gray-600 hover:bg-gray-100 rounded">
               <X size={18} />
             </button>
@@ -835,7 +835,7 @@ export default function CareersAdminPage() {
 
       <div className="mt-12">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Application Forms</h2>
+          <h2 className="text-3xl font-bold text-gray-900">Application Forms</h2>
           <button
             type="button"
             onClick={() => setShowAddForm(true)}
@@ -860,11 +860,11 @@ export default function CareersAdminPage() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Code</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Title</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">File</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Order</th>
+                  <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -904,7 +904,7 @@ export default function CareersAdminPage() {
         {showAddForm ? (
           <div ref={addFormRef} className="bg-white rounded-lg shadow p-6 mt-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Add Application Form</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Add Application Form</h2>
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
@@ -975,7 +975,7 @@ export default function CareersAdminPage() {
         {editingId ? (
           <div ref={editFormRef} className="bg-white rounded-lg shadow p-6 mt-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Edit Form</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Edit Form</h2>
               <button onClick={cancelEdit} className="p-2 text-gray-600 hover:bg-gray-100 rounded">
                 <X size={18} />
               </button>

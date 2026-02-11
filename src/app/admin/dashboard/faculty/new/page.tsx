@@ -84,7 +84,7 @@ export default function NewFacultyPage() {
         >
           <ArrowLeft size={24} />
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Add Faculty Member</h1>
+        <h1 className="text-5xl font-bold text-gray-900">Add Faculty Member</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 w-full">

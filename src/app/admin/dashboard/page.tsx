@@ -130,7 +130,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="pt-4">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
+      <h1 className="text-4xl font-bold text-gray-900 mb-6">Dashboard</h1>
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -155,7 +155,7 @@ export default function AdminDashboardPage() {
                 <div className={`bg-gradient-to-r ${card.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                   <Icon className="w-7 h-7 text-white" />
                 </div>
-                <p className="text-3xl font-bold text-gray-900 mb-1">{card.count}</p>
+                <p className="text-4xl font-bold text-gray-900 mb-1">{card.count}</p>
                 <p className="text-gray-600 font-medium text-sm">{card.title}</p>
               </Link>
             );

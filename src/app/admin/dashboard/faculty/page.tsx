@@ -74,7 +74,7 @@ export default function FacultyListPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Faculty Members</h1>
+        <h1 className="text-4xl font-bold text-gray-900">Faculty Members</h1>
         <div className="flex items-center gap-3">
           {/* Category Filter Dropdown */}
           <div className="flex items-center gap-2">
@@ -128,21 +128,11 @@ export default function FacultyListPage() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Photo
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Designation
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Photo</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Designation</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Category</th>
+                <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">

@@ -1,4 +1,5 @@
 import { getPrisma } from './prisma';
+import { sendAppointmentConfirmationEmail, sendAppointmentCancellationEmail } from './emailService';
 
 // Business Rules Constants
 export const APPOINTMENT_CONFIG = {
@@ -398,6 +399,22 @@ export async function bookAppointment(data: {
       return appointment;
     });
     
+    // Send confirmation email
+    try {
+      await sendAppointmentConfirmationEmail({
+        patientName: result.patientName,
+        patientEmail: result.patientEmail,
+        patientPhone: result.patientPhone,
+        doctorName: result.faculty.name,
+        appointmentDate: result.appointmentDate,
+        slotStartTime: result.slotStartTime,
+        slotEndTime: result.slotEndTime,
+      });
+    } catch (emailError) {
+      console.error('Failed to send confirmation email:', emailError);
+      // Don't fail the booking if email fails
+    }
+    
     return { success: true, appointment: result };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to book appointment';
@@ -418,6 +435,9 @@ export async function cancelAppointment(
     await prisma.$transaction(async (tx) => {
       const appointment = await tx.appointment.findUnique({
         where: { id: appointmentId },
+        include: {
+          faculty: true,
+        },
       });
       
       if (!appointment) {
@@ -461,6 +481,23 @@ export async function cancelAppointment(
           details: JSON.stringify({ reason: cancelReason }),
         },
       });
+      
+      // Send cancellation email
+      try {
+        await sendAppointmentCancellationEmail({
+          patientName: appointment.patientName,
+          patientEmail: appointment.patientEmail,
+          patientPhone: appointment.patientPhone,
+          doctorName: appointment.faculty?.name || 'Unknown Doctor',
+          appointmentDate: appointment.appointmentDate,
+          slotStartTime: appointment.slotStartTime,
+          slotEndTime: appointment.slotEndTime,
+          reason: cancelReason,
+        });
+      } catch (emailError) {
+        console.error('Failed to send cancellation email:', emailError);
+        // Don't fail the cancellation if email fails
+      }
     });
     
     return { success: true };

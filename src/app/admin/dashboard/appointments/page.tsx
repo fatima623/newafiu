@@ -335,7 +335,7 @@ export default function AppointmentsAdminPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Appointments Management</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Appointments Management</h1>
         <button
           onClick={fetchAppointments}
           className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-800 transition-colors"
@@ -422,12 +422,12 @@ export default function AppointmentsAdminPage() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">S.No</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doctor</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date & Time</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">S.No</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Patient</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Doctor</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Date & Time</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -575,7 +575,7 @@ export default function AppointmentsAdminPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className={`px-6 py-4 border-b flex items-center justify-between ${editAction === 'cancel' ? 'bg-red-50' : 'bg-blue-50'}`}>
-              <h2 className={`text-xl font-bold ${editAction === 'cancel' ? 'text-red-800' : 'text-blue-800'}`}>
+              <h2 className={`text-2xl font-bold ${editAction === 'cancel' ? 'text-red-800' : 'text-blue-800'}`}>
                 {editAction === 'cancel' ? 'Cancel Appointment' : 'Edit Appointment'}
               </h2>
               <button onClick={closeEditModal} className="text-gray-500 hover:text-gray-700">
@@ -586,7 +586,7 @@ export default function AppointmentsAdminPage() {
             <div className="p-6 space-y-4">
               {/* Current Appointment Info */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-800 mb-2">Current Appointment</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Current Appointment</h3>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-gray-500">Patient:</span>
@@ -711,7 +711,7 @@ export default function AppointmentsAdminPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b bg-gray-50 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-800">Appointment Details</h2>
+              <h2 className="text-2xl font-bold text-gray-800">Appointment Details</h2>
               <button onClick={closeViewModal} className="text-gray-500 hover:text-gray-700">
                 <X size={24} />
               </button>
@@ -821,7 +821,7 @@ export default function AppointmentsAdminPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b bg-purple-50 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-purple-800">Reply to Patient</h2>
+              <h2 className="text-2xl font-bold text-purple-800">Reply to Patient</h2>
               <button onClick={closeReplyModal} className="text-gray-500 hover:text-gray-700">
                 <X size={24} />
               </button>
@@ -830,7 +830,7 @@ export default function AppointmentsAdminPage() {
             <div className="p-6 space-y-4">
               {/* Appointment Summary */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-800 mb-2">Appointment Information</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Appointment Information</h3>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-gray-500">Patient:</span>

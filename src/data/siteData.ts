@@ -185,7 +185,7 @@ export const services: Service[] = [
     title: 'OPD (Outpatient Department)',
     description: 'Comprehensive outpatient consultations, evaluation and follow-up for urology and nephrology patients.',
     icon: 'Stethoscope',
-    image: 'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=800&h=600&fit=crop',
+    image: '/UROLOGY OPD.jpg',
     details: 'Our OPD provides scheduled and walk-in consultations, diagnostic work-up, counselling and follow-up care. Patients are seen by experienced specialists using evidence-based protocols in a patient-friendly environment.',
   },
   {
@@ -193,7 +193,7 @@ export const services: Service[] = [
     title: 'Day Care',
     description: 'Same-day procedures and treatments in a dedicated, comfortable setting.',
     icon: 'Clock',
-    image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=600&fit=crop',
+    image: '/clinic.jpg',
     details: 'The Day Care unit performs minor and selected intermediate procedures that do not require overnight admission, allowing patients to return home the same day under close monitoring and strict safety protocols.',
   },
   {
@@ -201,7 +201,7 @@ export const services: Service[] = [
     title: 'Surgeries',
     description: 'Endourological and minimally invasive surgeries for kidney stones and urinary tract conditions.',
     icon: 'Activity',
-    image: 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=800&h=600&fit=crop',
+    image: '/OT.jpg',
     details: 'Our surgical services include PCNL, URS, RIRS, TURP and other advanced procedures for stone disease, prostatic enlargement and obstructive uropathy, performed with modern imaging and laser technology.',
   },
   {
@@ -209,7 +209,7 @@ export const services: Service[] = [
     title: 'Dialysis',
     description: 'Hemodialysis services for patients with acute and chronic kidney disease.',
     icon: 'Heart',
-    image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&h=600&fit=crop',
+    image: '/dialysis.jpg',
     details: 'The Dialysis unit provides regular and emergency hemodialysis with continuous monitoring by trained nephrologists and dialysis nurses, with a strong focus on infection control and patient education.',
   },
   {
@@ -217,7 +217,7 @@ export const services: Service[] = [
     title: 'ESWL (Lithotripsy)',
     description: 'Non-invasive shock-wave treatment for kidney and ureteric stones.',
     icon: 'Wrench',
-    image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?w=800&h=600&fit=crop',
+    image: '/radio.jpg',
     details: 'Extra-corporeal shock wave lithotripsy (ESWL) is used to fragment stones without open surgery, allowing rapid recovery, shorter hospital stay and early return to routine activities.',
   },
   {
@@ -225,7 +225,7 @@ export const services: Service[] = [
     title: 'Wards',
     description: 'Modern inpatient facilities with 24/7 medical and nursing care.',
     icon: 'Building',
-    image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=600&fit=crop',
+    image: '/wards.jpg',
     details: 'Our wards provide post-operative care, medical management and pre-procedure optimization in a clean, safe and supportive environment, with round-the-clock coverage by multidisciplinary teams.',
   },
   {
@@ -233,7 +233,7 @@ export const services: Service[] = [
     title: 'Urodynamic Studies (UDS)',
     description: 'Specialized testing of bladder and lower urinary tract function.',
     icon: 'Wrench',
-    image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?w=800&h=600&fit=crop',
+    image: '/UDS.jpg',
     details: 'The Urodynamic laboratory performs uroflowmetry, cystometry, pressure-flow studies and related tests to evaluate incontinence, voiding dysfunction, neurogenic bladder and complex lower urinary tract symptoms.',
   },
   {
@@ -241,7 +241,7 @@ export const services: Service[] = [
     title: 'Radiology Department',
     description: 'Comprehensive imaging support for urological and renal conditions.',
     icon: 'Wrench',
-    image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?w=800&h=600&fit=crop',
+    image: '/radio-2.jpg',
     details: 'Radiology services include ultrasound, Doppler, X-ray, CT and other imaging modalities, providing accurate diagnosis and image-guided interventions for urological and nephrological diseases.',
   },
   {
@@ -249,7 +249,7 @@ export const services: Service[] = [
     title: 'Renal Transplant Service',
     description: 'Multidisciplinary care for patients undergoing kidney transplantation.',
     icon: 'Wrench',
-    image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?w=800&h=600&fit=crop',
+    image: '/conference1.jpg',
     details: 'The transplant team offers comprehensive care including pre-transplant evaluation, donor assessment, transplant surgery and long-term follow-up for recipients with end-stage renal disease.',
   },
   {
@@ -257,7 +257,7 @@ export const services: Service[] = [
     title: 'Emergency',
     description: 'Urgent urological evaluation and support for acute presentations.',
     icon: 'Wrench',
-    image: 'https://images.unsplash.com/photo-1580281657527-47f249e8f7b5?w=800&h=600&fit=crop',
+    image: '/waiting area.jpg',
     details: 'Emergency services provide timely assessment and initial management for acute urological conditions, with appropriate coordination for investigations, procedures and admission when required.',
   },
 ];

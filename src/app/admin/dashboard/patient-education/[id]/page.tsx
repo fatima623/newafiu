@@ -95,7 +95,7 @@ export default function EditPatientEducationPage() {
         >
           <ArrowLeft size={24} />
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Edit Patient Education</h1>
+        <h1 className="text-4xl font-bold text-gray-900">Edit Patient Education</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 w-full">
