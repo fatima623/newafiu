@@ -124,67 +124,39 @@ export default function FacultyListPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px]">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-16">Photo</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[150px]">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[200px]">Designation</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[120px]">Category</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[250px]">Qualifications</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider w-24">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <img
-                        src={item.image || '/person.png'}
-                        alt={item.name}
-                        className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                      />
-                    </td>
-                    <td className="px-4 py-3 font-medium text-gray-900 text-sm">{item.name}</td>
-                    <td className="px-4 py-3 text-gray-600 text-sm" title={item.designation}>
-                      <div className="max-w-xs truncate">{item.designation}</div>
-                    </td>
-                    <td className="px-4 py-3">
-                      {item.specializationCategory ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 whitespace-nowrap">
-                          {getCategoryLabel(item.specializationCategory)}
-                        </span>
-                      ) : (
-                        <span className="text-gray-400 text-xs">-</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600 text-sm" title={item.qualifications}>
-                      <div className="max-w-sm truncate">{item.qualifications}</div>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex justify-end gap-1">
-                        <Link
-                          href={`/admin/dashboard/faculty/${item.id}`}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded"
-                          title="Edit"
-                        >
-                          <Edit size={16} />
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded"
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="grid grid-cols-2 gap-4">
+            {filteredItems.map((item) => (
+              <div key={item.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <div className="flex items-start gap-3">
+                  <img
+                    src={item.image || '/person.png'}
+                    alt={item.name}
+                    className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 text-sm truncate">{item.name}</h3>
+                    <p className="text-gray-600 text-xs truncate" title={getCategoryLabel(item.specializationCategory)}>{getCategoryLabel(item.specializationCategory)}</p>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-1 mt-3">
+                  <Link
+                    href={`/admin/dashboard/faculty/${item.id}`}
+                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded"
+                    title="Edit"
+                  >
+                    <Edit size={14} />
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="p-1.5 text-red-600 hover:bg-red-50 rounded"
+                    title="Delete"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
