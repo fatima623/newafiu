@@ -141,7 +141,7 @@ export default function EditFacultyPage() {
         <div className="space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-              Name *
+              Name <span className="text-red-500">*</span>
             </label>
             <input
               id="name"
@@ -156,7 +156,7 @@ export default function EditFacultyPage() {
 
           <div>
             <label htmlFor="designation" className="block text-sm font-medium text-gray-700 mb-2">
-              Designation *
+              Designation <span className="text-red-500">*</span>
             </label>
             <input
               id="designation"

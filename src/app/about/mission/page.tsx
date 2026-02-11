@@ -109,7 +109,17 @@ To promote health, healing and hope by offering comprehensive medical, surgical 
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-950 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-gray-600">Complying with requirements of the ISO 9001:2015 for Quality Managemet System</p>
+                    <p className="text-gray-600">
+                    Complying with requirements of the{' '}
+                    <a 
+                      href="https://www.iso.org/standard/62085.html" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                    >
+                      ISO 9001:2015 for Quality Management System
+                    </a>
+                  </p>
                   </div>
                 </li>
               </ul>

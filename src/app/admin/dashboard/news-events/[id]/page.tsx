@@ -126,7 +126,7 @@ export default function EditNewsEventPage() {
         <div className="space-y-6">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Title *
+              Title <span className="text-red-500">*</span>
             </label>
             <textarea
               id="title"
@@ -140,7 +140,7 @@ export default function EditNewsEventPage() {
 
           <div>
             <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
-              Date *
+              Date <span className="text-red-500">*</span>
             </label>
             <input
               id="date"

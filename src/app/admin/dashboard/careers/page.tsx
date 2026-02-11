@@ -138,7 +138,14 @@ export default function CareersAdminPage() {
   const fetchJobs = async () => {
     try {
       const data = await fetchJson('/api/careers-jobs?all=1');
-      setJobs(Array.isArray(data) ? (data as CareersJob[]) : []);
+      const allJobs = Array.isArray(data) ? (data as CareersJob[]) : [];
+      // Filter to only show jobs with expiry dates and that haven't expired yet
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const filteredJobs = allJobs.filter(job => 
+        job.expiresAt && new Date(job.expiresAt) >= today
+      );
+      setJobs(filteredJobs);
     } catch (err) {
       console.error('Error fetching careers jobs:', err);
     } finally {
@@ -151,8 +158,8 @@ export default function CareersAdminPage() {
     setFormsError('');
     setFormsSuccess('');
 
-    if (!newCode.trim() || !newTitle.trim()) {
-      setFormsError('Code and title are required');
+    if (!newTitle.trim()) {
+      setFormsError('Title is required');
       return;
     }
 
@@ -164,7 +171,6 @@ export default function CareersAdminPage() {
     setSaving(true);
     try {
       const formData = new FormData();
-      formData.append('code', newCode.trim());
       formData.append('title', newTitle.trim());
       if (newSortOrder.trim()) {
         formData.append('sortOrder', newSortOrder.trim());
@@ -177,7 +183,6 @@ export default function CareersAdminPage() {
       });
 
       setItems((prev) => [created, ...prev]);
-      setNewCode('');
       setNewTitle('');
       setNewSortOrder('');
       setNewFile(null);
@@ -265,8 +270,8 @@ export default function CareersAdminPage() {
     setJobsError('');
     setJobsSuccess('');
 
-    if (!newJobCode.trim() || !newJobTitle.trim() || !newJobDepartment.trim() || !newJobType.trim()) {
-      setJobsError('Code, title, department, and type are required');
+    if (!newJobTitle.trim() || !newJobDepartment.trim() || !newJobType.trim()) {
+      setJobsError('Title, department, and type are required');
       return;
     }
 
@@ -276,7 +281,6 @@ export default function CareersAdminPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          code: newJobCode.trim(),
           title: newJobTitle.trim(),
           department: newJobDepartment.trim(),
           type: newJobType.trim(),
@@ -293,7 +297,6 @@ export default function CareersAdminPage() {
       });
 
       setJobs((prev) => [created, ...prev]);
-      setNewJobCode('');
       setNewJobTitle('');
       setNewJobDepartment('');
       setNewJobType('');
@@ -316,7 +319,6 @@ export default function CareersAdminPage() {
 
   const startEditJob = (job: CareersJob) => {
     setEditingJobId(job.id);
-    setEditJobCode(job.code);
     setEditJobTitle(job.title);
     setEditJobDepartment(job.department);
     setEditJobType(job.type);
@@ -337,7 +339,6 @@ export default function CareersAdminPage() {
 
   const cancelEditJob = () => {
     setEditingJobId(null);
-    setEditJobCode('');
     setEditJobTitle('');
     setEditJobDepartment('');
     setEditJobType('');
@@ -360,8 +361,8 @@ export default function CareersAdminPage() {
 
     if (!editingJobId) return;
 
-    if (!editJobCode.trim() || !editJobTitle.trim() || !editJobDepartment.trim() || !editJobType.trim()) {
-      setJobsError('Code, title, department, and type are required');
+    if (!editJobTitle.trim() || !editJobDepartment.trim() || !editJobType.trim()) {
+      setJobsError('Title, department, and type are required');
       return;
     }
 
@@ -371,7 +372,6 @@ export default function CareersAdminPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          code: editJobCode.trim(),
           title: editJobTitle.trim(),
           department: editJobDepartment.trim(),
           type: editJobType.trim(),
@@ -390,7 +390,6 @@ export default function CareersAdminPage() {
       setJobs((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
       setJobsSuccess('Job updated successfully');
       setEditingJobId(null);
-      setEditJobCode('');
       setEditJobTitle('');
       setEditJobDepartment('');
       setEditJobType('');
@@ -477,7 +476,6 @@ export default function CareersAdminPage() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Code</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Title</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Department</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Type</th>
@@ -489,7 +487,6 @@ export default function CareersAdminPage() {
             <tbody className="divide-y divide-gray-200">
               {jobs.map((job) => (
                 <tr key={job.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-gray-900">{job.code}</td>
                   <td className="px-6 py-4 text-gray-900">{job.title}</td>
                   <td className="px-6 py-4 text-gray-700">{job.department}</td>
                   <td className="px-6 py-4 text-gray-700">{job.type}</td>
@@ -534,16 +531,6 @@ export default function CareersAdminPage() {
           </div>
 
           <form onSubmit={handleCreateJob} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Job Code</label>
-              <input
-                value={newJobCode}
-                onChange={(e) => setNewJobCode(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
-                placeholder="e.g. consultant_urologist"
-              />
-            </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
               <input
@@ -690,15 +677,6 @@ export default function CareersAdminPage() {
           </div>
 
           <form onSubmit={handleUpdateJob} className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Job Code</label>
-                <input
-                  value={editJobCode}
-                  onChange={(e) => setEditJobCode(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
-                />
-              </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
                 <input
@@ -860,7 +838,6 @@ export default function CareersAdminPage() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Code</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Title</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">File</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Order</th>
@@ -870,7 +847,6 @@ export default function CareersAdminPage() {
               <tbody className="divide-y divide-gray-200">
                 {items.map((item) => (
                   <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-gray-900">{item.code}</td>
                     <td className="px-6 py-4 text-gray-900">{item.title}</td>
                     <td className="px-6 py-4">
                       <a href={item.fileUrl} download className="text-blue-600 hover:underline">
@@ -916,22 +892,12 @@ export default function CareersAdminPage() {
 
             <form onSubmit={handleCreate} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Form Code</label>
-                <input
-                  value={newCode}
-                  onChange={(e) => setNewCode(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
-                  placeholder="e.g. job_application"
-                />
-              </div>
-
-              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
                 <input
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
-                  placeholder="e.g. AFIU Job Application Forms"
+                  placeholder="e.g. Job Application Form"
                 />
               </div>
 
@@ -982,15 +948,6 @@ export default function CareersAdminPage() {
             </div>
 
             <form onSubmit={handleUpdate} className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Form Code</label>
-                <input
-                  value={editCode}
-                  onChange={(e) => setEditCode(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-950 focus:border-transparent"
-                />
-              </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
                 <input

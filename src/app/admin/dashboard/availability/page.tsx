@@ -697,7 +697,7 @@ export default function AvailabilityAdminPage() {
               <div>
                 <label className="block text-gray-700 font-medium mb-2">
                   <User size={18} className="inline mr-2" />
-                  Select Doctor *
+                  Select Doctor <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={selectedDoctor}
@@ -719,7 +719,7 @@ export default function AvailabilityAdminPage() {
               <div>
                 <label className="block text-gray-700 font-medium mb-2">
                   <Calendar size={18} className="inline mr-2" />
-                  Select Date(s) *
+                  Select Date(s) <span className="text-red-500">*</span>
                 </label>
                 <div className="flex gap-2 mb-2">
                   <input
@@ -865,7 +865,7 @@ export default function AvailabilityAdminPage() {
 
                   {/* Reason */}
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">Reason for unavailability (shown to patients) *</label>
+                    <label className="block text-gray-700 font-medium mb-2">Reason for unavailability (shown to patients) <span className="text-red-500">*</span></label>
                     <textarea
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
@@ -919,7 +919,7 @@ export default function AvailabilityAdminPage() {
               <div>
                 <label className="block text-gray-700 font-medium mb-2">
                   <Calendar size={18} className="inline mr-2" />
-                  Holiday Date *
+                  Holiday Date <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
@@ -933,7 +933,7 @@ export default function AvailabilityAdminPage() {
 
               {/* Holiday Name */}
               <div>
-                <label className="block text-gray-700 font-medium mb-2">Holiday Name *</label>
+                <label className="block text-gray-700 font-medium mb-2">Holiday Name <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   value={holidayName}

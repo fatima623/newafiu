@@ -155,7 +155,7 @@ export default function EditSuccessStoryPage({ params }: { params: Promise<{ id:
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6 max-w-2xl">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Title <span className="text-red-500">*</span></label>
           <input
             type="text"
             value={title}
@@ -166,7 +166,7 @@ export default function EditSuccessStoryPage({ params }: { params: Promise<{ id:
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Patient Name *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Patient Name <span className="text-red-500">*</span></label>
           <input
             type="text"
             value={patientName}
@@ -177,18 +177,18 @@ export default function EditSuccessStoryPage({ params }: { params: Promise<{ id:
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Story *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Story <span className="text-red-500">*</span></label>
           <textarea
             value={story}
             onChange={(e) => setStory(e.target.value)}
             required
-            rows={6}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+            rows={8}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-lg"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Date <span className="text-red-500">*</span></label>
           <input
             type="date"
             value={date}

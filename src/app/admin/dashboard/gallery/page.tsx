@@ -474,8 +474,8 @@ export default function GalleryListPage() {
                           </div>
                         </div>
                         <div className="p-2">
-                          <div className="text-sm font-medium text-gray-900 truncate" title={p.title || ''}>
-                            {p.title || 'Untitled'}
+                          <div className="text-sm font-medium text-gray-900 truncate" title={p.title || p.originalName}>
+                            {p.title || p.originalName}
                           </div>
                           <div className="text-xs text-gray-600 truncate" title={p.originalName}>
                             {p.originalName}

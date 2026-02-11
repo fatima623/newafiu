@@ -108,7 +108,7 @@ export default function EditPatientEducationPage() {
         <div className="space-y-6">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Title *
+              Title <span className="text-red-500">*</span>
             </label>
             <input
               id="title"

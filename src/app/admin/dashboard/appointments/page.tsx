@@ -655,7 +655,7 @@ export default function AppointmentsAdminPage() {
               {/* Reason Field (required for both) */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Reason for {editAction === 'cancel' ? 'Cancellation' : 'Update'} *
+                  Reason for {editAction === 'cancel' ? 'Cancellation' : 'Update'} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={editReason}
@@ -865,7 +865,7 @@ export default function AppointmentsAdminPage() {
 
               {/* Subject Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Subject *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Subject <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   value={replySubject}
@@ -877,7 +877,7 @@ export default function AppointmentsAdminPage() {
 
               {/* Message Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Message *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Message <span className="text-red-500">*</span></label>
                 <textarea
                   value={replyMessage}
                   onChange={(e) => setReplyMessage(e.target.value)}

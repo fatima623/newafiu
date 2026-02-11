@@ -125,57 +125,67 @@ export default function FacultyListPage() {
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Photo</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Designation</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredItems.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <img
-                      src={item.image || '/person.png'}
-                      alt={item.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                  </td>
-                  <td className="px-6 py-4 font-medium text-gray-900">{item.name}</td>
-                  <td className="px-6 py-4 text-gray-500">{item.designation}</td>
-                  <td className="px-6 py-4">
-                    {item.specializationCategory ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {getCategoryLabel(item.specializationCategory)}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Link
-                        href={`/admin/dashboard/faculty/${item.id}`}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded"
-                      >
-                        <Edit size={18} />
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[800px]">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-16">Photo</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[150px]">Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[200px]">Designation</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[120px]">Category</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[250px]">Qualifications</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider w-24">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredItems.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3">
+                      <img
+                        src={item.image || '/person.png'}
+                        alt={item.name}
+                        className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                      />
+                    </td>
+                    <td className="px-4 py-3 font-medium text-gray-900 text-sm">{item.name}</td>
+                    <td className="px-4 py-3 text-gray-600 text-sm" title={item.designation}>
+                      <div className="max-w-xs truncate">{item.designation}</div>
+                    </td>
+                    <td className="px-4 py-3">
+                      {item.specializationCategory ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 whitespace-nowrap">
+                          {getCategoryLabel(item.specializationCategory)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">-</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600 text-sm" title={item.qualifications}>
+                      <div className="max-w-sm truncate">{item.qualifications}</div>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-1">
+                        <Link
+                          href={`/admin/dashboard/faculty/${item.id}`}
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded"
+                          title="Edit"
+                        >
+                          <Edit size={16} />
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded"
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
