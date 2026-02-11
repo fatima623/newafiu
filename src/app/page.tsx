@@ -4,8 +4,8 @@ import HeroSlider from '@/components/ui/HeroSlider';
 import ServiceCard from '@/components/ui/ServiceCard';
 import FacultyCard from '@/components/ui/FacultyCard';
 import NewsCard from '@/components/ui/NewsCard';
-import AnimatedStatsSection from '@/components/ui/AnimatedStatsSection';
-import { heroSlides, services, faculty, newsEvents, statistics, commandant } from '@/data/siteData';
+import DynamicStatsSection from '@/components/ui/DynamicStatsSection';
+import { heroSlides, services, faculty, newsEvents, commandant } from '@/data/siteData';
 
 export default function Home() {
   return (
@@ -81,7 +81,7 @@ export default function Home() {
       </section>
 
       {/* Statistics Section */}
-      <AnimatedStatsSection stats={statistics} />
+      <DynamicStatsSection />
 
       {/* Services Section */}
       <section className="py-16 bg-white">

@@ -25,6 +25,7 @@ export default function FacultyPage() {
   const [faculty, setFaculty] = useState<Faculty[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     async function fetchFaculty() {
@@ -43,9 +44,14 @@ export default function FacultyPage() {
     fetchFaculty();
   }, []);
 
-  const filteredFaculty = selectedCategory
-    ? faculty.filter(member => member.specializationCategory === selectedCategory)
-    : faculty;
+  const filteredFaculty = faculty.filter(member => {
+    const matchesCategory = !selectedCategory || member.specializationCategory === selectedCategory;
+    const matchesSearch = !searchQuery.trim() || 
+      member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.qualifications.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div>
@@ -72,8 +78,15 @@ export default function FacultyPage() {
               </p>
             </div>
 
-            {/* Category Filter Dropdown */}
-            <div className="flex justify-center mb-8">
+            {/* Search and Category Filter */}
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by name..."
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 w-full sm:w-[300px]"
+              />
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
@@ -94,11 +107,11 @@ export default function FacultyPage() {
             ) : filteredFaculty.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-gray-500 text-lg">
-                  {selectedCategory ? 'No faculty members found for this category.' : 'No faculty members available at the moment.'}
+                  {selectedCategory || searchQuery ? 'No faculty members found matching your criteria.' : 'No faculty members available at the moment.'}
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 auto-rows-fr">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
                 {filteredFaculty.map((member) => (
                   <FacultyCard
                     key={member.id}
