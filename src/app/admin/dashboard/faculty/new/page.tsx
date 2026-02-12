@@ -94,7 +94,7 @@ export default function NewFacultyPage() {
           </div>
         )}
 
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
               Name <span className="text-red-500">*</span>
@@ -159,7 +159,7 @@ export default function NewFacultyPage() {
             <p className="text-xs text-gray-500 mt-1">Select the primary specialization category for this faculty member</p>
           </div>
 
-          <div>
+          <div className="md:col-span-2">
             <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
               Biography
             </label>
@@ -173,60 +173,62 @@ export default function NewFacultyPage() {
             />
           </div>
 
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Photo
             </label>
-            {image ? (
-              <div className="relative inline-block">
-                <img
-                  src={image}
-                  alt="Faculty"
-                  className="w-32 h-32 object-cover rounded-full"
-                />
-                <button
-                  type="button"
-                  onClick={() => setImage('')}
-                  className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full text-xs"
-                >
-                  ✕
-                </button>
-              </div>
-            ) : (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  id="image-upload"
-                  disabled={uploading}
-                />
-                <label htmlFor="image-upload" className="cursor-pointer flex flex-col items-center">
-                  <Upload className="w-12 h-12 text-gray-400 mb-2" />
-                  <span className="text-gray-600">
-                    {uploading ? 'Uploading...' : 'Click to upload photo'}
-                  </span>
-                </label>
-              </div>
-            )}
+            <div className="flex items-start gap-6">
+              {image ? (
+                <div className="relative inline-block">
+                  <img
+                    src={image}
+                    alt="Faculty"
+                    className="w-32 h-32 object-cover rounded-full"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setImage('')}
+                    className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="image-upload"
+                    disabled={uploading}
+                  />
+                  <label htmlFor="image-upload" className="cursor-pointer flex flex-col items-center">
+                    <Upload className="w-12 h-12 text-gray-400 mb-2" />
+                    <span className="text-gray-600">
+                      {uploading ? 'Uploading...' : 'Click to upload photo'}
+                    </span>
+                  </label>
+                </div>
+              )}
+            </div>
           </div>
+        </div>
 
-          <div className="flex gap-4 pt-4">
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex-1 bg-blue-950 text-white py-2 px-4 rounded-lg hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? 'Saving...' : 'Save Faculty Member'}
-            </button>
-            <Link
-              href="/admin/dashboard/faculty"
-              className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-center"
-            >
-              Cancel
-            </Link>
-          </div>
+        <div className="flex gap-4 pt-4">
+          <button
+            type="submit"
+            disabled={saving}
+            className="flex-1 bg-blue-950 text-white py-2 px-4 rounded-lg hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? 'Saving...' : 'Save Faculty Member'}
+          </button>
+          <Link
+            href="/admin/dashboard/faculty"
+            className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-center"
+          >
+            Cancel
+          </Link>
         </div>
       </form>
     </div>
