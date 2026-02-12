@@ -36,13 +36,25 @@ export default function Footer() {
                 <span className="text-gray-400">Location</span>
             </li>
             <div>
-              <iframe
-                title="AFIU Location Map"
-                src="https://www.google.com/maps?q=Armed+Forces+Institute+of+Urology,+Rawalpindi,+Pakistan&output=embed"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="w-full h-32 rounded-lg shadow-sm border-0"
-              />
+              <div className="relative w-full rounded-lg overflow-hidden border border-gray-700">
+                <iframe
+                  src="https://maps.google.com/maps?layer=c&cbll=33.581419,73.046959&cbp=11,0,0,0,0&output=svembed"
+                  width="100%"
+                  height="128"
+                  style={{ border: 0 }}
+                  className="block"
+                />
+                <a 
+                  href="https://www.google.com/maps/search/33.581419,+73.046959"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 flex justify-center"
+                >
+                  <span className="px-3 py-1 bg-blue-600 text-white rounded text-xs">
+                    View Map
+                  </span>
+                </a>
+              </div>
             </div>
           </div>
 

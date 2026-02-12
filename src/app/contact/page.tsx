@@ -196,15 +196,33 @@ export default function ContactPage() {
               </div>
 
               {/* Map */}
-              <div className="mt-8 rounded-lg overflow-hidden shadow-lg">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3321.5!2d73.0479!3d33.5651!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzPCsDMzJzU0LjQiTiA3M8KwMDInNTIuNCJF!5e0!3m2!1sen!2s!4v1234567890"
-                  width="100%"
-                  height="300"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                ></iframe>
+              <div className="mt-8 rounded-lg overflow-hidden shadow-lg border border-gray-200">
+                <div className="relative">
+                  <iframe
+                    src="https://maps.google.com/maps?layer=c&cbll=33.581419,73.046959&cbp=11,0,0,0,0&output=svembed"
+                    width="100%"
+                    height="300"
+                    style={{ border: 0 }}
+                    className="block"
+                  />
+                  <a 
+                    href="https://www.google.com/maps/search/33.581419,+73.046959"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 flex justify-center"
+                  >
+                    <span className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium flex items-center gap-2">
+                      <MapPin size={18} />
+                      View on Google Maps
+                    </span>
+                  </a>
+                </div>
+                <div className="bg-gray-50 p-4 border-t border-gray-200">
+                  <p className="text-sm text-gray-600 text-center">
+                    <strong>Armed Forces Institute of Urology</strong><br />
+                    CMH Rd, Rawalpindi, 46000, Pakistan
+                  </p>
+                </div>
               </div>
             </div>
 

@@ -139,12 +139,15 @@ export default function CareersAdminPage() {
     try {
       const data = await fetchJson('/api/careers-jobs?all=1');
       const allJobs = Array.isArray(data) ? (data as CareersJob[]) : [];
-      // Filter to only show jobs with expiry dates and that haven't expired yet
+      // Hide only jobs that are actually expired. Jobs without an expiry date should still be shown.
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const filteredJobs = allJobs.filter(job => 
-        job.expiresAt && new Date(job.expiresAt) >= today
-      );
+      const filteredJobs = allJobs.filter((job) => {
+        if (!job.expiresAt) return true;
+        const t = Date.parse(job.expiresAt);
+        if (!Number.isFinite(t)) return true;
+        return new Date(t) >= today;
+      });
       setJobs(filteredJobs);
     } catch (err) {
       console.error('Error fetching careers jobs:', err);
