@@ -335,27 +335,55 @@ export default function AvailabilityAdminPage() {
     setMessage(null);
 
     try {
-      const res = await fetch('/api/appointments/availability', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          doctorId: selectedDoctor,
-          dates: selectedDates,
-          isAvailable,
-          reason: !isAvailable ? reason : undefined,
-          unavailabilityType: !isAvailable ? unavailabilityType : undefined,
-          blockedSlots: !isAvailable && unavailabilityType === 'SPECIFIC_SLOTS' ? blockedSlots : undefined,
-        }),
-      });
+      // If editing, use PUT to update the existing record by ID
+      if (editingRecord) {
+        const res = await fetch('/api/appointments/availability', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingRecord.id,
+            doctorId: selectedDoctor,
+            date: selectedDates[0], // Single date when editing
+            isAvailable,
+            reason: !isAvailable ? reason : undefined,
+            unavailabilityType: !isAvailable ? unavailabilityType : undefined,
+            blockedSlots: !isAvailable && unavailabilityType === 'SPECIFIC_SLOTS' ? blockedSlots : undefined,
+          }),
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (res.ok && data.success) {
-        setMessage({ type: 'success', text: data.message });
-        resetForm();
-        fetchUnavailableRecords();
+        if (res.ok && data.success) {
+          setMessage({ type: 'success', text: data.message });
+          resetForm();
+          fetchUnavailableRecords();
+        } else {
+          setMessage({ type: 'error', text: data.error || 'Failed to update availability' });
+        }
       } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to update availability' });
+        // Creating new records - use POST
+        const res = await fetch('/api/appointments/availability', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            doctorId: selectedDoctor,
+            dates: selectedDates,
+            isAvailable,
+            reason: !isAvailable ? reason : undefined,
+            unavailabilityType: !isAvailable ? unavailabilityType : undefined,
+            blockedSlots: !isAvailable && unavailabilityType === 'SPECIFIC_SLOTS' ? blockedSlots : undefined,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          setMessage({ type: 'success', text: data.message });
+          resetForm();
+          fetchUnavailableRecords();
+        } else {
+          setMessage({ type: 'error', text: data.error || 'Failed to update availability' });
+        }
       }
     } catch {
       setMessage({ type: 'error', text: 'Network error. Please try again.' });
@@ -728,12 +756,11 @@ export default function AvailabilityAdminPage() {
                     min={getMinDate()}
                     onChange={(e) => setCurrentDateInput(e.target.value)}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950"
-                    disabled={!!editingRecord}
                   />
                   <button
                     type="button"
                     onClick={addDate}
-                    disabled={!currentDateInput || !!editingRecord}
+                    disabled={!currentDateInput}
                     className="px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Plus size={18} />
@@ -748,21 +775,22 @@ export default function AvailabilityAdminPage() {
                         className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
                       >
                         {formatDate(date)}
-                        {!editingRecord && (
-                          <button
-                            type="button"
-                            onClick={() => removeDate(date)}
-                            className="hover:text-blue-950"
-                          >
-                            <X size={14} />
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeDate(date)}
+                          className="hover:text-blue-950"
+                        >
+                          <X size={14} />
+                        </button>
                       </span>
                     ))}
                   </div>
                 )}
                 {selectedDates.length === 0 && (
                   <p className="text-sm text-gray-500 mt-1">Add one or more dates</p>
+                )}
+                {editingRecord && (
+                  <p className="text-xs text-orange-600 mt-2">Note: Changing the date will update the existing record.</p>
                 )}
               </div>
 

@@ -163,6 +163,109 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// PUT - Update an existing availability record by ID
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const prisma = getPrisma();
+    const body = await request.json();
+    const { 
+      id, // Record ID to update
+      doctorId, 
+      date, // Single date string
+      isAvailable, 
+      reason, 
+      overrideType,
+      unavailabilityType,
+      blockedSlots,
+    } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Record ID is required for update' },
+        { status: 400 }
+      );
+    }
+
+    if (!doctorId || !date) {
+      return NextResponse.json(
+        { error: 'doctorId and date are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate date format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(date)) {
+      return NextResponse.json(
+        { error: `Invalid date format: ${date}. Use YYYY-MM-DD` },
+        { status: 400 }
+      );
+    }
+
+    const parsedDate = new Date(date);
+
+    // Check if the record exists
+    const existingRecord = await prisma.doctorAvailability.findUnique({
+      where: { id: parseInt(id, 10) },
+    });
+
+    if (!existingRecord) {
+      return NextResponse.json(
+        { error: 'Record not found' },
+        { status: 404 }
+      );
+    }
+
+    // Check if changing to a date that already has a record (for the same doctor)
+    if (existingRecord.date.toISOString().split('T')[0] !== date) {
+      const conflictingRecord = await prisma.doctorAvailability.findFirst({
+        where: {
+          facultyId: parseInt(doctorId, 10),
+          date: parsedDate,
+          id: { not: parseInt(id, 10) },
+        },
+      });
+
+      if (conflictingRecord) {
+        return NextResponse.json(
+          { error: 'A record already exists for this doctor on the selected date. Please delete it first or choose a different date.' },
+          { status: 409 }
+        );
+      }
+    }
+
+    // Update the record
+    await prisma.doctorAvailability.update({
+      where: { id: parseInt(id, 10) },
+      data: {
+        facultyId: parseInt(doctorId, 10),
+        date: parsedDate,
+        isAvailable,
+        reason: reason || null,
+        overrideType: overrideType || null,
+        unavailabilityType: unavailabilityType || 'FULL_DAY',
+        blockedSlots: blockedSlots ? JSON.stringify(blockedSlots) : null,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Availability record updated successfully',
+    });
+  } catch (error) {
+    console.error('Error updating availability record:', error);
+    return NextResponse.json(
+      { error: 'Failed to update availability record' },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE - Remove an availability record
 export async function DELETE(request: NextRequest) {
   try {
